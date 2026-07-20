@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Careers</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 4rem 0">
+      <div class="container" style="max-width: 48rem">
+        <h1 class="text-4xl font-black mb-6">Join Our Team</h1>
+        <p class="text-lg mb-8" style="color: var(--on-surface-variant)">Help us shape the future of education. We're looking for passionate people who want to make a real impact on how the world learns.</p>
+        <div id="careers-list" class="space-y-4">
+          <div class="p-8 text-center" style="color: var(--on-surface-variant)">Loading positions...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/career.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    document.addEventListener('components-loaded', async () => {
+      const el = document.getElementById('careers-list');
+      try {
+        const { data: careers } = await CareerAPI.list();
+        if (!careers || !careers.length) {
+          el.innerHTML = '<div class="p-8 text-center" style="color: var(--on-surface-variant)">No open positions right now. Check back later!</div>';
+          return;
+        }
+        el.innerHTML = careers.map(c => {
+          const loc = c.location || 'Remote';
+          const badge = c.type === 'full-time' ? 'var(--primary)' : c.type === 'part-time' ? 'var(--tertiary)' : 'var(--secondary)';
+          return `<div class="p-6 rounded-2xl border" style="background: #fff; border-color: var(--outline-variant)">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem">
+              <div>
+                <h3 class="font-bold text-lg mb-1">${c.title}</h3>
+                <p class="text-sm" style="color: var(--on-surface-variant)">${loc} &middot; <span style="color: ${badge}; font-weight: 600">${c.type}</span></p>
+                <p class="text-sm mt-3" style="color: var(--on-surface-variant)">${c.description}</p>
+              </div>
+              <a href="/contact" class="btn" style="flex-shrink: 0">Apply</a>
+            </div>
+          </div>`;
+        }).join('');
+      } catch {
+        el.innerHTML = '<div class="p-8 text-center" style="color: var(--error)">Failed to load career positions.</div>';
+      }
+    });
+  </script>
+</body>
+</html>

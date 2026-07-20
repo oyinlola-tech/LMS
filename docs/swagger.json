@@ -1,0 +1,6136 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "undefined API",
+    "version": "1.0.0",
+    "description": "Backend API for the undefined learning platform."
+  },
+  "servers": [
+    {}
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Use format: `Authorization: Bearer <token>`"
+      }
+    },
+    "examples": {
+      "BearerToken": {
+        "summary": "Authorization header example",
+        "value": {
+          "Authorization": "Bearer <your_jwt_here>"
+        }
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "VALIDATION_ERROR"
+              },
+              "message": {
+                "type": "string",
+                "example": "All fields are required"
+              },
+              "details": {
+                "type": "object",
+                "nullable": true
+              }
+            }
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "OK"
+          },
+          "data": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": [
+          "fullName",
+          "email",
+          "password",
+          "confirmPassword"
+        ],
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "Jane Doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "jane@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "StrongPass123!"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "example": "StrongPass123!"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "jane@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "StrongPass123!"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Login successful"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "OtpVerifyRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "code"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "jane@example.com"
+          },
+          "code": {
+            "type": "string",
+            "example": "123456"
+          }
+        }
+      },
+      "ResendOtpRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "jane@example.com"
+          }
+        }
+      },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "jane@example.com"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "required": [
+          "token",
+          "password",
+          "confirmPassword"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "a1b2c3d4"
+          },
+          "password": {
+            "type": "string",
+            "example": "NewStrongPass123!"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "example": "NewStrongPass123!"
+          }
+        }
+      },
+      "ProfileUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "bio": {
+            "type": "string",
+            "example": "I love product design."
+          },
+          "skills": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "UX",
+                  "Figma"
+                ]
+              },
+              {
+                "type": "string",
+                "example": "UX, Figma, Research"
+              }
+            ]
+          },
+          "avatarUrl": {
+            "type": "string",
+            "example": "https://cdn.example.com/avatar.png"
+          }
+        }
+      },
+      "InterestsUpdateRequest": {
+        "type": "object",
+        "required": [
+          "interests"
+        ],
+        "properties": {
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "frontend",
+              "ui design"
+            ]
+          }
+        }
+      },
+      "WeeklyGoalRequest": {
+        "type": "object",
+        "required": [
+          "weeklyGoalHours"
+        ],
+        "properties": {
+          "weeklyGoalHours": {
+            "type": "number",
+            "example": 10
+          },
+          "weeklyGoalProgressHours": {
+            "type": "number",
+            "example": 7.5
+          }
+        }
+      },
+      "LessonCompleteRequest": {
+        "type": "object",
+        "properties": {}
+      },
+      "AssignmentSubmitRequest": {
+        "type": "object",
+        "required": [
+          "fileUrl"
+        ],
+        "properties": {
+          "fileUrl": {
+            "type": "string",
+            "example": "https://cdn.example.com/submission.zip"
+          },
+          "fileType": {
+            "type": "string",
+            "example": "zip"
+          },
+          "fileSizeMb": {
+            "type": "number",
+            "example": 20
+          },
+          "submissionNotes": {
+            "type": "string",
+            "example": "Submitting final files"
+          }
+        }
+      },
+      "AssignmentGradeRequest": {
+        "type": "object",
+        "required": [
+          "submissionId",
+          "status"
+        ],
+        "properties": {
+          "submissionId": {
+            "type": "string",
+            "example": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "example": "graded"
+          },
+          "feedback": {
+            "type": "string",
+            "example": "Great work. Improve spacing."
+          },
+          "score": {
+            "type": "number",
+            "example": 88
+          },
+          "rubric": {
+            "type": "string",
+            "example": "meets"
+          }
+        }
+      },
+      "CreateTutorRequest": {
+        "type": "object",
+        "required": [
+          "fullName",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "John Tutor"
+          },
+          "email": {
+            "type": "string",
+            "example": "tutor@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "TutorStrongPass123!"
+          }
+        }
+      },
+      "ProgressUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "progressPercent": {
+            "type": "number",
+            "example": 60
+          },
+          "lastLessonId": {
+            "type": "string",
+            "example": "uuid"
+          },
+          "lastPositionSeconds": {
+            "type": "number",
+            "example": 120
+          },
+          "hoursSpent": {
+            "type": "number",
+            "example": 3.5
+          }
+        }
+      },
+      "AnnouncementCreateRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "body"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "New assignment"
+          },
+          "body": {
+            "type": "string",
+            "example": "Please submit your project by Friday."
+          }
+        }
+      },
+      "EventCreateRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "startsAt"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Live Q&A"
+          },
+          "description": {
+            "type": "string",
+            "example": "Weekly live session"
+          },
+          "startsAt": {
+            "type": "string",
+            "example": "2026-04-10T15:00:00Z"
+          },
+          "endsAt": {
+            "type": "string",
+            "example": "2026-04-10T16:00:00Z"
+          },
+          "meetingUrl": {
+            "type": "string",
+            "example": "https://meet.example.com/room"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "summary": "Register learner",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registered",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Registered. Please verify your email with the OTP.",
+                  "data": {
+                    "userId": "uuid"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "409": {
+            "description": "Email already in use"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          },
+          "403": {
+            "description": "Email not verified"
+          }
+        }
+      }
+    },
+    "/auth/verify-otp": {
+      "post": {
+        "summary": "Verify email OTP",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpVerifyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verified",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Email verified",
+                  "data": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "OTP invalid/expired"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    },
+    "/auth/resend-otp": {
+      "post": {
+        "summary": "Resend verification OTP",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP resent",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "OTP resent",
+                  "data": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Already verified or invalid request"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "429": {
+            "description": "Too many requests"
+          }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "summary": "Request password reset",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Always returns OK to avoid email enumeration",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "If the email exists, you will receive a reset link",
+                  "data": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "summary": "Reset password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Password reset successful",
+                  "data": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Token invalid/expired"
+          }
+        }
+      }
+    },
+    "/auth/google": {
+      "get": {
+        "summary": "Google OAuth start",
+        "responses": {
+          "302": {
+            "description": "Redirect to Google"
+          }
+        }
+      }
+    },
+    "/auth/google/callback": {
+      "get": {
+        "summary": "Google OAuth callback",
+        "responses": {
+          "200": {
+            "description": "Returns JWT or redirects"
+          }
+        }
+      }
+    },
+    "/auth/github": {
+      "get": {
+        "summary": "GitHub OAuth start",
+        "responses": {
+          "302": {
+            "description": "Redirect to GitHub"
+          }
+        }
+      }
+    },
+    "/auth/github/callback": {
+      "get": {
+        "summary": "GitHub OAuth callback",
+        "responses": {
+          "200": {
+            "description": "Returns JWT or redirects"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Logout (client-side)",
+        "responses": {
+          "200": {
+            "description": "Logged out"
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "summary": "Get my profile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Authorize with JWT using the **Authorize** button in Swagger UI.",
+        "responses": {
+          "200": {
+            "description": "Profile data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/users/me/profile": {
+      "put": {
+        "summary": "Complete/update profile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Authorize with JWT using the **Authorize** button in Swagger UI.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Profile updated",
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/users/me/interests": {
+      "put": {
+        "summary": "Update learner interests",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InterestsUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Interests updated"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/users/me/weekly-goal": {
+      "put": {
+        "summary": "Update weekly goal",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeeklyGoalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Weekly goal updated"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/admin/create-tutor": {
+      "post": {
+        "summary": "Admin creates tutor",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Admin-only endpoint. Use **Authorize** with a JWT from an admin login.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTutorRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tutor created",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Tutor created",
+                  "data": {
+                    "userId": "uuid"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/admin/dashboard": {
+      "get": {
+        "summary": "Admin dashboard overview",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "range",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "7d"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Admin dashboard data"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/admin/dashboard/export": {
+      "get": {
+        "summary": "Admin dashboard export (CSV)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "range",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "30d"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV export"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/admin/dashboard/report": {
+      "get": {
+        "summary": "Admin report (PDF or JSON)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "range",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "7d"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "pdf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report generated"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/admin/dashboard/audit": {
+      "get": {
+        "summary": "Admin audit trail",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Audit log list"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "summary": "Admin list users",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": 20
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "learner"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "active"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "jane"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users list"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create user (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "fullName",
+                  "email",
+                  "role"
+                ],
+                "properties": {
+                  "fullName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string",
+                    "example": "tutor"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User created"
+          }
+        }
+      }
+    },
+    "/admin/users/{id}": {
+      "get": {
+        "summary": "Admin view user profile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User detail"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/status": {
+      "patch": {
+        "summary": "Admin update user status",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "example": "suspended"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "example": "Multiple failed login attempts"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User status updated"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/role": {
+      "patch": {
+        "summary": "Admin update user role",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "role"
+                ],
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "example": "tutor"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User role updated"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/team": {
+      "patch": {
+        "summary": "Admin assign team",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "team"
+                ],
+                "properties": {
+                  "team": {
+                    "type": "string",
+                    "example": "Mentorship Ops"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User team updated"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/dashboard/overview": {
+      "get": {
+        "summary": "Learner dashboard overview",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard data"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/courses": {
+      "get": {
+        "summary": "List courses",
+        "parameters": [
+          {
+            "name": "specialization",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course list"
+          }
+        }
+      }
+    },
+    "/courses/{id}": {
+      "get": {
+        "summary": "Course details",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course details"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/courses/{id}/enroll": {
+      "post": {
+        "summary": "Enroll in course",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Enrollment created"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/courses/{id}/announcements": {
+      "get": {
+        "summary": "Course announcements",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Announcements list"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create announcement (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnouncementCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Announcement created"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/courses/{id}/events": {
+      "get": {
+        "summary": "Course events",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Events list"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create event (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event created"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/courses/{id}/comments": {
+      "get": {
+        "summary": "Course comments",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comments list"
+          }
+        }
+      },
+      "post": {
+        "summary": "Post course comment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "content"
+                ],
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "example": "Could we explore more about MVP phase?"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Comment posted"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/enrollments/resume": {
+      "get": {
+        "summary": "Resume last lesson",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resume data"
+          }
+        }
+      }
+    },
+    "/enrollments/{id}/progress": {
+      "put": {
+        "summary": "Update progress",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProgressUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Progress updated"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/tutors/recommended": {
+      "get": {
+        "summary": "Recommended mentors",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recommended tutors"
+          }
+        }
+      }
+    },
+    "/tutors/{id}/follow": {
+      "post": {
+        "summary": "Follow tutor",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Followed tutor"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Unfollow tutor",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Unfollowed tutor"
+          }
+        }
+      }
+    },
+    "/lessons/{id}": {
+      "get": {
+        "summary": "Lesson details",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lesson details"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/lessons/{id}/resources": {
+      "get": {
+        "summary": "Lesson resources",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lesson resources"
+          }
+        }
+      }
+    },
+    "/lessons/{id}/complete": {
+      "post": {
+        "summary": "Mark lesson complete",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LessonCompleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lesson completed"
+          }
+        }
+      }
+    },
+    "/lessons/{id}/progress": {
+      "put": {
+        "summary": "Update lesson progress",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "progressPercent": {
+                    "type": "number",
+                    "example": 75
+                  },
+                  "lastPositionSeconds": {
+                    "type": "number",
+                    "example": 320
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lesson progress updated"
+          }
+        }
+      }
+    },
+    "/lessons/{id}/quiz": {
+      "get": {
+        "summary": "Start quiz (randomized)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Quiz loaded"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/lessons/{id}/quiz/submit": {
+      "post": {
+        "summary": "Submit quiz",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "attemptId",
+                  "answers"
+                ],
+                "properties": {
+                  "attemptId": {
+                    "type": "string"
+                  },
+                  "answers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "questionId": {
+                          "type": "string"
+                        },
+                        "optionId": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Quiz submitted"
+          }
+        }
+      }
+    },
+    "/lessons/{id}/notes": {
+      "get": {
+        "summary": "Lesson notes",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notes list"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add lesson note",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "example": "Remember this key concept"
+                  },
+                  "timestampSeconds": {
+                    "type": "number",
+                    "example": 120
+                  }
+                },
+                "required": [
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Note added"
+          }
+        }
+      }
+    },
+    "/lessons/{id}/notes/{noteId}": {
+      "delete": {
+        "summary": "Delete lesson note",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "noteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Note deleted"
+          }
+        }
+      }
+    },
+    "/lessons/{id}/bookmarks": {
+      "get": {
+        "summary": "Lesson bookmarks",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bookmarks list"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add lesson bookmark",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "note": {
+                    "type": "string",
+                    "example": "Rewatch this part"
+                  },
+                  "timestampSeconds": {
+                    "type": "number",
+                    "example": 240
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Bookmark added"
+          }
+        }
+      }
+    },
+    "/lessons/{id}/bookmarks/{bookmarkId}": {
+      "delete": {
+        "summary": "Delete lesson bookmark",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bookmarkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bookmark deleted"
+          }
+        }
+      }
+    },
+    "/assignments/{id}": {
+      "get": {
+        "summary": "Assignment details",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assignment details"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/start": {
+      "post": {
+        "summary": "Start assignment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assignment started"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/submit": {
+      "post": {
+        "summary": "Submit assignment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentSubmitRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Assignment submitted"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/submit-upload": {
+      "post": {
+        "summary": "Submit assignment (upload file)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "submissionNotes": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Assignment submitted"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/assignments/course/{courseId}": {
+      "get": {
+        "summary": "Assignments by course",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assignments list"
+          }
+        }
+      }
+    },
+    "/assignments/module/{moduleId}": {
+      "get": {
+        "summary": "Assignments by module",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assignments list"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/grade": {
+      "post": {
+        "summary": "Grade assignment submission",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentGradeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submission graded"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/submission": {
+      "get": {
+        "summary": "Get my submission",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission data"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/submissions": {
+      "get": {
+        "summary": "List submissions (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submissions list"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/submissions/{submissionId}": {
+      "get": {
+        "summary": "Get submission (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "submissionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission data"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update assignment submission",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "submissionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "submissionNotes": {
+                    "type": "string"
+                  },
+                  "fileUrl": {
+                    "type": "string"
+                  },
+                  "fileType": {
+                    "type": "string"
+                  },
+                  "fileSizeMb": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submission updated"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/submissions/{submissionId}/download": {
+      "get": {
+        "summary": "Download submission (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "submissionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to file"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/progress/overview": {
+      "get": {
+        "summary": "Learner progress overview",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Progress overview"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/progress/streak": {
+      "get": {
+        "summary": "Learning streak",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Streak data"
+          }
+        }
+      }
+    },
+    "/progress/track-time": {
+      "post": {
+        "summary": "Track learning time",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "minutes"
+                ],
+                "properties": {
+                  "minutes": {
+                    "type": "number",
+                    "example": 45
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Time tracked"
+          }
+        }
+      }
+    },
+    "/progress/timeline": {
+      "get": {
+        "summary": "Progress timeline",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "range",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "weekly"
+            }
+          },
+          {
+            "name": "periods",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": 12
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Timeline data"
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "summary": "List notifications",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "unread",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notifications list"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create notification (self)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "type",
+                  "title",
+                  "message"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "reminder"
+                  },
+                  "title": {
+                    "type": "string",
+                    "example": "Reminder"
+                  },
+                  "message": {
+                    "type": "string",
+                    "example": "Finish module 4"
+                  },
+                  "data": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification created"
+          }
+        }
+      }
+    },
+    "/notifications/stream": {
+      "get": {
+        "summary": "Real-time notification stream (SSE)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Open a Server-Sent Events connection that pushes new notifications in real time.",
+        "responses": {
+          "200": {
+            "description": "text/event-stream (SSE)"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/notifications/{id}/read": {
+      "put": {
+        "summary": "Mark notification read",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification marked read"
+          }
+        }
+      }
+    },
+    "/notifications/mark-all-read": {
+      "post": {
+        "summary": "Mark all notifications read",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All notifications marked read"
+          }
+        }
+      }
+    },
+    "/certificates": {
+      "get": {
+        "summary": "List certificates",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Certificates list"
+          }
+        }
+      }
+    },
+    "/certificates/{courseId}": {
+      "get": {
+        "summary": "Get certificate by course",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Certificate data"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/certificates/issue": {
+      "post": {
+        "summary": "Issue certificate",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "courseId"
+                ],
+                "properties": {
+                  "courseId": {
+                    "type": "string",
+                    "example": "uuid"
+                  },
+                  "certificateUrl": {
+                    "type": "string",
+                    "example": "https://cdn.example.com/cert.pdf"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Certificate issued"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/certificates/verify/{certId}": {
+      "get": {
+        "summary": "Verify certificate",
+        "parameters": [
+          {
+            "name": "certId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Certificate verified"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/certificates/verify/{certId}/page": {
+      "get": {
+        "summary": "Certificate verification landing page",
+        "parameters": [
+          {
+            "name": "certId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML verification page"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/certificates/download/{certId}": {
+      "get": {
+        "summary": "Download certificate PDF",
+        "parameters": [
+          {
+            "name": "certId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF file"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/certificates/export/{certId}": {
+      "get": {
+        "summary": "Export certificate as PNG or PDF",
+        "parameters": [
+          {
+            "name": "certId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "png"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG or PDF export"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/certificates/preview": {
+      "get": {
+        "summary": "Certificate preview (dev)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "pdf"
+            }
+          },
+          {
+            "name": "studentName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "Jane Doe"
+            }
+          },
+          {
+            "name": "courseTitle",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "Advanced UI Systems"
+            }
+          },
+          {
+            "name": "instructorName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "Alex Kim"
+            }
+          },
+          {
+            "name": "issueDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "Apr 8, 2026"
+            }
+          },
+          {
+            "name": "grade",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "Completed"
+            }
+          },
+          {
+            "name": "courseHours",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "example": 12
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML or PDF preview"
+          },
+          "403": {
+            "description": "Disabled"
+          }
+        }
+      }
+    },
+    "/certificates/preview/gallery": {
+      "get": {
+        "summary": "Certificate preview gallery (dev)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML gallery of PDF previews"
+          },
+          "403": {
+            "description": "Disabled"
+          }
+        }
+      }
+    },
+    "/certificates/badge": {
+      "get": {
+        "summary": "TalentFlow Verified badge (SVG)",
+        "responses": {
+          "200": {
+            "description": "SVG badge"
+          }
+        }
+      }
+    },
+    "/certificates/badge/page": {
+      "get": {
+        "summary": "TalentFlow Verified badge page (social share)",
+        "responses": {
+          "200": {
+            "description": "HTML badge share page"
+          }
+        }
+      }
+    },
+    "/certificates/badge.png": {
+      "get": {
+        "summary": "TalentFlow Verified badge (PNG)",
+        "responses": {
+          "200": {
+            "description": "PNG badge"
+          }
+        }
+      }
+    },
+    "/messages/threads": {
+      "get": {
+        "summary": "List message threads",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 20
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "Project feedback"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "MTk5OS0wMS0wMVQwMDowMDowMFo="
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Threads list"
+          }
+        }
+      },
+      "post": {
+        "summary": "Start a new conversation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "participantId"
+                ],
+                "properties": {
+                  "participantId": {
+                    "type": "string"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Thread created"
+          }
+        }
+      }
+    },
+    "/messages/threads/{threadId}": {
+      "get": {
+        "summary": "Get thread messages",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 30
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "MTk5OS0wMS0wMVQwMDowMDowMFo="
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Thread detail"
+          }
+        }
+      }
+    },
+    "/messages/threads/{threadId}/messages": {
+      "post": {
+        "summary": "Send message in thread",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "body"
+                ],
+                "properties": {
+                  "body": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message sent"
+          }
+        }
+      }
+    },
+    "/enrollments": {
+      "get": {
+        "summary": "List enrollments",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enrollments list"
+          }
+        }
+      }
+    },
+    "/enrollments/{id}": {
+      "get": {
+        "summary": "Get enrollment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enrollment loaded"
+          }
+        }
+      }
+    },
+    "/gradebook/students": {
+      "get": {
+        "summary": "Gradebook students (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Students list"
+          }
+        }
+      }
+    },
+    "/gradebook/students/{id}": {
+      "get": {
+        "summary": "Gradebook student detail (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student detail"
+          }
+        }
+      }
+    },
+    "/gradebook/students/{id}/assignments/{assignmentId}/grade": {
+      "put": {
+        "summary": "Grade student assignment (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assignmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "score"
+                ],
+                "properties": {
+                  "score": {
+                    "type": "number"
+                  },
+                  "rubric": {
+                    "type": "string"
+                  },
+                  "feedback": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submission graded"
+          }
+        }
+      }
+    },
+    "/builder/lessons/{lessonId}/resources": {
+      "post": {
+        "summary": "Upload lesson resource (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resource uploaded"
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/role-history": {
+      "get": {
+        "summary": "User role history (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role history loaded"
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/notes": {
+      "get": {
+        "summary": "User notes (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notes loaded"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add user note (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "note"
+                ],
+                "properties": {
+                  "note": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Note added"
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/metrics": {
+      "get": {
+        "summary": "User metrics (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metrics loaded"
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/activity": {
+      "get": {
+        "summary": "User activity (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activity feed"
+          }
+        }
+      }
+    },
+    "/support/tickets": {
+      "post": {
+        "summary": "Create support ticket",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "subject",
+                  "message"
+                ],
+                "properties": {
+                  "subject": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "type": "string",
+                    "example": "medium"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ticket created"
+          }
+        }
+      },
+      "get": {
+        "summary": "List support tickets",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tickets list"
+          }
+        }
+      }
+    },
+    "/support/tickets/{id}": {
+      "get": {
+        "summary": "Get support ticket",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ticket loaded"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update support ticket (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ticket updated"
+          }
+        }
+      }
+    },
+    "/admin/support/tickets": {
+      "get": {
+        "summary": "Admin list support tickets",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tickets list"
+          }
+        }
+      }
+    },
+    "/admin/support/tickets/{id}": {
+      "get": {
+        "summary": "Admin support ticket detail",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ticket loaded"
+          }
+        }
+      }
+    },
+    "/support/tickets/{id}/messages": {
+      "post": {
+        "summary": "Add support ticket message",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "body"
+                ],
+                "properties": {
+                  "body": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message added"
+          }
+        }
+      }
+    },
+    "/users/me/email": {
+      "put": {
+        "summary": "Change my email",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email updated"
+          }
+        }
+      }
+    },
+    "/users/me/avatar": {
+      "put": {
+        "summary": "Update my avatar URL",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "avatarUrl"
+                ],
+                "properties": {
+                  "avatarUrl": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Avatar updated"
+          }
+        }
+      }
+    },
+    "/uploads/avatar": {
+      "post": {
+        "summary": "Upload avatar image",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Avatar uploaded"
+          }
+        }
+      }
+    },
+    "/tutors": {
+      "get": {
+        "summary": "List tutors",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tutors list"
+          }
+        }
+      }
+    },
+    "/instructor/analytics": {
+      "get": {
+        "summary": "Instructor analytics",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Analytics loaded"
+          }
+        }
+      }
+    },
+    "/instructor/courses": {
+      "get": {
+        "summary": "Instructor courses",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Courses loaded"
+          }
+        }
+      }
+    },
+    "/instructor/courses/stats": {
+      "get": {
+        "summary": "Instructor course stats",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stats loaded"
+          }
+        }
+      }
+    },
+    "/instructor/activity": {
+      "get": {
+        "summary": "Instructor activity",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activity loaded"
+          }
+        }
+      }
+    },
+    "/instructor/reviews": {
+      "get": {
+        "summary": "Instructor reviews",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews loaded"
+          }
+        }
+      }
+    },
+    "/instructor/support": {
+      "post": {
+        "summary": "Instructor support ticket",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "subject",
+                  "message"
+                ],
+                "properties": {
+                  "subject": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ticket created"
+          }
+        }
+      }
+    },
+    "/billing/subscribe": {
+      "post": {
+        "summary": "Create subscription",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "plan"
+                ],
+                "properties": {
+                  "plan": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Subscription created"
+          }
+        }
+      }
+    },
+    "/billing/subscription": {
+      "get": {
+        "summary": "Get subscription",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Subscription loaded"
+          }
+        }
+      }
+    },
+    "/mentorship/apply": {
+      "post": {
+        "summary": "Apply for mentorship",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "courseId"
+                ],
+                "properties": {
+                  "courseId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Application submitted"
+          }
+        }
+      }
+    },
+    "/courses/featured": {
+      "get": {
+        "summary": "Featured courses",
+        "responses": {
+          "200": {
+            "description": "Featured courses loaded"
+          }
+        }
+      }
+    },
+    "/courses/recommended": {
+      "get": {
+        "summary": "Recommended courses",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recommendations loaded"
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "summary": "Categories list",
+        "responses": {
+          "200": {
+            "description": "Categories loaded"
+          }
+        }
+      }
+    },
+    "/departments": {
+      "get": {
+        "summary": "Departments list",
+        "responses": {
+          "200": {
+            "description": "Departments loaded"
+          }
+        }
+      }
+    },
+    "/lessons/{id}/comments": {
+      "get": {
+        "summary": "Lesson comments",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Comments loaded"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add lesson comment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "content"
+                ],
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Comment added"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/attempts": {
+      "get": {
+        "summary": "Assignment attempts",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Attempts loaded"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/submissions/me": {
+      "get": {
+        "summary": "My assignment submission",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission loaded"
+          }
+        }
+      }
+    },
+    "/assignments": {
+      "get": {
+        "summary": "List assignments (learner/tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assignments list"
+          }
+        }
+      }
+    },
+    "/assignments/{id}/details": {
+      "get": {
+        "summary": "Assignment details (alias)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assignment detail"
+          }
+        }
+      }
+    },
+    "/submissions": {
+      "get": {
+        "summary": "List my submissions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submissions list"
+          }
+        }
+      }
+    },
+    "/discussions/threads": {
+      "get": {
+        "summary": "Discussion threads",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Threads list"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create discussion thread",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "body"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  },
+                  "courseId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Thread created"
+          }
+        }
+      }
+    },
+    "/discussions/threads/{id}": {
+      "get": {
+        "summary": "Discussion thread detail",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Thread detail"
+          }
+        }
+      }
+    },
+    "/discussions/threads/{id}/replies": {
+      "post": {
+        "summary": "Add discussion reply",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "body"
+                ],
+                "properties": {
+                  "body": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Reply added"
+          }
+        }
+      }
+    },
+    "/courses/{id}/preview": {
+      "get": {
+        "summary": "Course preview (learner)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course preview"
+          }
+        }
+      }
+    },
+    "/courses/{id}/curriculum": {
+      "get": {
+        "summary": "Course curriculum (learner)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Curriculum loaded"
+          }
+        }
+      }
+    },
+    "/courses/{id}/reviews": {
+      "get": {
+        "summary": "Course reviews",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews loaded"
+          }
+        }
+      }
+    },
+    "/courses/{id}/pricing": {
+      "get": {
+        "summary": "Course pricing",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pricing loaded"
+          }
+        }
+      }
+    },
+    "/instructors/{id}": {
+      "get": {
+        "summary": "Public instructor profile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instructor loaded"
+          }
+        }
+      }
+    },
+    "/admin/instructors": {
+      "post": {
+        "summary": "Create instructor (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "fullName",
+                  "email"
+                ],
+                "properties": {
+                  "fullName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Instructor created"
+          }
+        }
+      }
+    },
+    "/admin/instructors/{id}": {
+      "get": {
+        "summary": "Admin instructor profile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instructor loaded"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update instructor (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fullName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "example": "active"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Instructor updated"
+          }
+        }
+      }
+    },
+    "/admin/instructors/{id}/notes": {
+      "get": {
+        "summary": "Instructor notes",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notes loaded"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add instructor note",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "note"
+                ],
+                "properties": {
+                  "note": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Note added"
+          }
+        }
+      }
+    },
+    "/admin/instructors/{id}/courses": {
+      "post": {
+        "summary": "Assign course to instructor",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "courseId"
+                ],
+                "properties": {
+                  "courseId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Course assigned"
+          }
+        }
+      }
+    },
+    "/builder/courses": {
+      "post": {
+        "summary": "Create course draft (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Advanced UI Systems"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "UI Design"
+                    ]
+                  },
+                  "descriptionHtml": {
+                    "type": "string",
+                    "example": "<p>Course overview</p>"
+                  },
+                  "learningObjectives": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "Master design systems"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Course draft created"
+          }
+        }
+      },
+      "get": {
+        "summary": "List my courses (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Courses list"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}": {
+      "get": {
+        "summary": "Get course draft with modules/lessons",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course draft"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update course draft (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "descriptionHtml": {
+                    "type": "string"
+                  },
+                  "learningObjectives": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "price": {
+                    "type": "number"
+                  },
+                  "previousPrice": {
+                    "type": "number"
+                  },
+                  "difficulty": {
+                    "type": "string"
+                  },
+                  "durationWeeks": {
+                    "type": "number"
+                  },
+                  "startDate": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Course updated"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}/cover": {
+      "post": {
+        "summary": "Upload course cover image",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cover updated"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}/modules": {
+      "post": {
+        "summary": "Create module",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Module 1"
+                  },
+                  "position": {
+                    "type": "number",
+                    "example": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Module created"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}/modules/reorder": {
+      "put": {
+        "summary": "Reorder modules",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "order"
+                ],
+                "properties": {
+                  "order": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Modules reordered"
+          }
+        }
+      }
+    },
+    "/builder/modules/{moduleId}": {
+      "put": {
+        "summary": "Update module",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "position": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Module updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete module",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Module deleted"
+          }
+        }
+      }
+    },
+    "/builder/modules/{moduleId}/lessons": {
+      "post": {
+        "summary": "Create lesson",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "example": "video"
+                  },
+                  "durationMinutes": {
+                    "type": "number",
+                    "example": 12
+                  },
+                  "position": {
+                    "type": "number",
+                    "example": 1
+                  },
+                  "pdfPages": {
+                    "type": "number",
+                    "example": 10
+                  },
+                  "quizDueDate": {
+                    "type": "string",
+                    "example": "2026-05-01T00:00:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lesson created"
+          }
+        }
+      }
+    },
+    "/builder/modules/{moduleId}/lessons/reorder": {
+      "put": {
+        "summary": "Reorder lessons",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "moduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "order"
+                ],
+                "properties": {
+                  "order": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lessons reordered"
+          }
+        }
+      }
+    },
+    "/builder/lessons/{lessonId}": {
+      "put": {
+        "summary": "Update lesson",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "durationMinutes": {
+                    "type": "number"
+                  },
+                  "position": {
+                    "type": "number"
+                  },
+                  "pdfPages": {
+                    "type": "number"
+                  },
+                  "quizDueDate": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lesson updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete lesson",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lesson deleted"
+          }
+        }
+      }
+    },
+    "/builder/lessons/{lessonId}/content": {
+      "post": {
+        "summary": "Add lesson content",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "heading",
+                  "content"
+                ],
+                "properties": {
+                  "heading": {
+                    "type": "string"
+                  },
+                  "subheading": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "position": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lesson content added"
+          }
+        }
+      }
+    },
+    "/builder/lessons/{lessonId}/media": {
+      "post": {
+        "summary": "Upload lesson media",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Media uploaded"
+          }
+        }
+      }
+    },
+    "/builder/lessons/{lessonId}/media-url": {
+      "put": {
+        "summary": "Set lesson media URL",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "url"
+                ],
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Video URL set"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}/assignments": {
+      "post": {
+        "summary": "Create assignment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "moduleId"
+                ],
+                "properties": {
+                  "moduleId": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "dueDate": {
+                    "type": "string"
+                  },
+                  "totalPoints": {
+                    "type": "number"
+                  },
+                  "fileTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "maxFileSizeMb": {
+                    "type": "number"
+                  },
+                  "proTip": {
+                    "type": "string"
+                  },
+                  "coreObjective": {
+                    "type": "string"
+                  },
+                  "keyDeliverables": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Assignment created"
+          }
+        }
+      }
+    },
+    "/builder/lessons/{lessonId}/quiz": {
+      "post": {
+        "summary": "Create quiz for lesson",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lessonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "questions"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Module 1 Quiz"
+                  },
+                  "passingScore": {
+                    "type": "number",
+                    "example": 70
+                  },
+                  "timeLimitMinutes": {
+                    "type": "number",
+                    "example": 20
+                  },
+                  "questions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "prompt": {
+                          "type": "string"
+                        },
+                        "points": {
+                          "type": "number"
+                        },
+                        "options": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "isCorrect": {
+                                "type": "boolean"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Quiz created"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}/coupons": {
+      "post": {
+        "summary": "Create coupon",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code",
+                  "discountPercent"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "example": "WELCOME10"
+                  },
+                  "discountPercent": {
+                    "type": "number",
+                    "example": 10
+                  },
+                  "expiresAt": {
+                    "type": "string",
+                    "example": "2026-06-01T00:00:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Coupon created"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}/preview": {
+      "get": {
+        "summary": "Course preview (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course preview"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}/apply-coupon": {
+      "post": {
+        "summary": "Apply coupon (preview)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Coupon applied"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}/enrollment-preview": {
+      "post": {
+        "summary": "Enrollment preview",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enrollment preview"
+          }
+        }
+      }
+    },
+    "/builder/assignments/{id}": {
+      "put": {
+        "summary": "Update assignment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "dueDate": {
+                    "type": "string"
+                  },
+                  "totalPoints": {
+                    "type": "number"
+                  },
+                  "fileTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "maxFileSizeMb": {
+                    "type": "number"
+                  },
+                  "proTip": {
+                    "type": "string"
+                  },
+                  "coreObjective": {
+                    "type": "string"
+                  },
+                  "keyDeliverables": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Assignment updated"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete assignment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assignment deleted"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}/publish": {
+      "post": {
+        "summary": "Publish course",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course published"
+          }
+        }
+      }
+    },
+    "/builder/courses/{id}/unpublish": {
+      "post": {
+        "summary": "Unpublish course",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course unpublished"
+          }
+        }
+      }
+    },
+    "/tutor-dashboard/overview": {
+      "get": {
+        "summary": "Tutor dashboard overview",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tutor dashboard data"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/tutor-dashboard/export": {
+      "get": {
+        "summary": "Export tutor analytics (CSV)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "csv"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV export"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/tutor-dashboard/submission-queue": {
+      "get": {
+        "summary": "Submission queue (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "urgent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission queue"
+          }
+        }
+      }
+    },
+    "/dev/email/gallery": {
+      "get": {
+        "summary": "Email preview gallery (dev)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML gallery"
+          },
+          "403": {
+            "description": "Disabled"
+          }
+        }
+      }
+    },
+    "/tutors/actions/email-students": {
+      "post": {
+        "summary": "Email all students (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "subject",
+                  "body"
+                ],
+                "properties": {
+                  "subject": {
+                    "type": "string",
+                    "example": "Class update"
+                  },
+                  "body": {
+                    "type": "string",
+                    "example": "Please review module 4 before Friday."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Emails sent"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/tutors/actions/post-update": {
+      "post": {
+        "summary": "Post update (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "subject",
+                  "body"
+                ],
+                "properties": {
+                  "subject": {
+                    "type": "string",
+                    "example": "New resources"
+                  },
+                  "body": {
+                    "type": "string",
+                    "example": "Resources updated for Week 8."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update posted"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/tutors/actions/schedule-office-hour": {
+      "post": {
+        "summary": "Schedule office hour (tutor)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "startsAt"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Office Hours"
+                  },
+                  "startsAt": {
+                    "type": "string",
+                    "example": "2026-05-01T17:00:00Z"
+                  },
+                  "durationMinutes": {
+                    "type": "number",
+                    "example": 60
+                  },
+                  "meetingUrl": {
+                    "type": "string",
+                    "example": "https://meet.example.com/room"
+                  },
+                  "courseId": {
+                    "type": "string",
+                    "example": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Office hour scheduled"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    }
+  }
+}

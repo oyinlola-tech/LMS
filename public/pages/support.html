@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Support</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 4rem 0">
+      <div class="container" style="max-width: 48rem">
+        <h1 class="text-4xl font-black mb-6">Help &amp; Support</h1>
+        <p class="text-lg mb-8" style="color: var(--on-surface-variant)">Find answers to common questions or reach out to our support team.</p>
+        <div class="space-y-4 mb-12">
+          <details class="group rounded-xl border overflow-hidden" style="background: #fff; border-color: var(--outline-variant)" open>
+            <summary class="flex justify-between items-center p-4 cursor-pointer font-bold">How do I reset my password?<span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span></summary>
+            <div class="px-4 pb-4 text-sm" style="color: var(--on-surface-variant)">Click "Forgot Password" on the login page and follow the instructions sent to your email.</div>
+          </details>
+          <details class="group rounded-xl border overflow-hidden" style="background: #fff; border-color: var(--outline-variant)">
+            <summary class="flex justify-between items-center p-4 cursor-pointer font-bold">How do I access my certificates?<span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span></summary>
+            <div class="px-4 pb-4 text-sm" style="color: var(--on-surface-variant)">Certificates are available from your dashboard after completing a course with a passing grade.</div>
+          </details>
+          <details class="group rounded-xl border overflow-hidden" style="background: #fff; border-color: var(--outline-variant)">
+            <summary class="flex justify-between items-center p-4 cursor-pointer font-bold">Can I get a refund?<span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span></summary>
+            <div class="px-4 pb-4 text-sm" style="color: var(--on-surface-variant)">Yes! We offer a 30-day money-back guarantee on all courses. Contact support to initiate a refund.</div>
+          </details>
+          <details class="group rounded-xl border overflow-hidden" style="background: #fff; border-color: var(--outline-variant)">
+            <summary class="flex justify-between items-center p-4 cursor-pointer font-bold">How do discussion groups work?<span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span></summary>
+            <div class="px-4 pb-4 text-sm" style="color: var(--on-surface-variant)">You can create or join topic-based groups under the Discussions page. Group messages are delivered in real-time via WebSocket. You can also subscribe to groups to get notified of new messages.</div>
+          </details>
+          <details class="group rounded-xl border overflow-hidden" style="background: #fff; border-color: var(--outline-variant)">
+            <summary class="flex justify-between items-center p-4 cursor-pointer font-bold">How do I follow other users?<span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span></summary>
+            <div class="px-4 pb-4 text-sm" style="color: var(--on-surface-variant)">Visit any user's profile and click the "Follow" button. You can see who you're following and who follows you from your profile page.</div>
+          </details>
+          <details class="group rounded-xl border overflow-hidden" style="background: #fff; border-color: var(--outline-variant)">
+            <summary class="flex justify-between items-center p-4 cursor-pointer font-bold">How do I become a tutor?<span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span></summary>
+            <div class="px-4 pb-4 text-sm" style="color: var(--on-surface-variant)">Contact us through the support page expressing your interest. Our team will review your application and credentials to onboard you as a tutor.</div>
+          </details>
+        </div>
+        <p class="text-center">Still need help? <a href="/contact" style="color: var(--primary); font-weight: 600">Contact our team</a></p>
+      </div>
+    </section>
+  </main>
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+</body>
+</html>

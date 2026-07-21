@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Course Details</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    .course-hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .course-thumbnail {
+      aspect-ratio: 16 / 9;
+      border-radius: 1.5rem;
+      background-size: cover;
+      background-position: center;
+      position: sticky;
+      top: 7rem;
+    }
+    .perk-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+    }
+    .perk-item .material-symbols-outlined {
+      font-size: 1.25rem;
+      color: var(--primary);
+    }
+    .curriculum-lesson {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    .curriculum-lesson:hover {
+      background: var(--surface-variant);
+    }
+    .curriculum-lesson.preview-lesson {
+      border-left: 3px solid var(--primary);
+    }
+    .instructor-card {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 2rem;
+      border-radius: 1.5rem;
+      background: #fff;
+      border: 1px solid var(--outline-variant);
+    }
+    .instructor-avatar {
+      width: 5rem;
+      height: 5rem;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+    .pricing-sticky {
+      position: sticky;
+      top: 7rem;
+    }
+    @media (max-width: 768px) {
+      .course-hero {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .course-thumbnail {
+        position: static;
+      }
+      .pricing-sticky {
+        position: static;
+      }
+    }
+    .badge-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: #000;
+      color: #fff;
+    }
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface-variant) 25%, #e8eaed 50%, var(--surface-variant) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 0.5rem;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+  <div data-include="header"></div>
+
+  <main style="padding-top: 6rem">
+    <div id="loading-state" style="padding: 4rem 0">
+      <div class="container">
+        <div class="course-hero">
+          <div>
+            <div class="skeleton" style="height: 2.5rem; width: 70%; margin-bottom: 1rem"></div>
+            <div class="skeleton" style="height: 1rem; width: 90%; margin-bottom: 0.5rem"></div>
+            <div class="skeleton" style="height: 1rem; width: 60%; margin-bottom: 2rem"></div>
+            <div class="skeleton" style="height: 3rem; width: 40%"></div>
+          </div>
+          <div class="skeleton" style="aspect-ratio: 16/9; border-radius: 1.5rem"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="error-state" style="display: none; padding: 6rem 0">
+      <div class="container text-center">
+        <span class="material-symbols-outlined" style="font-size: 4rem; color: var(--error); margin-bottom: 1rem">error</span>
+        <h2 class="text-2xl font-bold mb-2">Course Not Found</h2>
+        <p style="color: var(--on-surface-variant)" class="mb-6">The course you're looking for doesn't exist or has been removed.</p>
+        <a href="/courses" class="btn-primary">Browse Courses</a>
+      </div>
+    </div>
+
+    <div id="course-content" style="display: none">
+      <section style="padding: 3rem 0 2rem">
+        <div class="container">
+          <div class="course-hero">
+            <div>
+              <div class="flex items-center gap-3 mb-3">
+                <span id="course-badge" class="text-[11px] font-bold px-2 py-0.5 rounded uppercase"></span>
+                <span id="course-category" class="text-xs" style="color: var(--on-surface-variant)"></span>
+              </div>
+              <h1 id="course-title" class="text-4xl font-black mb-4 leading-tight"></h1>
+              <p id="course-short-desc" class="text-base mb-6" style="color: var(--on-surface-variant); line-height: 1.6"></p>
+              <div class="flex flex-wrap items-center gap-6 text-sm" style="color: var(--on-surface-variant)">
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined" style="font-size: 1.25rem">schedule</span>
+                  <span id="course-hours"></span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined" style="font-size: 1.25rem">menu_book</span>
+                  <span id="course-lessons"></span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="material-symbols-outlined" style="font-size: 1.25rem">signal_cellular_alt</span>
+                  <span id="course-level"></span>
+                </div>
+                <div class="flex items-center gap-1.5" id="rating-display">
+                  <span class="material-symbols-outlined" style="font-size: 1.25rem; font-variation-settings: 'FILL' 1; color: var(--tertiary)">star</span>
+                  <span id="course-rating"></span>
+                  <span id="course-review-count" style="color: var(--outline)"></span>
+                </div>
+              </div>
+            </div>
+            <div class="course-thumbnail" id="course-thumbnail"></div>
+          </div>
+        </div>
+      </section>
+
+      <section style="padding: 3rem 0">
+        <div class="container">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" style="align-items: start">
+            <div class="lg:col-span-2">
+              <div id="description-section" class="mb-12">
+                <h2 class="text-2xl font-black mb-4">About This Course</h2>
+                <div id="course-description" class="leading-relaxed" style="color: var(--on-surface-variant); line-height: 1.8"></div>
+              </div>
+
+              <div id="curriculum-section" class="mb-12">
+                <h2 class="text-2xl font-black mb-2">Course Content</h2>
+                <p id="curriculum-summary" class="text-sm mb-6" style="color: var(--on-surface-variant)"></p>
+                <div id="curriculum-list"></div>
+              </div>
+
+              <div id="growth-section" style="display: none" class="mb-12">
+                <h2 class="text-2xl font-black mb-4">Growth Flow</h2>
+                <div id="growth-content"></div>
+              </div>
+
+              <div id="instructor-section" class="mb-12">
+                <h2 class="text-2xl font-black mb-4">Your Instructor</h2>
+                <div id="instructor-card" class="instructor-card"></div>
+              </div>
+            </div>
+
+            <div class="pricing-sticky">
+              <div class="rounded-2xl border p-6" style="background: #fff; border-color: var(--outline-variant)">
+                <div id="pricing-display" class="mb-4">
+                  <div class="flex items-end gap-3 mb-1">
+                    <span id="current-price" class="text-3xl font-black"></span>
+                    <span id="old-price" class="text-lg" style="color: var(--on-surface-variant); text-decoration: line-through"></span>
+                    <span id="discount-badge" class="text-xs font-bold px-2 py-0.5 rounded" style="background: #16a34a20; color: #16a34a"></span>
+                  </div>
+                </div>
+
+                <button id="enroll-btn" class="btn-primary w-full text-center py-3 mb-3" style="font-size: 1rem; font-weight: 700">
+                  Enroll Now
+                </button>
+                <button id="preview-btn" class="btn-secondary w-full text-center py-3 mb-6" style="font-size: 0.9rem; font-weight: 600">
+                  <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle">play_circle</span>
+                  Free Preview
+                </button>
+
+                <p class="text-xs font-bold mb-4" style="color: var(--on-surface-variant)">This course includes:</p>
+                <div id="perks-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style="padding: 3rem 0; background: var(--surface)">
+        <div class="container">
+          <h2 class="text-2xl font-black mb-2">More Courses to Explore</h2>
+          <p class="text-sm mb-6" style="color: var(--on-surface-variant)">Based on your interests and profile</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="suggested-grid">
+            <div class="col-span-full text-center py-8" style="color: var(--on-surface-variant)">
+              <span class="material-symbols-outlined text-4xl mb-4">hourglass</span>
+              <p>Loading suggestions...</p>
+            </div>
+          </div>
+          <div class="text-center mt-8">
+            <a href="/courses" class="btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem">
+              View All Courses
+              <span class="material-symbols-outlined" style="font-size: 1.1rem">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/public.js"></script>
+  <script src="/js/apis/reviews.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/courses/course-details.js"></script>
+</body>
+</html>

@@ -143,6 +143,8 @@ export async function buildApp() {
     app.get(route, async (_req, reply) => reply.sendFile(file));
   }
 
+  app.get('/course/:id', async (_req, reply) => reply.sendFile('courses/course-details.html'));
+
   await app.register(authRoutes, { prefix: '/auth' });
   await app.register(userRoutes, { prefix: '/users' });
   await app.register(adminRoutes, { prefix: '/admin' });

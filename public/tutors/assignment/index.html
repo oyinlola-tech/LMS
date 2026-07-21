@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Tutor Assignments</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; margin: 0; }
+    .assignments-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+    .assignment-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.25rem; transition: var(--transition); cursor: pointer; }
+    .assignment-card:hover { border-color: var(--primary); box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .assignment-card h3 { font-size: 1rem; font-weight: 700; margin: 0 0 0.25rem; }
+    .assignment-card .card-meta { font-size: 0.8125rem; color: var(--on-surface-variant); margin-bottom: 0.75rem; }
+    .assignment-card .card-footer { display: flex; justify-content: space-between; align-items: center; }
+    .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.6875rem; font-weight: 700; }
+    .badge.draft { background: var(--tertiary-fixed); color: var(--on-tertiary-fixed); }
+    .badge.published { background: #d1fae5; color: #059669; }
+    .empty-state { text-align: center; padding: 4rem 2rem; grid-column: 1 / -1; color: var(--on-surface-variant); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+    .empty-state h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--on-surface); }
+    .skeleton { background: linear-gradient(90deg, var(--surface-container-high) 25%, var(--surface-dim) 50%, var(--surface-container-high) 75%); background-size: 200% 100%; animation: skeleton-pulse 1.5s ease-in-out infinite; border-radius: 1rem; height: 120px; }
+    @keyframes skeleton-pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .assignments-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/tutors/components/tutor-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/tutors/components/tutor-header"></div>
+      <div class="page-header">
+        <div>
+          <h1>Your Assignments</h1>
+          <p style="margin:0.25rem 0 0;font-size:0.8125rem;color:var(--on-surface-variant)" id="assignments-count"></p>
+        </div>
+        <a href="/tutor/assignments/builder/new/step/1" class="btn" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.625rem 1.25rem;background:var(--primary);color:#fff;border-radius:0.75rem;text-decoration:none;font-weight:600;font-size:0.875rem">
+          <span class="material-symbols-outlined">add</span> New Assignment
+        </a>
+      </div>
+      <div class="assignments-grid" id="assignments-grid">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/tutors/components/tutor-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    document.addEventListener('components-loaded', function () {
+      api.get('/tutor/assignments/list').then(function (r) {
+        var items = r.data || [];
+        var grid = document.getElementById('assignments-grid');
+        var countEl = document.getElementById('assignments-count');
+        if (countEl) countEl.textContent = items.length + ' assignment' + (items.length !== 1 ? 's' : '');
+        if (!items.length) {
+          grid.innerHTML = '<div class="empty-state"><div class="icon">&#x1F4DD;</div><h3>No assignments yet</h3><p style="font-size:0.875rem">Create your first assignment to get started.</p></div>';
+          return;
+        }
+        grid.innerHTML = items.map(function (a) {
+          var statusClass = a.status === 'published' ? 'published' : 'draft';
+          var dueStr = a.dueDate ? new Date(a.dueDate).toLocaleDateString() : 'No due date';
+          return '<div class="assignment-card" onclick="window.location.href=\'/tutor/assignments/builder/' + a.id + '/step/1\'">'
+            + '<h3>' + escapeHtml(a.title) + '</h3>'
+            + '<div class="card-meta">' + (a.course ? escapeHtml(a.course.title) : 'No course') + ' \u00B7 ' + (a.type || 'essay') + ' \u00B7 ' + (a.totalPoints || '—') + ' pts</div>'
+            + '<div class="card-footer"><span class="badge ' + statusClass + '">' + a.status + '</span><span style="font-size:0.75rem;color:var(--on-surface-variant)">Due: ' + dueStr + '</span></div>'
+            + '</div>';
+        }).join('');
+      }).catch(function () {
+        document.getElementById('assignments-grid').innerHTML = '<div class="empty-state"><div class="icon">&#x26A0;</div><h3>Failed to load</h3></div>';
+      });
+      function escapeHtml(t) { var d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+    });
+  </script>
+</body>
+</html>

@@ -4,7 +4,7 @@ import { enrollmentRepository } from '../../../repositories/enrollment.repositor
 import { courseCommentRepository } from '../../../repositories/courseComment.repository';
 
 export class GetCourseCommentsQuery {
-  async execute(courseId: string, userId: string, userRole: string): Promise<any[]> {
+  async execute(courseId: string, userId: string, userRole: string, page: number = 1, limit: number = 10): Promise<any> {
     const course = await courseRepository.findById(courseId);
     if (!course) {
       const err: any = new Error('Course not found');
@@ -29,7 +29,23 @@ export class GetCourseCommentsQuery {
       }
     }
 
-    return courseCommentRepository.findByCourseId(courseId);
+    const { rows, count } = await courseCommentRepository.findTopLevel(courseId, page, limit);
+
+    const items = await Promise.all(rows.map(async (c: any) => {
+      const replyCount = await courseCommentRepository.getReplyCount(c.id);
+      const cJson = c.toJSON();
+      cJson.User = c.User;
+      cJson.replyCount = replyCount;
+      return cJson;
+    }));
+
+    return {
+      items,
+      page,
+      limit,
+      total: count,
+      totalPages: Math.ceil(count / limit),
+    };
   }
 }
 

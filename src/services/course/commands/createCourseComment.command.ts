@@ -8,11 +8,12 @@ export interface CreateCourseCommentInput {
   userId: string;
   userRole: string;
   content: string;
+  parentId?: string;
 }
 
 export class CreateCourseCommentCommand {
   async execute(input: CreateCourseCommentInput): Promise<any> {
-    const { courseId, userId, userRole, content } = input;
+    const { courseId, userId, userRole, content, parentId } = input;
 
     const course = await courseRepository.findById(courseId);
     if (!course) {
@@ -38,10 +39,21 @@ export class CreateCourseCommentCommand {
       }
     }
 
+    if (parentId) {
+      const parent = await courseCommentRepository.findById(parentId);
+      if (!parent) {
+        const err: any = new Error('Parent comment not found');
+        err.code = 'NOT_FOUND';
+        err.statusCode = 404;
+        throw err;
+      }
+    }
+
     return courseCommentRepository.create({
       CourseId: courseId,
       UserId: userId,
       content,
+      parentId: parentId || null,
     });
   }
 }

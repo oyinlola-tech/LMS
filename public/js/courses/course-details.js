@@ -416,6 +416,125 @@ function updateAuthUI() {
   }
 }
 
+var commentsPage = 1;
+var replyingTo = null;
+
+function loadComments(page) {
+  page = page || 1;
+  if (!localStorage.getItem('token')) {
+    id('comments-area').innerHTML = '<div class="rounded-2xl border p-6 text-center" style="background:#fff;border-color:var(--outline-variant)"><p class="text-sm" style="color:var(--on-surface-variant)"><a href="#" data-auth="login" style="color:var(--primary);font-weight:600">Login</a> to view and post comments.</p></div>';
+    wireAuthRequiredActions();
+    return;
+  }
+  api.get('/courses/' + courseId + '/comments?page=' + page + '&limit=10').then(function(res) {
+    if (!res || !res.data) { id('comments-area').innerHTML = ''; return; }
+    var data = res.data;
+    commentsPage = data.page || 1;
+    var html = '<div class="mb-4"><textarea id="comment-input" rows="2" class="chat-input" placeholder="Write a comment..." style="width:100%;resize:none;padding:0.75rem;border-radius:0.75rem"></textarea>'
+      + '<div id="reply-indicator" style="display:none" class="flex items-center gap-2 mt-2 text-xs" style="color:var(--on-surface-variant)">'
+      + '<span>Replying to <strong id="reply-to-name"></strong></span>'
+      + '<button id="cancel-reply-btn" class="text-xs font-bold" style="color:var(--error)">Cancel</button></div>'
+      + '<button id="post-comment-btn" class="btn-primary text-sm mt-2">Post Comment</button></div>';
+
+    if (data.items && data.items.length) {
+      html += '<div class="space-y-4">';
+      data.items.forEach(function(c) {
+        html += renderComment(c);
+      });
+      html += '</div>';
+      if (data.totalPages > data.page) {
+        html += '<div class="text-center mt-4"><button id="load-more-comments" class="text-sm font-bold py-2 px-4 rounded-lg" style="background:var(--surface-variant);color:var(--on-surface)">Load More Comments</button></div>';
+      }
+    } else {
+      html += '<div class="text-center py-8 rounded-2xl border" style="background:#fff;border-color:var(--outline-variant)"><p class="text-sm" style="color:var(--on-surface-variant)">No comments yet. Be the first!</p></div>';
+    }
+    id('comments-area').innerHTML = html;
+    wireCommentEvents();
+  }).catch(function() { id('comments-area').innerHTML = '<p class="text-sm" style="color:var(--error)">Failed to load comments.</p>'; });
+}
+
+function renderComment(c) {
+  var u = c.User || {};
+  var date = c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '';
+  var replyCount = c.replyCount || 0;
+  return '<div class="rounded-2xl border p-4" style="background:#fff;border-color:var(--outline-variant)">'
+    + '<div class="flex items-center gap-3 mb-2">'
+    + '<div class="size-8 rounded-full" style="background-image:url(' + (u.avatarUrl || '/img/placeholder.svg') + ');background-size:cover;background-position:center"></div>'
+    + '<div><p class="text-sm font-bold">' + escapeHtml(u.fullName || 'User') + '</p><p class="text-[10px]" style="color:var(--outline)">' + date + '</p></div>'
+    + '</div>'
+    + '<p class="text-sm mb-2">' + escapeHtml(c.content) + '</p>'
+    + '<div class="flex items-center gap-3">'
+    + '<button class="text-xs font-bold reply-btn" data-id="' + c.id + '" data-name="' + escapeHtml(u.fullName || 'User') + '" style="color:var(--primary)">Reply</button>'
+    + (replyCount > 0 ? '<button class="text-xs font-bold show-replies-btn" data-id="' + c.id + '" style="color:var(--on-surface-variant)">Show Replies (' + replyCount + ')</button>' : '')
+    + '</div>'
+    + '<div class="replies-container" data-parent-id="' + c.id + '" style="display:none;margin-top:0.75rem;padding-left:1rem;border-left:2px solid var(--outline-variant)"></div>'
+    + '</div>';
+}
+
+function renderReply(r) {
+  var u = r.User || {};
+  var date = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '';
+  return '<div class="flex items-start gap-2 py-2">'
+    + '<div class="size-6 rounded-full flex-shrink-0" style="background-image:url(' + (u.avatarUrl || '/img/placeholder.svg') + ');background-size:cover;background-position:center"></div>'
+    + '<div class="grow"><div class="flex items-center gap-2"><span class="text-xs font-bold">' + escapeHtml(u.fullName || 'User') + '</span><span class="text-[10px]" style="color:var(--outline)">' + date + '</span></div>'
+    + '<p class="text-sm">' + escapeHtml(r.content) + '</p></div></div>';
+}
+
+function wireCommentEvents() {
+  var postBtn = id('post-comment-btn');
+  if (postBtn) {
+    postBtn.onclick = function() {
+      var input = id('comment-input');
+      var text = input.value.trim();
+      if (!text) return;
+      var body = { content: text };
+      if (replyingTo) body.parentId = replyingTo.id;
+      api.post('/courses/' + courseId + '/comments', body).then(function() {
+        input.value = '';
+        replyingTo = null;
+        id('reply-indicator').style.display = 'none';
+        loadComments(1);
+      }).catch(function(err) { alert((err && err.error && err.error.message) || 'Failed to post'); });
+    };
+  }
+
+  id('cancel-reply-btn').onclick = function() { replyingTo = null; id('reply-indicator').style.display = 'none'; };
+
+  document.querySelectorAll('.reply-btn').forEach(function(btn) {
+    btn.onclick = function() {
+      replyingTo = { id: this.getAttribute('data-id'), name: this.getAttribute('data-name') };
+      id('reply-to-name').textContent = replyingTo.name;
+      id('reply-indicator').style.display = 'flex';
+      id('comment-input').focus();
+    };
+  });
+
+  document.querySelectorAll('.show-replies-btn').forEach(function(btn) {
+    btn.onclick = function() {
+      var parentId = this.getAttribute('data-id');
+      var container = document.querySelector('.replies-container[data-parent-id="' + parentId + '"]');
+      if (!container) return;
+      if (container.style.display !== 'none') { container.style.display = 'none'; this.textContent = this.textContent.replace('Hide', 'Show'); return; }
+      if (container._loaded) { container.style.display = 'block'; this.textContent = 'Hide Replies'; return; }
+      api.get('/courses/' + courseId + '/comments/' + parentId + '/replies').then(function(res) {
+        if (res && res.data && res.data.items) {
+          container.innerHTML = res.data.items.map(renderReply).join('');
+          container.style.display = 'block';
+          container._loaded = true;
+          btn.textContent = 'Hide Replies';
+        }
+      }).catch(function() {});
+    };
+  });
+
+  var loadMore = id('load-more-comments');
+  if (loadMore) {
+    loadMore.onclick = function() {
+      loadComments(commentsPage + 1);
+    };
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   if (!courseId || courseId === 'course-details.html' || courseId === '') { showError(); return; }
   loadCourseDetail(); updateAuthUI();
@@ -465,4 +584,6 @@ document.addEventListener('components-loaded', function() {
       }).catch(function(err) { alert((err && err.error && err.error.message) || 'Failed to apply'); });
     });
   }
+
+  loadComments();
 });

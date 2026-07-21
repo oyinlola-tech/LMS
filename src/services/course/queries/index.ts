@@ -2,6 +2,7 @@
 export * from './getCategories.query';
 export * from './getCourseAnnouncements.query';
 export * from './getCourseComments.query';
+export * from './getCommentReplies.query';
 export * from './getCourseCurriculum.query';
 export * from './getCourseDetail.query';
 export * from './getCourseEvents.query';

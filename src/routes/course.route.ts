@@ -15,6 +15,7 @@ import { getCourseDetailQuery } from '../services/course/queries/getCourseDetail
 import { getCourseAnnouncementsQuery } from '../services/course/queries/getCourseAnnouncements.query';
 import { getCourseEventsQuery } from '../services/course/queries/getCourseEvents.query';
 import { getCourseCommentsQuery } from '../services/course/queries/getCourseComments.query';
+import { getCommentRepliesQuery } from '../services/course/queries/getCommentReplies.query';
 import { enrollInCourseCommand } from '../services/course/commands/enrollInCourse.command';
 import { createCourseAnnouncementCommand } from '../services/course/commands/createCourseAnnouncement.command';
 import { createCourseEventCommand } from '../services/course/commands/createCourseEvent.command';
@@ -278,7 +279,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.get('/:id/comments', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { id } = request.params as IdParams;
-      const result = await getCourseCommentsQuery.execute(id, request.user!.sub, request.user!.role);
+      const { page, limit } = request.query as { page?: string; limit?: string };
+      const result = await getCourseCommentsQuery.execute(id, request.user!.sub, request.user!.role, Number(page) || 1, Number(limit) || 10);
       return ok(reply, result, 'Comments loaded');
     } catch (err: unknown) {
       if (err instanceof AppError && err.code === 'NOT_FOUND') {
@@ -291,8 +293,22 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
+  fastify.get('/:id/comments/:commentId/replies', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { commentId } = request.params as { commentId: string };
+      const { page, limit } = request.query as { page?: string; limit?: string };
+      const result = await getCommentRepliesQuery.execute(commentId, Number(page) || 1, Number(limit) || 20);
+      return ok(reply, result, 'Replies loaded');
+    } catch (err: unknown) {
+      if (err instanceof AppError && err.code === 'NOT_FOUND') {
+        return error(reply, 404, err.code, err.message);
+      }
+      return error(reply, 500, 'REPLIES_FAILED', 'Failed to load replies');
+    }
+  });
+
   fastify.post('/:id/comments', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = (request.body || {}) as CreateCommentBody;
+    const body = (request.body || {}) as CreateCommentBody & { parentId?: string };
     const validation = validateCourseComment(body as Record<string, any>);
     if (!validation.valid) {
       return error(reply, 400, 'VALIDATION_ERROR', validation.errors.join(', '));
@@ -304,6 +320,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         userId: request.user!.sub,
         userRole: request.user!.role,
         content: body.content,
+        parentId: body.parentId,
       });
       return created(reply, result, 'Comment posted');
     } catch (err: unknown) {

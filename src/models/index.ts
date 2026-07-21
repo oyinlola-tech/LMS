@@ -52,6 +52,7 @@ import { MentorshipApplication } from './MentorshipApplication.model';
 import { Subscription } from './Subscription.model';
 import { DiscussionThread } from './DiscussionThread.model';
 import { DiscussionReply } from './DiscussionReply.model';
+import { DiscussionMessage } from './DiscussionMessage.model';
 import { DiscussionGroup } from './DiscussionGroup.model';
 import { GroupMember } from './GroupMember.model';
 import { Follow } from './Follow.model';
@@ -117,6 +118,7 @@ export {
   Subscription,
   DiscussionThread,
   DiscussionReply,
+  DiscussionMessage,
   DiscussionGroup,
   GroupMember,
   Follow,

@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { Op } from 'sequelize';
-import { DiscussionGroup, GroupMember, User } from '../models';
+import { DiscussionGroup, GroupMember, DiscussionMessage, User } from '../models';
 import { UserRole } from '../enums';
 import { ok, created, error } from '../utils/response.util';
 
@@ -125,6 +125,26 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       return ok(reply, null, 'Left group');
     } catch {
       return error(reply, 500, 'GROUP_LEAVE_FAILED', 'Failed to leave group');
+    }
+  });
+
+  fastify.get('/:id/messages', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const membership = await GroupMember.findOne({ where: { groupId: id, userId: request.user!.sub } });
+      if (!membership) return error(reply, 403, 'FORBIDDEN', 'You must be a member to view messages');
+      const { limit, before } = request.query as { limit?: string; before?: string };
+      const where: any = { groupId: id };
+      if (before) where.id = { [Op.lt]: before };
+      const messages = await DiscussionMessage.findAll({
+        where,
+        include: [{ model: User, as: 'author', attributes: ['id', 'fullName', 'avatarUrl'] }],
+        order: [['createdAt', 'DESC']],
+        limit: Math.min(Number(limit) || 50, 100),
+      });
+      return ok(reply, messages.reverse(), 'Messages loaded');
+    } catch {
+      return error(reply, 500, 'MESSAGES_LIST_FAILED', 'Failed to load messages');
     }
   });
 

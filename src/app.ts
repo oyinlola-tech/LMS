@@ -177,6 +177,10 @@ export async function buildApp() {
   await app.register(followRoutes, { prefix: '/api/follow' });
   await app.register(publicRoutes, { prefix: '/public' });
 
+  app.get('/favicon.ico', async (_req, reply) => {
+    reply.redirect('/favicon.svg');
+  });
+
   app.get('/api/health', async () => ({
     message: 'Service healthy',
     data: { name: `${process.env.APP_NAME} API`, status: 'ok' },

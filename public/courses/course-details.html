@@ -104,9 +104,10 @@
   </style>
 </head>
 <body>
-  <div data-include="header"></div>
+  <div class="admin-layout">
+    <div data-include="/courses/components/courses-sidebar"></div>
 
-  <main style="padding-top: 6rem">
+  <main class="admin-main" style="padding-top: 2rem">
     <div id="loading-state" style="padding: 4rem 0">
       <div class="container">
         <div class="course-hero">
@@ -255,7 +256,9 @@
     </div>
   </main>
 
-  <div data-include="footer"></div>
+  </main>
+  </div>
+  <div data-include="/courses/components/courses-bottom-nav"></div>
   <div data-include="auth-modal"></div>
 
   <script src="/js/components/include.js"></script>
@@ -264,6 +267,7 @@
   <script src="/js/apis/public.js"></script>
   <script src="/js/apis/reviews.js"></script>
   <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
   <script src="/js/courses/course-details.js"></script>
 </body>
 </html>

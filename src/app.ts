@@ -146,10 +146,17 @@ export async function buildApp() {
   }
 
   app.get('/assignments/:id/student', async (_req, reply) => reply.sendFile('students/assignment.html'));
+  app.get('/tutor/assignments', async (_req, reply) => reply.sendFile('tutors/assignments/index.html'));
+  app.get('/tutor/assignments/:id/details', async (_req, reply) => reply.sendFile('tutors/assignments/details.html'));
+  app.get('/tutor/assignments/:id/submission', async (_req, reply) => reply.sendFile('tutors/assignments/submission.html'));
+  app.get('/tutor/assignments/:id/review', async (_req, reply) => reply.sendFile('tutors/assignments/review.html'));
   app.get('/tutor/assignments/builder/:id', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
   app.get('/tutor/assignments/builder/:id/step/:step', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
 
   app.get('/profile/setup', async (_req, reply) => reply.sendFile('students/profile/setup.html'));
+
+  app.get('/courses/catalog', async (_req, reply) => reply.sendFile('students/courses/catalog.html'));
+  app.get('/courses/:id/details', async (_req, reply) => reply.sendFile('students/courses/details.html'));
 
   app.get('/course/:id', async (_req, reply) => reply.sendFile('courses/course-details.html'));
 
@@ -159,10 +166,14 @@ export async function buildApp() {
     admin: 'admin/profile.html',
     super_admin: 'superadmin/profile.html',
   };
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
   app.get('/profile/:id', async (request, reply) => {
     try {
+      const id = (request.params as { id: string }).id;
+      if (!UUID_REGEX.test(id)) return reply.sendFile('pages/profile.html');
       const { User } = await import('./models');
-      const user = await User.findByPk((request.params as { id: string }).id, { attributes: ['role'] });
+      const user = await User.findByPk(id, { attributes: ['role'] });
       return reply.sendFile(profilePageMap[user?.role || 'learner'] || 'pages/profile.html');
     } catch {
       return reply.sendFile('pages/profile.html');

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Course Catalog</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <link href="/students/courses/css/catalog.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/students/components/learner-sidebar"></div>
+
+    <main class="admin-main">
+      <div data-include="/students/components/dashboard-header"></div>
+
+      <div class="catalog-content">
+        <div class="container">
+          <div class="catalog-hero">
+            <div class="catalog-hero-text">
+              <span class="hero-badge">Explore</span>
+              <h1 class="hero-title">Discover Your Next Course</h1>
+              <p class="hero-subtitle">Expand your skills with expert-led courses designed for every level.</p>
+            </div>
+            <div class="hero-search-wrapper">
+              <div class="hero-search">
+                <span class="material-symbols-outlined search-icon">search</span>
+                <input type="text" id="catalog-search" class="hero-search-input" placeholder="Search courses..." autocomplete="off"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="catalog-toolbar">
+            <div class="category-filters" id="category-filters"></div>
+            <div class="toolbar-actions">
+              <select id="difficulty-filter" class="filter-select">
+                <option value="">All Levels</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="expert">Expert</option>
+              </select>
+              <select id="sort-filter" class="filter-select">
+                <option value="newest">Newest</option>
+                <option value="popular">Most Popular</option>
+                <option value="rating">Highest Rated</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+              </select>
+            </div>
+          </div>
+
+          <section class="featured-section" id="featured-section">
+            <div class="section-header">
+              <h2 class="section-title">Featured Courses</h2>
+              <span class="section-subtitle">Hand-picked by our team</span>
+            </div>
+            <div class="featured-grid" id="featured-grid"></div>
+          </section>
+
+          <section class="all-courses-section" id="all-courses-section">
+            <div class="section-header">
+              <h2 class="section-title">All Courses</h2>
+              <span class="section-subtitle" id="results-count"></span>
+            </div>
+            <div class="courses-grid" id="courses-grid">
+              <div class="loading-placeholder" id="catalog-loading">
+                <div class="skeleton-card" style="height:360px"></div>
+                <div class="skeleton-card" style="height:360px"></div>
+                <div class="skeleton-card" style="height:360px"></div>
+                <div class="skeleton-card" style="height:360px"></div>
+              </div>
+            </div>
+            <div class="pagination-bar" id="pagination-bar"></div>
+            <div class="empty-state" id="empty-state" style="display:none">
+              <span class="material-symbols-outlined empty-icon">school</span>
+              <h3>No courses found</h3>
+              <p>Try adjusting your search or filters</p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div data-include="/students/components/learner-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+
+  <button class="fab" id="scroll-top-btn" title="Back to top">
+    <span class="material-symbols-outlined">arrow_upward</span>
+  </button>
+
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/public.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script src="/students/courses/js/catalog.js"></script>
+</body>
+</html>

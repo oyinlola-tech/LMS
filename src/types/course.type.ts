@@ -3,6 +3,8 @@ export interface ListCoursesQuery {
   category?: string;
   difficulty?: string;
   q?: string;
+  page?: string;
+  limit?: string;
 }
 
 export interface CreateAnnouncementBody {

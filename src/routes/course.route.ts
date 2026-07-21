@@ -69,7 +69,12 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       const query = request.query as ListCoursesQuery;
       const userId = request.user?.sub;
-      const result = await listCoursesQuery.execute({ ...query, userId });
+      const result = await listCoursesQuery.execute({
+        ...query,
+        userId,
+        page: query.page ? parseInt(query.page, 10) : 1,
+        limit: query.limit ? parseInt(query.limit, 10) : 20,
+      });
       return ok(reply, result, 'Courses loaded');
     } catch {
       return error(reply, 500, 'COURSE_LIST_FAILED', 'Failed to load courses');

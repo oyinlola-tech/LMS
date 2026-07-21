@@ -25,12 +25,13 @@
     "@fastify/swagger": "^9.8.1",
     "@fastify/swagger-ui": "^6.1.0",
     "@prisma/client": "^7.9.0",
+    "@sendbyte/node": "^0.2.1",
     "argon2": "^0.44.0",
     "bullmq": "^5.80.9",
     "dotenv": "^17.4.2",
     "fastify": "^5.10.0",
     "fastify-plugin": "^6.0.0",
-    "firebase-admin": "^14.2.0",
+    "firebase-admin": "^10.3.0",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^9.0.3",
     "pdfkit": "^0.18.0",
@@ -39,7 +40,7 @@
     "puppeteer": "^25.3.0",
     "qrcode": "^1.5.4",
     "redis": "^5.12.1",
-    "sequelize": "^6.37.8",
+    "sequelize": "^3.30.0",
     "ws": "^8.21.1"
   },
   "devDependencies": {

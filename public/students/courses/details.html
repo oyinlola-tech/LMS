@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Course</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <link href="/students/courses/css/details.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/students/components/learner-sidebar"></div>
+
+    <main class="admin-main">
+      <div data-include="/students/components/dashboard-header"></div>
+
+      <div class="details-content" id="details-content">
+        <div class="loading-state" id="loading-state">
+          <div class="container">
+            <div class="skeleton" style="height:2rem;width:30%;margin-bottom:0.5rem"></div>
+            <div class="skeleton" style="height:1rem;width:60%;margin-bottom:2rem"></div>
+            <div class="skeleton" style="aspect-ratio:16/9;border-radius:1rem;margin-bottom:2rem"></div>
+            <div class="skeleton" style="height:1rem;width:90%;margin-bottom:0.5rem"></div>
+            <div class="skeleton" style="height:1rem;width:70%"></div>
+          </div>
+        </div>
+
+        <div class="error-state" id="error-state" style="display:none">
+          <div class="container text-center" style="padding:4rem 0">
+            <span class="material-symbols-outlined" style="font-size:4rem;color:var(--error);margin-bottom:1rem">error</span>
+            <h2 class="text-2xl font-bold mb-2">Course Not Found</h2>
+            <p style="color:var(--on-surface-variant)" class="mb-6">This course doesn't exist or has been removed.</p>
+            <a href="/courses/catalog" class="btn-primary">Browse Courses</a>
+          </div>
+        </div>
+
+        <div id="course-content" style="display:none">
+          <div class="course-details-hero">
+            <div class="container">
+              <div class="hero-back">
+                <button id="back-btn" class="back-btn"><span class="material-symbols-outlined">arrow_back</span> Back</button>
+                <button id="share-btn" class="share-btn" title="Share"><span class="material-symbols-outlined">share</span></button>
+              </div>
+              <div class="hero-media" id="hero-media">
+                <div class="hero-thumb" id="hero-thumb"></div>
+                <button class="play-preview-btn" id="play-preview-btn">
+                  <span class="material-symbols-outlined">play_circle</span>
+                  <span>Preview</span>
+                </button>
+                <div class="hero-badges" id="hero-badges"></div>
+              </div>
+              <div class="hero-info">
+                <h1 class="hero-title" id="detail-title"></h1>
+                <p class="hero-subtitle" id="detail-subtitle"></p>
+                <div class="hero-meta" id="hero-meta"></div>
+                <div class="hero-instructor" id="hero-instructor"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-body">
+            <div class="container">
+              <div class="detail-grid">
+                <div class="detail-main">
+                  <section class="detail-section" id="outcomes-section">
+                    <h2 class="section-title">What You'll Learn</h2>
+                    <div class="outcomes-grid" id="outcomes-list"></div>
+                  </section>
+
+                  <section class="detail-section" id="requirements-section">
+                    <h2 class="section-title">Requirements</h2>
+                    <ul class="requirements-list" id="requirements-list"></ul>
+                  </section>
+
+                  <section class="detail-section" id="curriculum-section">
+                    <h2 class="section-title">Course Content</h2>
+                    <div class="curriculum-summary" id="curriculum-summary"></div>
+                    <div class="curriculum-accordion" id="curriculum-accordion"></div>
+                  </section>
+
+                  <section class="detail-section" id="resources-section" style="display:none">
+                    <h2 class="section-title">Downloadable Resources</h2>
+                    <div class="resources-list" id="resources-list"></div>
+                  </section>
+
+                  <section class="detail-section" id="instructor-section">
+                    <h2 class="section-title">Instructor</h2>
+                    <div class="instructor-card" id="instructor-card"></div>
+                  </section>
+
+                  <section class="detail-section" id="faq-section" style="display:none">
+                    <h2 class="section-title">Frequently Asked Questions</h2>
+                    <div class="faq-list" id="faq-list"></div>
+                  </section>
+
+                  <section class="detail-section" id="reviews-section">
+                    <h2 class="section-title">Reviews</h2>
+                    <div class="reviews-summary" id="reviews-summary"></div>
+                    <div class="reviews-list" id="reviews-list"></div>
+                  </section>
+
+                  <section class="detail-section" id="certificate-section" style="display:none">
+                    <h2 class="section-title">Certificate</h2>
+                    <div class="certificate-info" id="certificate-info"></div>
+                  </section>
+                </div>
+
+                <div class="detail-sidebar">
+                  <div class="sidebar-sticky">
+                    <div class="pricing-card" id="pricing-card"></div>
+                  </div>
+                </div>
+              </div>
+
+              <section class="similar-section" id="similar-section" style="display:none">
+                <h2 class="section-title">Similar Courses</h2>
+                <div class="similar-grid" id="similar-grid"></div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div data-include="/students/components/learner-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/public.js"></script>
+  <script src="/js/apis/reviews.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script src="/students/courses/js/details.js"></script>
+</body>
+</html>

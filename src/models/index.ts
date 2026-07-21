@@ -57,6 +57,8 @@ import { DiscussionGroup } from './DiscussionGroup.model';
 import { GroupMember } from './GroupMember.model';
 import { Follow } from './Follow.model';
 import { ThreadSubscription } from './ThreadSubscription.model';
+import { PlatformSetting } from './PlatformSetting.model';
+import { PayoutRequest } from './PayoutRequest.model';
 import { BlogPost } from './BlogPost.model';
 import { BlogComment } from './BlogComment.model';
 import { Career } from './Career.model';
@@ -127,4 +129,6 @@ export {
   BlogPost,
   BlogComment,
   Career,
+  PlatformSetting,
+  PayoutRequest,
 };

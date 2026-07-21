@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { UserRole } from '../enums';
+import { User } from '../models';
 import { ok, created, error } from '../utils/response.util';
 import { adminCreateUserCommand } from '../services/admin/commands/createUser.command';
 import { updateUserStatusCommand } from '../services/admin/commands/updateUserStatus.command';
@@ -13,8 +14,10 @@ import { getUserRoleHistoryQuery } from '../services/admin/queries/getUserRoleHi
 import { getUserNotesQuery } from '../services/admin/queries/getUserNotes.query';
 import { getUserMetricsQuery } from '../services/admin/queries/getUserMetrics.query';
 
+import { hasPermission } from '../utils/permissions.util';
+
 export default async function(fastify: FastifyInstance): Promise<void> {
-  fastify.get('/', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { page, limit, role, status, q } = request.query as any;
       const result = await listUsersQuery.execute({ page: Number(page), limit: Number(limit), role, status, q });
@@ -24,7 +27,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.post('/', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const result = await adminCreateUserCommand.execute(request.user!.sub, (request.body as any) || {});
       return ok(reply, result, 'User created');
@@ -33,7 +36,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.get('/:id', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/:id', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const result = await getUserDetailQuery.execute((request.params as any).id);
       if (!result) return error(reply, 404, 'NOT_FOUND', 'User not found');
@@ -43,7 +46,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.get('/:id/activity', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/:id/activity', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const limit = Math.min(200, Math.max(1, Number((request.query as any).limit || 50)));
       const activities = await getUserActivityQuery.execute((request.params as any).id, limit);
@@ -53,7 +56,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.get('/:id/role-history', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/:id/role-history', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const history = await getUserRoleHistoryQuery.execute((request.params as any).id);
       return ok(reply, history, 'Role history loaded');
@@ -62,7 +65,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.get('/:id/notes', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/:id/notes', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const notes = await getUserNotesQuery.execute((request.params as any).id);
       return ok(reply, notes, 'User notes loaded');
@@ -71,7 +74,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.post('/:id/notes', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/:id/notes', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { note } = (request.body as Record<string, any>) || {};
       const entry = await addUserNoteCommand.execute((request.params as any).id, request.user!.sub, note);
@@ -81,7 +84,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.get('/:id/metrics', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/:id/metrics', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const result = await getUserMetricsQuery.execute((request.params as any).id);
       if (!result) return error(reply, 404, 'NOT_FOUND', 'User not found');
@@ -91,7 +94,23 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.patch('/:id/status', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.delete('/:id', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    if (!hasPermission(request.user?.role, 'delete_user')) {
+      return error(reply, 403, 'FORBIDDEN', 'Only super admin can delete users');
+    }
+    try {
+      const { id } = request.params as any;
+      const user = await User.findByPk(id);
+      if (!user) return error(reply, 404, 'NOT_FOUND', 'User not found');
+      if (user.role === UserRole.SUPER_ADMIN) return error(reply, 403, 'FORBIDDEN', 'Cannot delete super admin');
+      await user.destroy();
+      return ok(reply, null, 'User deleted');
+    } catch (err: any) {
+      return error(reply, err.statusCode || 500, err.code || 'ADMIN_DELETE_FAILED', err.message || 'Failed to delete user');
+    }
+  });
+
+  fastify.patch('/:id/status', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { status, reason } = (request.body as Record<string, any>) || {};
       await updateUserStatusCommand.execute(request.user!.sub, (request.params as any).id, status, reason);
@@ -101,9 +120,12 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.patch('/:id/role', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.patch('/:id/role', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { role } = (request.body as Record<string, any>) || {};
+      if (role === UserRole.SUPER_ADMIN && !hasPermission(request.user?.role, 'create_admin')) {
+        return error(reply, 403, 'FORBIDDEN', 'Only super admin can assign super admin role');
+      }
       await updateUserRoleCommand.execute(request.user!.sub, (request.params as any).id, role);
       return ok(reply, null, 'User role updated');
     } catch (err: any) {
@@ -111,7 +133,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.patch('/:id/team', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.patch('/:id/team', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { team } = (request.body as Record<string, any>) || {};
       await updateUserTeamCommand.execute(request.user!.sub, (request.params as any).id, team);

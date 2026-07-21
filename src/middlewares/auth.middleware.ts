@@ -25,3 +25,14 @@ export function requireRole(role: string) {
     return server.requireRole(role)(request, reply);
   };
 }
+
+export function requireAtLeastRole(minRole: string) {
+  return async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    const server = request.server;
+    if (!server.requireAtLeastRole) {
+      reply.status(500).send({ error: { code: 'CONFIG_ERROR', message: 'Auth plugin not registered', details: null } });
+      return;
+    }
+    return server.requireAtLeastRole(minRole)(request, reply);
+  };
+}

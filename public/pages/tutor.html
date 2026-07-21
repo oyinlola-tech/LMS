@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Tutor Dashboard</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .admin-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .admin-header .user-info { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--on-surface-variant); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--surface-container); border-radius: 1rem; padding: 1.25rem; border: 1px solid var(--outline-variant); }
+    .stat-card .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--primary); margin-top: 0.25rem; }
+    .section-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
+    .table-container { background: var(--surface-container); border-radius: 1rem; border: 1px solid var(--outline-variant); overflow: hidden; }
+    .table-container table { width: 100%; border-collapse: collapse; }
+    .table-container th { text-align: left; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); border-bottom: 1px solid var(--outline-variant); background: var(--surface-container-high); }
+    .table-container td { padding: 0.75rem 1rem; font-size: 0.875rem; border-bottom: 1px solid var(--outline-variant); }
+    .table-container tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+    .badge.active { background: var(--primary-fixed); color: var(--on-primary-fixed); }
+    .badge.pending { background: var(--tertiary-fixed); color: var(--on-tertiary-fixed); }
+    .btn-icon { background: none; border: none; color: var(--on-surface-variant); cursor: pointer; padding: 0.25rem; border-radius: 0.5rem; transition: var(--transition); font-size: 0.875rem; }
+    .btn-icon:hover { background: var(--surface-container-high); color: var(--on-surface); }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="tutor-sidebar"></div>
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>Tutor Overview</h1>
+        <div class="user-info">
+          <span id="user-name">Tutor</span>
+          <button id="logout-btn" class="btn-icon" type="button">Logout</button>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label">My Courses</div><div class="value" id="stat-courses">—</div></div>
+        <div class="stat-card"><div class="label">Total Students</div><div class="value" id="stat-students">—</div></div>
+        <div class="stat-card"><div class="label">Avg Rating</div><div class="value" id="stat-rating">—</div></div>
+        <div class="stat-card"><div class="label">Pending Reviews</div><div class="value" id="stat-pending">—</div></div>
+      </div>
+      <div class="section-title">Recent Submissions</div>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Student</th><th>Course</th><th>Assignment</th><th>Status</th><th></th></tr></thead>
+          <tbody id="submissions-body">
+            <tr><td colspan="5" style="text-align: center; color: var(--on-surface-variant)">Loading submissions...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div data-include="auth-modal"></div>
+
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/tutor.js"></script>
+</body>
+</html>

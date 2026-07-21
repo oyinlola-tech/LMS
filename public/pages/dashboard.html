@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Dashboard</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .admin-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .admin-header .user-info { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--on-surface-variant); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--surface-container); border-radius: 1rem; padding: 1.25rem; border: 1px solid var(--outline-variant); }
+    .stat-card .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--primary); margin-top: 0.25rem; }
+    .section-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
+    .course-progress-card { background: var(--surface-container); border-radius: 1rem; padding: 1rem; border: 1px solid var(--outline-variant); display: flex; align-items: center; gap: 1rem; }
+    .progress-bar { flex: 1; height: 0.5rem; border-radius: 999px; background: var(--surface-container-high); overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 999px; background: var(--primary); transition: width 0.3s; }
+    .btn-icon { background: none; border: none; color: var(--on-surface-variant); cursor: pointer; padding: 0.25rem; border-radius: 0.5rem; transition: var(--transition); font-size: 0.875rem; }
+    .btn-icon:hover { background: var(--surface-container-high); color: var(--on-surface); }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="learner-sidebar"></div>
+    <main class="admin-main">
+      <div class="admin-header">
+        <h1>My Dashboard</h1>
+        <div class="user-info">
+          <span id="user-name">Learner</span>
+          <button id="logout-btn" class="btn-icon" type="button">Logout</button>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="label">Enrolled Courses</div><div class="value" id="stat-enrolled">—</div></div>
+        <div class="stat-card"><div class="label">Completed</div><div class="value" id="stat-completed">—</div></div>
+        <div class="stat-card"><div class="label">Certificates</div><div class="value" id="stat-certificates">—</div></div>
+        <div class="stat-card"><div class="label">Streak Days</div><div class="value" id="stat-streak">—</div></div>
+      </div>
+      <div class="section-title">My Courses</div>
+      <div class="space-y-3" id="my-courses-list">
+        <div style="text-align: center; padding: 2rem; color: var(--on-surface-variant)">Loading your courses...</div>
+      </div>
+    </main>
+  </div>
+
+  <div data-include="auth-modal"></div>
+
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

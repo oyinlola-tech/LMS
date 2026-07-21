@@ -115,6 +115,8 @@ export async function buildApp() {
     ['/verify-otp', 'auth/verify-otp.html'],
     ['/forgot-password', 'auth/forgot-password.html'],
     ['/change-password', 'auth/change-password.html'],
+    ['/dashboard', 'pages/dashboard.html'],
+    ['/tutor', 'pages/tutor.html'],
     ['/admin', 'admin/index.html'],
     ['/courses', 'pages/courses.html'],
     ['/learning-paths', 'pages/learning-paths.html'],
@@ -164,8 +166,8 @@ export async function buildApp() {
   await app.register(gradebookRoutes, { prefix: '/gradebook' });
   await app.register(submissionsRoutes, { prefix: '/submissions' });
   await app.register(discussionsRoutes, { prefix: '/discussions' });
-  await app.register(blogRoutes, { prefix: '/blog' });
-  await app.register(careerRoutes, { prefix: '/careers' });
+  await app.register(blogRoutes, { prefix: '/api/blog' });
+  await app.register(careerRoutes, { prefix: '/api/careers' });
   await app.register(publicRoutes, { prefix: '/public' });
 
   app.get('/api/health', async () => ({

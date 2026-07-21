@@ -1,0 +1,18 @@
+import { lessonRepository } from '../../../repositories/lesson.repository';
+import { lessonBookmarkRepository } from '../../../repositories/lessonBookmark.repository';
+
+export class GetLessonBookmarksQuery {
+  async execute(lessonId: string, userId: string, userRole: string): Promise<any[]> {
+    const access = await lessonRepository.checkAccess(lessonId, userId, userRole);
+    if (!access.allowed) {
+      const err: any = new Error(access.code === 'NOT_FOUND' ? 'Lesson not found' : 'Forbidden');
+      err.code = access.code;
+      err.statusCode = access.status;
+      throw err;
+    }
+
+    return lessonBookmarkRepository.findByUserAndLesson(userId, lessonId);
+  }
+}
+
+export const getLessonBookmarksQuery = new GetLessonBookmarksQuery();

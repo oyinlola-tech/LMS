@@ -7,7 +7,13 @@
 
   components.forEach(function (el) {
     var name = el.getAttribute('data-include');
-    fetch('/components/' + name + '.html')
+    var path;
+    if (name.indexOf('/') !== -1) {
+      path = name + '.html';
+    } else {
+      path = '/components/' + name + '.html';
+    }
+    fetch(path)
       .then(function (res) { return res.text(); })
       .then(function (html) {
         el.outerHTML = html;

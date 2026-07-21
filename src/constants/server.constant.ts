@@ -1,0 +1,14 @@
+export const DEFAULT_RATE_LIMIT_MAX = 200;
+export const DEFAULT_RATE_LIMIT_WINDOW_MS = 15 * 60000;
+export const AUTH_RATE_LIMIT_MAX = 30;
+export const AUTH_RATE_LIMIT_WINDOW_MS = 10 * 60000;
+export const WS_MAX_MESSAGE_BYTES = 4096;
+export const WS_MAX_MESSAGES_PER_MINUTE = 30;
+export const WS_RATE_WINDOW_MS = 1 * 60000;
+
+export const DEFAULT_PORT = 4000;
+export const DEFAULT_REQUEST_TIMEOUT_MS = 30000;
+export const BODY_LIMIT_BYTES = 1048576;
+export const HSTS_MAX_AGE_SECONDS = 31536000;
+export const UPLOAD_MAX_FILE_SIZE_MB = 50;
+export const BYTES_PER_MB = 1024 * 1024;

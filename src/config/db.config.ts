@@ -1,0 +1,11 @@
+import { Sequelize } from 'sequelize';
+
+const DATABASE_URL = process.env.DATABASE_URL || process.env.DB_URL;
+
+if (!DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
+
+const sequelize = new Sequelize(DATABASE_URL, { dialect: 'postgres', logging: false });
+
+export { sequelize };

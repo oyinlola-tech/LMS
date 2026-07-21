@@ -1,0 +1,1 @@
+export const CERTIFICATE_RENDER_TIMEOUT_MS = 5000;

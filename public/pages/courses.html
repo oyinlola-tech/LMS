@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Course Library</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 4rem 0">
+      <div class="container">
+        <h1 class="text-4xl font-black mb-6">Course Library</h1>
+        <p class="text-lg mb-8" style="color: var(--on-surface-variant)">Explore our extensive catalog of 450+ expert-led courses across AI, design, engineering, data science, and business.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="course-library-grid">
+          <div class="col-span-full text-center py-12" style="color: var(--on-surface-variant)">
+            <span class="material-symbols-outlined text-4xl mb-4">hourglass</span>
+            <p>Loading courses...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/public.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      PublicAPI.getFeaturedCourses().then(function(res) {
+        var grid = document.getElementById('course-library-grid');
+        if (res.data && res.data.length) {
+          grid.innerHTML = '<div class="col-span-full text-center py-8"><p>Study in progress — check back for the full catalog.</p></div>';
+        }
+      });
+    });
+    document.addEventListener('components-loaded', function() {
+      PublicAPI.getFeaturedCourses().then(function(res) {
+        var grid = document.getElementById('course-library-grid');
+        if (res.data && res.data.length) {
+          var html = res.data.map(function(c) {
+            var img = c.thumbnailUrl || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80';
+            return '<div class="rounded-2xl overflow-hidden border" style="background: #fff; border-color: var(--outline-variant)">'
+              + '<div class="h-40" style="background-image: url(\'' + img + '\'); background-size: cover; background-position: center"></div>'
+              + '<div class="p-4"><h3 class="font-bold">' + (c.title || '') + '</h3>'
+              + '<p class="text-sm mt-2" style="color: var(--on-surface-variant)">' + (c.description || '') + '</p></div></div>';
+          }).join('');
+          grid.innerHTML = html;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -12,15 +12,21 @@ function renderStars(rating) {
   return s;
 }
 
+var DEFAULT_IMG = '/img/placeholder.svg';
+
+fetch('/public/config').then(function (r) { return r.json(); }).then(function (res) {
+  if (res && res.data && res.data.defaultAvatarUrl) DEFAULT_IMG = res.data.defaultAvatarUrl;
+}).catch(function () { /* use local fallback */ });
+
 function renderCourseCard(c) {
   var cat = c.categories && c.categories.length ? c.categories[0] : 'Course';
   var badge = c.difficulty === 'beginner' ? 'Beginner' : c.difficulty === 'expert' ? 'Advanced' : 'Intermediate';
   var badgeStyle = c.difficulty === 'expert'
     ? 'background: var(--secondary-fixed); color: var(--on-secondary-fixed)'
     : 'background: var(--primary-fixed); color: var(--on-primary-fixed)';
-  var img = c.thumbnailUrl || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80';
+  var img = c.thumbnailUrl || DEFAULT_IMG;
   var instructorName = c.tutor ? c.tutor.fullName : 'Instructor';
-  var instructorAvatar = c.tutor && c.tutor.avatarUrl ? c.tutor.avatarUrl : '';
+  var instructorAvatar = c.tutor && c.tutor.avatarUrl ? c.tutor.avatarUrl : DEFAULT_IMG;
   var price = c.price != null ? '$' + c.price.toFixed(2) : 'Free';
   return '<div class="rounded-2xl overflow-hidden border flex flex-col transition-all" style="background: #fff; border-color: var(--outline-variant); box-shadow: 0 1px 2px rgba(0,0,0,0.05)">'
     + '<div class="relative h-48" style="background-image: url(\'' + img + '\'); background-size: cover; background-position: center"></div>'
@@ -42,7 +48,7 @@ function renderCourseCard(c) {
 }
 
 function renderInstructorCard(instructor) {
-  var img = instructor.avatarUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80';
+  var img = instructor.avatarUrl || DEFAULT_IMG;
   var headline = instructor.TutorProfile ? instructor.TutorProfile.headline || instructor.bio || '' : instructor.bio || '';
   return '<div class="group text-center">'
     + '<div class="relative size-48 mx-auto mb-6 rounded-3xl overflow-hidden shadow-lg transition-all duration-300">'
@@ -71,7 +77,7 @@ function renderBlogCard(post) {
 function renderTestimonialCard(t) {
   var user = t.User || {};
   var name = user.fullName || 'Student';
-  var avatar = user.avatarUrl || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80';
+  var avatar = user.avatarUrl || DEFAULT_IMG;
   var title = user.bio || 'Verified Graduate';
   var comment = t.comment || '';
   return '<div class="testimonial-card p-8 rounded-2xl border" style="background: #fff; border-color: var(--outline-variant); box-shadow: 0 1px 2px rgba(0,0,0,0.05); min-width: 380px; flex-shrink: 0">'

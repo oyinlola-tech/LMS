@@ -1,21 +1,21 @@
 const BlogAPI = {
   list() {
-    return api.get('/blog');
+    return api.get('/api/blog');
   },
 
   getBySlug(slug) {
-    return api.get('/blog/' + encodeURIComponent(slug));
+    return api.get('/api/blog/' + encodeURIComponent(slug));
   },
 
   create(data) {
-    return api.post('/blog', data);
+    return api.post('/api/blog', data);
   },
 
   update(id, data) {
-    return api.put('/blog/' + id, data);
+    return api.put('/api/blog/' + id, data);
   },
 
   delete(id) {
-    return api.delete('/blog/' + id);
+    return api.delete('/api/blog/' + id);
   },
 };

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Cookie Settings</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 4rem 0">
+      <div class="container" style="max-width: 48rem">
+        <h1 class="text-4xl font-black mb-6">Cookie Settings</h1>
+        <p class="text-lg mb-6" style="color: var(--on-surface-variant)">We use cookies and similar technologies to enhance your experience, analyze traffic, and personalize content. You can manage your preferences below.</p>
+        <div class="space-y-4">
+          <div class="p-4 rounded-xl border flex items-center justify-between" style="background: #fff; border-color: var(--outline-variant)">
+            <div><h3 class="font-bold">Essential Cookies</h3><p class="text-xs" style="color: var(--on-surface-variant)">Required for the platform to function.</p></div>
+            <span class="text-xs font-bold px-3 py-1 rounded-full" style="background: var(--surface-container); color: var(--on-surface-variant)">Always Active</span>
+          </div>
+          <div class="p-4 rounded-xl border flex items-center justify-between" style="background: #fff; border-color: var(--outline-variant)">
+            <div><h3 class="font-bold">Analytics Cookies</h3><p class="text-xs" style="color: var(--on-surface-variant)">Help us improve by understanding usage.</p></div>
+            <label class="checkbox-label"><input type="checkbox" checked/></label>
+          </div>
+          <div class="p-4 rounded-xl border flex items-center justify-between" style="background: #fff; border-color: var(--outline-variant)">
+            <div><h3 class="font-bold">Marketing Cookies</h3><p class="text-xs" style="color: var(--on-surface-variant)">Used to deliver relevant ads and content.</p></div>
+            <label class="checkbox-label"><input type="checkbox"/></label>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+</body>
+</html>

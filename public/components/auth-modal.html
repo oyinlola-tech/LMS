@@ -1,0 +1,104 @@
+<div id="auth-modal" class="modal-overlay" style="display:none">
+  <div class="modal-backdrop"></div>
+  <div class="modal-container">
+    <div class="modal-header">
+      <button class="modal-close" id="modal-close-btn" type="button">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-login">
+        <div class="auth-header" style="margin-bottom: 1.5rem">
+          <h2 style="font-size: 1.5rem">Welcome back</h2>
+          <p>Sign in to continue.</p>
+        </div>
+        <form id="modal-login-form">
+          <div class="form-group">
+            <label for="modal-login-email">Email</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined">mail</span>
+              <input class="form-input input-icon" id="modal-login-email" name="email" placeholder="you@example.com" type="email" required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="modal-login-password">Password</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined">lock</span>
+              <input class="form-input input-icon input-icon-pw" id="modal-login-password" name="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" type="password" required/>
+              <button class="pw-toggle" type="button" data-toggle-pw="modal-login-password" tabindex="-1">
+                <span class="material-symbols-outlined">visibility_off</span>
+              </button>
+            </div>
+          </div>
+          <div class="form-actions" style="margin-bottom: 1rem">
+            <a class="forgot-link" href="/forgot-password">Forgot password?</a>
+          </div>
+          <div id="modal-login-error" class="form-error" style="display:none; margin-bottom: 0.75rem"></div>
+          <button class="btn-submit" type="submit">Sign In</button>
+        </form>
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">Or</span>
+          <div class="divider-line"></div>
+        </div>
+        <div style="text-align: center">
+          <p class="text-sm" style="color: var(--on-surface-variant)">
+            Don't have an account?
+            <a href="#" id="modal-switch-register" style="color: var(--primary); font-weight: 600">Sign up</a>
+          </p>
+        </div>
+      </div>
+      <div id="modal-register" style="display:none">
+        <div class="auth-header" style="margin-bottom: 1.5rem">
+          <h2 style="font-size: 1.5rem">Create account</h2>
+          <p>Join our community.</p>
+        </div>
+        <form id="modal-register-form">
+          <div class="form-group">
+            <label for="modal-register-name">Full Name</label>
+            <input class="form-input" id="modal-register-name" name="fullName" placeholder="John Doe" type="text" required/>
+          </div>
+          <div class="form-group">
+            <label for="modal-register-email">Email</label>
+            <input class="form-input" id="modal-register-email" name="email" placeholder="you@example.com" type="email" required/>
+          </div>
+          <div class="form-group">
+            <label for="modal-register-password">Password</label>
+            <div class="input-wrapper">
+              <input class="form-input input-icon-pw" id="modal-register-password" name="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" type="password" required/>
+              <button class="pw-toggle" type="button" data-toggle-pw="modal-register-password" tabindex="-1">
+                <span class="material-symbols-outlined">visibility_off</span>
+              </button>
+            </div>
+          </div>
+          <div id="modal-register-error" class="form-error" style="display:none; margin-bottom: 0.75rem"></div>
+          <button class="btn-submit" type="submit">Create Account</button>
+        </form>
+        <div style="text-align: center; margin-top: 1rem">
+          <p class="text-sm" style="color: var(--on-surface-variant)">
+            Already have an account?
+            <a href="#" id="modal-switch-login" style="color: var(--primary); font-weight: 600">Sign in</a>
+          </p>
+        </div>
+      </div>
+      <div id="modal-otp" style="display:none">
+        <div class="auth-header" style="margin-bottom: 1.5rem">
+          <h2 style="font-size: 1.5rem">Verify OTP</h2>
+          <p>Enter the code sent to your email.</p>
+        </div>
+        <form id="modal-otp-form">
+          <div class="otp-inputs">
+            <input autofocus class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]*"/>
+            <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]*"/>
+            <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]*"/>
+            <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]*"/>
+            <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]*"/>
+            <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]*"/>
+          </div>
+          <div id="modal-otp-error" class="form-error" style="display:none; margin-top: 0.75rem; margin-bottom: 0.5rem"></div>
+          <button class="btn-submit" type="submit" style="margin-top: 1rem">Verify</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

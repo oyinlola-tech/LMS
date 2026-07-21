@@ -144,6 +144,8 @@ export async function buildApp() {
     app.get(route, async (_req, reply) => reply.sendFile(file));
   }
 
+  app.get('/assignments/:id/student', async (_req, reply) => reply.sendFile('students/assignment.html'));
+
   app.get('/course/:id', async (_req, reply) => reply.sendFile('courses/course-details.html'));
 
   const profilePageMap: Record<string, string> = {

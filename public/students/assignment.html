@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Assignment</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <link href="/students/css/assignment.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .admin-sidebar {
+      width: 240px; background: var(--surface-container);
+      border-right: 1px solid var(--outline-variant);
+      padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem;
+    }
+    .admin-sidebar .brand { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+    .admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .admin-nav a {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1rem; border-radius: 0.75rem;
+      color: var(--on-surface-variant); text-decoration: none;
+      font-size: 0.875rem; font-weight: 500; transition: var(--transition);
+    }
+    .admin-nav a:hover, .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .admin-nav a .icon { font-size: 1.25rem; }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/students/components/dashboard-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/students/components/dashboard-header"></div>
+
+      <!-- Skeleton Loading -->
+      <div id="assignment-skeleton">
+        <div class="skeleton" style="height:32px;width:60%;margin-bottom:1rem;border-radius:0.5rem"></div>
+        <div class="skeleton" style="height:20px;width:40%;margin-bottom:2rem;border-radius:0.5rem"></div>
+        <div class="assignment-grid">
+          <div>
+            <div class="skeleton" style="height:200px;border-radius:1rem;margin-bottom:1rem"></div>
+            <div class="skeleton" style="height:160px;border-radius:1rem;margin-bottom:1rem"></div>
+            <div class="skeleton" style="height:140px;border-radius:1rem;margin-bottom:1rem"></div>
+          </div>
+          <div>
+            <div class="skeleton" style="height:160px;border-radius:1rem;margin-bottom:1rem"></div>
+            <div class="skeleton" style="height:120px;border-radius:1rem;margin-bottom:1rem"></div>
+            <div class="skeleton" style="height:200px;border-radius:1rem;margin-bottom:1rem"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div id="assignment-content" style="display:none">
+
+        <!-- Breadcrumb -->
+        <nav class="assignment-breadcrumb" id="assignment-breadcrumb" aria-label="Breadcrumb"></nav>
+
+        <div class="assignment-grid">
+
+          <!-- ===== MAIN COLUMN ===== -->
+          <div class="assignment-main-col">
+
+            <!-- Header Card -->
+            <div class="card" id="assignment-header-card">
+              <div class="flex items-start justify-between gap-4 flex-wrap">
+                <div class="grow">
+                  <div class="flex items-center gap-2 mb-2 flex-wrap">
+                    <span class="assignment-type-badge" id="assignment-type-badge"></span>
+                    <span class="assignment-status-badge" id="assignment-status-badge"></span>
+                    <span class="assignment-difficulty-badge" id="assignment-difficulty-badge"></span>
+                  </div>
+                  <h1 class="assignment-title" id="assignment-title"></h1>
+                  <p class="assignment-meta" id="assignment-meta"></p>
+                  <p class="assignment-description" id="assignment-description"></p>
+                  <div class="assignment-stats-row" id="assignment-stats-row"></div>
+                </div>
+                <div class="countdown-card" id="countdown-card">
+                  <div class="countdown-label">Time Remaining</div>
+                  <div class="countdown-value" id="countdown-value">--</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="card" id="instructions-section">
+              <h2 class="section-title">Assignment Instructions</h2>
+              <div id="instructions-content" class="instructions-content"></div>
+            </div>
+
+            <!-- File Upload -->
+            <div class="card" id="upload-section">
+              <h2 class="section-title">File Submission</h2>
+              <div id="upload-area" class="upload-zone">
+                <div class="upload-zone-inner" id="upload-zone-inner">
+                  <span class="material-symbols-outlined" style="font-size:3rem;color:var(--on-surface-variant)">cloud_upload</span>
+                  <p class="text-sm font-bold mt-2">Drag & drop files here</p>
+                  <p class="text-xs" style="color:var(--on-surface-variant)">or <button id="browse-btn" type="button" class="text-link">browse files</button></p>
+                  <p class="text-xs mt-2" id="accepted-formats" style="color:var(--on-surface-variant)"></p>
+                  <input type="file" id="file-input" multiple accept="*/*" style="display:none" aria-label="Choose files"/>
+                </div>
+                <div id="upload-progress-area" style="display:none"></div>
+              </div>
+              <div id="file-list" class="file-list"></div>
+            </div>
+
+            <!-- Text Submission -->
+            <div class="card" id="text-submission-section" style="display:none">
+              <h2 class="section-title">Text Response</h2>
+              <div class="editor-toolbar" id="editor-toolbar" role="toolbar" aria-label="Text formatting">
+                <button type="button" data-cmd="bold" title="Bold"><strong>B</strong></button>
+                <button type="button" data-cmd="italic" title="Italic"><em>I</em></button>
+                <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+                <span class="tb-sep"></span>
+                <button type="button" data-cmd="insertOrderedList" title="Numbered List">1.</button>
+                <button type="button" data-cmd="insertUnorderedList" title="Bullet List">&bull;</button>
+                <span class="tb-sep"></span>
+                <button type="button" data-cmd="formatBlock" data-value="h3" title="Heading">H</button>
+                <button type="button" data-cmd="createLink" title="Link">&#128279;</button>
+                <button type="button" data-cmd="formatBlock" data-value="pre" title="Code Block">&lt;/&gt;</button>
+              </div>
+              <div id="text-editor" class="text-editor" contenteditable="true" aria-label="Text editor" role="textbox"></div>
+              <div class="editor-footer">
+                <span id="char-count" style="color:var(--on-surface-variant)">0 characters</span>
+                <span id="word-count" style="color:var(--on-surface-variant)">0 words</span>
+                <span id="auto-save-indicator" style="color:var(--on-surface-variant)"></span>
+              </div>
+            </div>
+
+            <!-- Submission Checklist -->
+            <div class="card" id="checklist-section">
+              <h2 class="section-title">Submission Checklist</h2>
+              <div id="checklist-items" class="checklist"></div>
+            </div>
+
+            <!-- Academic Integrity -->
+            <div class="card" id="integrity-section">
+              <h2 class="section-title">Academic Integrity</h2>
+              <p class="text-sm mb-3" style="color:var(--on-surface-variant)" id="integrity-text"></p>
+              <label class="checkbox-label">
+                <input type="checkbox" id="integrity-check"/>
+                <span id="integrity-label">I confirm that this submission is my own original work.</span>
+              </label>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-3 mt-6 flex-wrap" id="action-buttons">
+              <button id="save-draft-btn" class="btn-secondary">Save Draft</button>
+              <button id="submit-btn" class="btn-primary" disabled>Submit Assignment</button>
+              <button id="cancel-btn" class="btn-ghost">Cancel</button>
+            </div>
+
+            <!-- Submission History -->
+            <div class="card mt-6" id="history-section" style="display:none">
+              <h2 class="section-title">Submission History</h2>
+              <div id="history-list"></div>
+            </div>
+
+            <!-- Feedback -->
+            <div class="card mt-6" id="feedback-section" style="display:none">
+              <h2 class="section-title">Feedback</h2>
+              <div id="feedback-content"></div>
+            </div>
+
+          </div>
+
+          <!-- ===== SIDEBAR COLUMN ===== -->
+          <div class="assignment-side-col" id="assignment-sidebar">
+
+            <!-- Assignment Summary -->
+            <div class="card">
+              <h3 class="card-title">Assignment Summary</h3>
+              <div class="summary-table" id="summary-table"></div>
+            </div>
+
+            <!-- Submission Progress -->
+            <div class="card">
+              <h3 class="card-title">Submission Progress</h3>
+              <div class="progress-ring-container" id="progress-ring-container">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="var(--surface-container-high)" stroke-width="8"/>
+                  <circle id="progress-ring-fg" cx="50" cy="50" r="42" fill="none" stroke="var(--primary)" stroke-width="8" stroke-linecap="round" stroke-dasharray="263.89" stroke-dashoffset="263.89" transform="rotate(-90 50 50)"/>
+                </svg>
+                <div class="progress-ring-text">
+                  <span id="progress-pct">0%</span>
+                </div>
+              </div>
+              <ul class="progress-checklist" id="progress-checklist"></ul>
+            </div>
+
+            <!-- Grading Rubric -->
+            <div class="card" id="rubric-section" style="display:none">
+              <h3 class="card-title">Grading Rubric</h3>
+              <div id="rubric-list"></div>
+            </div>
+
+            <!-- Assignment Info -->
+            <div class="card">
+              <h3 class="card-title">Assignment Information</h3>
+              <div class="info-table" id="info-table"></div>
+            </div>
+
+            <!-- Resources -->
+            <div class="card" id="resources-section" style="display:none">
+              <h3 class="card-title">Resources</h3>
+              <div id="resources-list"></div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="card">
+              <h3 class="card-title">Timeline</h3>
+              <div class="timeline" id="timeline-list"></div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div id="assignment-error" style="display:none;padding:4rem 0;text-align:center">
+        <span class="material-symbols-outlined" style="font-size:4rem;color:var(--error);margin-bottom:1rem">error</span>
+        <h2 class="text-xl font-bold mb-2">Failed to Load Assignment</h2>
+        <p class="text-sm mb-4" style="color:var(--on-surface-variant)" id="error-message">An error occurred.</p>
+        <button class="btn-primary" onclick="location.reload()">Try Again</button>
+      </div>
+
+    </main>
+  </div>
+
+  <div data-include="/students/components/dashboard-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script src="/students/js/assignment.js"></script>
+</body>
+</html>

@@ -10,6 +10,7 @@ import { getAssignmentsByCourseQuery } from '../services/assignment/queries/getA
 import { getAssignmentsByModuleQuery } from '../services/assignment/queries/getAssignmentsByModule.query';
 import { listSubmissionsQuery } from '../services/assignment/queries/listSubmissions.query';
 import { getSubmissionDetailQuery } from '../services/assignment/queries/getSubmissionDetail.query';
+import { getStudentAssignmentViewQuery } from '../services/assignment/queries/getStudentAssignmentView.query';
 import { startAssignmentCommand } from '../services/assignment/commands/startAssignment.command';
 import { submitAssignmentCommand } from '../services/assignment/commands/submitAssignment.command';
 import { submitAssignmentUploadCommand } from '../services/assignment/commands/submitAssignmentUpload.command';
@@ -356,6 +357,16 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       return reply.redirect(assignment.fileUrl);
     } catch (err: unknown) {
       return handleDomainError(reply, err, 'SUBMISSION_LOAD_FAILED', 'Failed to load submission');
+    }
+  });
+
+  fastify.get('/:id/student-view', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id } = request.params as IdParams;
+      const result = await getStudentAssignmentViewQuery.execute(id, request.user!.sub, request.user!.role);
+      return ok(reply, result, 'Assignment view loaded');
+    } catch (err: unknown) {
+      return handleDomainError(reply, err, 'VIEW_FAILED', 'Failed to load assignment view');
     }
   });
 }

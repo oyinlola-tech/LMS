@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <defs>
+    <linearGradient id="badge-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0B5FFF"/>
+      <stop offset="100%" style="stop-color:#2563EB"/>
+    </linearGradient>
+    <linearGradient id="badge-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60A5FA"/>
+      <stop offset="100%" style="stop-color:#1D4ED8"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="232" height="232" rx="36" fill="none" stroke="url(#badge-ring)" stroke-width="3"/>
+  <rect x="12" y="12" width="216" height="216" rx="30" fill="url(#badge-bg)"/>
+  <circle cx="120" cy="105" r="42" fill="white" opacity="0.15"/>
+  <path d="M105 100 L120 115 L140 90" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="120" y="175" text-anchor="middle" font-family="'Inter', Arial, sans-serif" font-size="22" font-weight="800" fill="white" letter-spacing="1">VERIFIED</text>
+  <text x="120" y="195" text-anchor="middle" font-family="'Inter', Arial, sans-serif" font-size="13" fill="rgba(255,255,255,0.7)" letter-spacing="0.5">CERTIFICATE</text>
+</svg>

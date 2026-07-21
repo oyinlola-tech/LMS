@@ -8,10 +8,12 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       return error(reply, 400, 'VALIDATION_ERROR', 'Name, email, and message are required');
     }
     try {
-      const { sendEmail, templates } = await import('../services/mail');
+      const { sendEmail } = await import('../services/mail');
       await sendEmail({
         to: process.env.CONTACT_EMAIL || 'hello@learnbridge.com',
-        ...templates.contactForm(body.name, body.email, body.message),
+        subject: 'New Contact Form Message from ' + body.name,
+        html: '<p><strong>Name:</strong> ' + body.name + '</p><p><strong>Email:</strong> ' + body.email + '</p><p><strong>Message:</strong></p><p>' + body.message + '</p>',
+        text: 'Name: ' + body.name + '\nEmail: ' + body.email + '\nMessage:\n' + body.message,
       });
       return created(reply, null, 'Message sent. We will get back to you soon.');
     } catch {

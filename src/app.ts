@@ -40,6 +40,7 @@ import instructorsPublicRoutes from './routes/instructors.route';
 import gradebookRoutes from './routes/gradebook.route';
 import submissionsRoutes from './routes/submissions.route';
 import discussionsRoutes from './routes/discussions.route';
+import contactRoutes from './routes/contact.route';
 import discussionGroupRoutes from './routes/discussionGroup.route';
 import followRoutes from './routes/follow.route';
 import blogRoutes from './routes/blog.route';
@@ -169,6 +170,7 @@ export async function buildApp() {
   await app.register(gradebookRoutes, { prefix: '/gradebook' });
   await app.register(submissionsRoutes, { prefix: '/submissions' });
   await app.register(discussionsRoutes, { prefix: '/discussions' });
+  await app.register(contactRoutes, { prefix: '/api/contact' });
   await app.register(blogRoutes, { prefix: '/api/blog' });
   await app.register(careerRoutes, { prefix: '/api/careers' });
   await app.register(discussionGroupRoutes, { prefix: '/api/groups' });

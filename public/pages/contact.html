@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Contact Us</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 4rem 0">
+      <div class="container" style="max-width: 48rem">
+        <h1 class="text-4xl font-black mb-6">Contact Us</h1>
+        <p class="text-lg mb-8" style="color: var(--on-surface-variant)">Have a question, suggestion, or need help? We're here for you.</p>
+        <form id="contact-form" style="max-width: 32rem">
+          <div class="form-group"><label for="contact-name">Name</label><input class="form-input" id="contact-name" type="text" required/></div>
+          <div class="form-group"><label for="contact-email">Email</label><input class="form-input" id="contact-email" type="email" required/></div>
+          <div class="form-group"><label for="contact-message">Message</label><textarea class="form-input" id="contact-message" rows="5" style="resize: vertical" required></textarea></div>
+          <button class="btn-submit" type="submit" style="width: auto; padding-left: 2rem; padding-right: 2rem">Send Message</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    document.addEventListener('components-loaded', function() {
+      var form = document.getElementById('contact-form');
+      if (!form) return;
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var btn = form.querySelector('.btn-submit');
+        var orig = btn.textContent;
+        btn.textContent = 'Sending...';
+        btn.disabled = true;
+        api.post('/api/contact', {
+          name: form.querySelector('#contact-name').value.trim(),
+          email: form.querySelector('#contact-email').value.trim(),
+          message: form.querySelector('#contact-message').value.trim(),
+        }).then(function(r) {
+          form.innerHTML = '<div class="p-8 text-center"><span class="material-symbols-outlined text-4xl mb-4" style="color: var(--primary)">check_circle</span><h3 class="text-xl font-bold mb-2">Message Sent!</h3><p style="color: var(--on-surface-variant)">' + (r.message || 'We will get back to you soon.') + '</p></div>';
+        }).catch(function() {
+          btn.textContent = orig;
+          btn.disabled = false;
+          alert('Failed to send. Please try again.');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -149,10 +149,12 @@ export async function buildApp() {
   app.get('/tutor/assignments/builder/:id', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
   app.get('/tutor/assignments/builder/:id/step/:step', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
 
+  app.get('/profile/setup', async (_req, reply) => reply.sendFile('students/profile/setup.html'));
+
   app.get('/course/:id', async (_req, reply) => reply.sendFile('courses/course-details.html'));
 
   const profilePageMap: Record<string, string> = {
-    learner: 'students/profile.html',
+    learner: 'students/profile/index.html',
     tutor: 'tutors/profile.html',
     admin: 'admin/profile.html',
     super_admin: 'superadmin/profile.html',

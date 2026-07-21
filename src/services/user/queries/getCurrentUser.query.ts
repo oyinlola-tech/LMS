@@ -1,4 +1,4 @@
-import { userRepository, IUserAttributes } from '../../../repositories/user.repository';
+import { User, UserInterest } from '../../../models';
 
 export interface CurrentUserResult {
   id: string;
@@ -8,12 +8,15 @@ export interface CurrentUserResult {
   bio?: string | null;
   skills?: string[] | null;
   avatarUrl?: string | null;
+  phoneNumber?: string | null;
+  location?: string | null;
   isEmailVerified: boolean;
+  UserInterests?: Array<{ id: string; name: string }>;
 }
 
 export class GetCurrentUserQuery {
   async execute(userId: string): Promise<CurrentUserResult> {
-    const user = await userRepository.findById(userId);
+    const user = await User.findByPk(userId);
     if (!user) {
       const err: any = new Error('User not found');
       err.code = 'NOT_FOUND';
@@ -21,15 +24,23 @@ export class GetCurrentUserQuery {
       throw err;
     }
 
+    const interests = await UserInterest.findAll({
+      where: { UserId: userId },
+      attributes: ['id', 'name'],
+    });
+
     return {
       id: user.id,
       fullName: user.fullName,
       email: user.email,
       role: user.role,
       bio: user.bio,
-      skills: user.skills,
+      skills: user.skills as unknown as string[],
       avatarUrl: user.avatarUrl,
+      phoneNumber: user.phoneNumber,
+      location: user.location,
       isEmailVerified: user.isEmailVerified,
+      UserInterests: interests.map((i: any) => ({ id: i.id, name: i.name })),
     };
   }
 }

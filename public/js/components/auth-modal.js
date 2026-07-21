@@ -59,6 +59,10 @@
 
   function redirectAfterAuth(token) {
     try {
+      if (localStorage.getItem('needsProfileSetup')) {
+        window.location.href = '/profile/setup';
+        return;
+      }
       var payload = JSON.parse(atob(token.split('.')[1]));
       var role = payload.role || '';
       var urls = { learner: '/dashboard', tutor: '/tutor', admin: '/admin', super_admin: '/superadmin' };
@@ -135,6 +139,7 @@
     AuthAPI.register({ fullName: fullName, email: email, password: password })
       .then(function () {
         localStorage.setItem('pendingUserId', email);
+        localStorage.setItem('isNewRegistration', 'true');
         showPanel('otp');
       })
       .catch(function (err) {
@@ -169,6 +174,10 @@
         if (result.data && result.data.token) {
           localStorage.setItem('token', result.data.token);
           localStorage.removeItem('pendingUserId');
+          if (localStorage.getItem('isNewRegistration')) {
+            localStorage.setItem('needsProfileSetup', 'true');
+            localStorage.removeItem('isNewRegistration');
+          }
           closeModal();
           redirectAfterAuth(result.data.token);
         } else {

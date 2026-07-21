@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Discussions</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    .group-card { transition: all 0.2s; }
+    .group-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .member-avatar { width: 2.5rem; height: 2.5rem; border-radius: 50%; background-size: cover; background-position: center; flex-shrink: 0; }
+    @media (max-width: 768px) { .groups-layout { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 3rem 0">
+      <div class="container">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h1 class="text-3xl font-black mb-2">Discussion Groups</h1>
+            <p style="color: var(--on-surface-variant)">Join conversations, share knowledge, and connect with fellow learners.</p>
+          </div>
+          <button class="btn-primary" id="create-group-btn" type="button" data-auth="login"><span class="material-symbols-outlined">add</span> New Group</button>
+        </div>
+
+        <div class="flex gap-4 mb-8">
+          <input class="form-input" id="search-input" placeholder="Search groups..." style="flex: 1; max-width: 24rem"/>
+          <div class="flex gap-2">
+            <button class="btn-secondary tab-btn active" data-tab="all">All Groups</button>
+            <button class="btn-secondary tab-btn" data-tab="mine" data-auth="login">My Groups</button>
+          </div>
+        </div>
+
+        <div id="groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="col-span-full text-center py-12" style="color: var(--on-surface-variant)">
+            <span class="material-symbols-outlined text-4xl mb-4">forum</span>
+            <p>Loading groups...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/groups.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    var currentTab = 'all';
+    var searchQuery = '';
+    var allGroups = [];
+
+    function renderGroupCard(g) {
+      var memberCount = g.GroupMembers ? g.GroupMembers.length : 0;
+      var creatorName = g.creator ? g.creator.fullName : 'Anonymous';
+      var creatorAvatar = g.creator && g.creator.avatarUrl ? g.creator.avatarUrl : '';
+      var desc = g.description || 'No description yet.';
+      return '<div class="group-card p-6 rounded-2xl border flex flex-col" style="background: #fff; border-color: var(--outline-variant)">'
+        + '<div class="flex items-center gap-3 mb-4">'
+        + '<div class="size-12 rounded-full flex items-center justify-center text-xl font-bold" style="background: var(--primary-fixed); color: var(--on-primary-fixed)">' + g.name.charAt(0).toUpperCase() + '</div>'
+        + '<div>'
+        + '<h3 class="font-bold text-lg">' + escapeHtml(g.name) + '</h3>'
+        + '<p class="text-xs" style="color: var(--on-surface-variant)">' + memberCount + ' member' + (memberCount !== 1 ? 's' : '') + '</p>'
+        + '</div>'
+        + '</div>'
+        + '<p class="text-sm mb-4 flex-1" style="color: var(--on-surface-variant)">' + escapeHtml(desc) + '</p>'
+        + '<div class="flex items-center justify-between pt-3" style="border-top: 1px solid var(--outline-variant)">'
+        + '<div class="flex items-center gap-2">'
+        + '<div class="size-7 rounded-full" style="background-image: url(\'' + escapeHtml(creatorAvatar || 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=50&q=80') + '\'); background-size: cover; background-position: center"></div>'
+        + '<span class="text-xs" style="color: var(--on-surface-variant)">' + escapeHtml(creatorName) + '</span>'
+        + '</div>'
+        + '<button class="join-btn text-sm font-bold py-2 px-4 rounded-lg transition-all" data-group-id="' + g.id + '" style="color: var(--primary); background: rgba(0, 74, 198, 0.05)">Join</button>'
+        + '</div>'
+        + '</div>';
+    }
+
+    function renderGroups(groups) {
+      var container = document.getElementById('groups-container');
+      if (!groups || !groups.length) {
+        container.innerHTML = '<div class="col-span-full text-center py-12"><p style="color: var(--on-surface-variant)">No groups found. <a href="#" id="start-group-link" style="color: var(--primary)">Create one!</a></p></div>';
+        var link = document.getElementById('start-group-link');
+        if (link) link.addEventListener('click', function (e) { e.preventDefault(); showCreateModal(); });
+        return;
+      }
+      container.innerHTML = groups.map(renderGroupCard).join('');
+      container.querySelectorAll('.join-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (!localStorage.getItem('token')) {
+            if (typeof openAuthModal === 'function') openAuthModal('login');
+            return;
+          }
+          var gid = btn.getAttribute('data-group-id');
+          GroupAPI.join(gid).then(function () {
+            btn.textContent = 'Joined';
+            btn.style.background = 'var(--primary-fixed)';
+            btn.style.color = 'var(--on-primary-fixed)';
+            btn.disabled = true;
+          }).catch(function (err) {
+            if (err && err.status === 409) {
+              btn.textContent = 'Joined';
+              btn.disabled = true;
+            }
+          });
+        });
+      });
+    }
+
+    function loadGroups() {
+      var promise = currentTab === 'mine' ? GroupAPI.getMine() : GroupAPI.list(searchQuery);
+      promise.then(function (r) {
+        allGroups = r.data || [];
+        renderGroups(allGroups);
+      }).catch(function () {
+        var container = document.getElementById('groups-container');
+        container.innerHTML = '<div class="col-span-full text-center py-12" style="color: var(--error)">Failed to load groups.</div>';
+      });
+    }
+
+    function showCreateModal() {
+      if (!localStorage.getItem('token')) {
+        if (typeof openAuthModal === 'function') openAuthModal('login');
+        return;
+      }
+      var overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.style.display = 'flex';
+      overlay.innerHTML = '<div class="modal-backdrop"></div>'
+        + '<div class="modal-container" style="max-width: 28rem">'
+        + '<div class="modal-header"><h2>Create Group</h2><button class="modal-close" id="create-modal-close"><span class="material-symbols-outlined">close</span></button></div>'
+        + '<div class="modal-body">'
+        + '<div class="form-group"><label>Group Name</label><input class="form-input" id="group-name-input" placeholder="e.g. Machine Learning Study Group"/></div>'
+        + '<div class="form-group"><label>Description</label><textarea class="form-input" id="group-desc-input" rows="3" placeholder="What is this group about?" style="resize: vertical"></textarea></div>'
+        + '<div class="form-group"><label class="checkbox-label"><input type="checkbox" id="group-public-check" checked/> Public group (anyone can find and join)</label></div>'
+        + '<div id="create-group-error" class="form-error" style="display:none; margin-bottom: 0.75rem"></div>'
+        + '<button class="btn-submit" id="create-group-submit" type="button">Create Group</button>'
+        + '</div></div>';
+      document.body.appendChild(overlay);
+      document.body.classList.add('modal-open');
+
+      overlay.querySelector('.modal-backdrop').addEventListener('click', function () { overlay.remove(); document.body.classList.remove('modal-open'); });
+      overlay.querySelector('#create-modal-close').addEventListener('click', function () { overlay.remove(); document.body.classList.remove('modal-open'); });
+
+      overlay.querySelector('#create-group-submit').addEventListener('click', function () {
+        var name = overlay.querySelector('#group-name-input').value.trim();
+        var desc = overlay.querySelector('#group-desc-input').value.trim();
+        var isPublic = overlay.querySelector('#group-public-check').checked;
+        var errorEl = overlay.querySelector('#create-group-error');
+
+        if (!name) {
+          errorEl.textContent = 'Group name is required.';
+          errorEl.style.display = 'block';
+          return;
+        }
+
+        GroupAPI.create({ name: name, description: desc, isPublic: isPublic })
+          .then(function () {
+            overlay.remove();
+            document.body.classList.remove('modal-open');
+            loadGroups();
+          })
+          .catch(function (err) {
+            errorEl.textContent = (err && err.message) || 'Failed to create group.';
+            errorEl.style.display = 'block';
+          });
+      });
+    }
+
+    function escapeHtml(text) {
+      var d = document.createElement('div');
+      d.textContent = text || '';
+      return d.innerHTML;
+    }
+
+    document.addEventListener('components-loaded', function () {
+      loadGroups();
+
+      document.getElementById('create-group-btn').addEventListener('click', showCreateModal);
+
+      document.getElementById('search-input').addEventListener('input', function () {
+        searchQuery = this.value;
+        loadGroups();
+      });
+
+      document.querySelectorAll('.tab-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentTab = btn.getAttribute('data-tab');
+          loadGroups();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

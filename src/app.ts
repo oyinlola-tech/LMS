@@ -133,6 +133,7 @@ export async function buildApp() {
     ['/cookie-settings', 'pages/cookie-settings.html'],
     ['/support', 'pages/support.html'],
     ['/community', 'pages/community.html'],
+    ['/discussions', 'pages/discussions.html'],
   ] as const;
 
   for (const [route, file] of pages) {

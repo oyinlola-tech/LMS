@@ -145,7 +145,22 @@ export async function buildApp() {
   }
 
   app.get('/course/:id', async (_req, reply) => reply.sendFile('courses/course-details.html'));
-  app.get('/profile/:id', async (_req, reply) => reply.sendFile('pages/profile.html'));
+
+  const profilePageMap: Record<string, string> = {
+    learner: 'students/profile.html',
+    tutor: 'tutors/profile.html',
+    admin: 'admin/profile.html',
+    super_admin: 'superadmin/profile.html',
+  };
+  app.get('/profile/:id', async (request, reply) => {
+    try {
+      const { User } = await import('./models');
+      const user = await User.findByPk((request.params as { id: string }).id, { attributes: ['role'] });
+      return reply.sendFile(profilePageMap[user?.role || 'learner'] || 'pages/profile.html');
+    } catch {
+      return reply.sendFile('pages/profile.html');
+    }
+  });
 
   await app.register(authRoutes, { prefix: '/auth' });
   await app.register(userRoutes, { prefix: '/users' });

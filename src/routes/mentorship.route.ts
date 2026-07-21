@@ -1,7 +1,10 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { Op } from 'sequelize';
+import { MentorshipApplication, User, Course } from '../models';
 import { ok, created, error } from '../utils/response.util';
 import { UserRole } from '../enums';
 import { applyMentorshipCommand } from '../services/mentorship/commands/applyMentorship.command';
+import { getMentorshipApplicationQuery } from '../services/mentorship/queries/getMentorshipApplication.query';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/apply', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -12,6 +15,76 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       return created(reply, application, 'Mentorship application submitted');
     } catch (err: any) {
       return error(reply, err.statusCode || 500, err.code || 'MENTORSHIP_APPLY_FAILED', err.message || 'Failed to submit application');
+    }
+  });
+
+  fastify.get('/course/:courseId', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { courseId } = request.params as { courseId: string };
+      const mentors = await MentorshipApplication.findAll({
+        where: { CourseId: courseId, status: 'approved' },
+        include: [{ model: User, attributes: ['id', 'fullName', 'avatarUrl', 'bio'] }],
+      });
+      return ok(reply, mentors, 'Mentors loaded');
+    } catch {
+      return error(reply, 500, 'MENTORS_LOAD_FAILED', 'Failed to load mentors');
+    }
+  });
+
+  fastify.get('/my-application/:courseId', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { courseId } = request.params as { courseId: string };
+      const app = await getMentorshipApplicationQuery.execute(request.user!.sub, courseId);
+      return ok(reply, app, 'Application loaded');
+    } catch {
+      return error(reply, 500, 'APPLICATION_LOAD_FAILED', 'Failed to load application');
+    }
+  });
+
+  fastify.get('/applications/:courseId', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { courseId } = request.params as { courseId: string };
+      const course = await Course.findByPk(courseId);
+      if (!course) return error(reply, 404, 'NOT_FOUND', 'Course not found');
+      if (course.tutorId !== request.user!.sub && request.user!.role === UserRole.TUTOR) {
+        return error(reply, 403, 'FORBIDDEN', 'Only the course tutor can view applications');
+      }
+      const apps = await MentorshipApplication.findAll({
+        where: { CourseId: courseId },
+        include: [{ model: User, attributes: ['id', 'fullName', 'avatarUrl', 'email'] }],
+        order: [['createdAt', 'DESC']],
+      });
+      return ok(reply, apps, 'Applications loaded');
+    } catch {
+      return error(reply, 500, 'APPLICATIONS_LOAD_FAILED', 'Failed to load applications');
+    }
+  });
+
+  fastify.post('/:id/approve', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const app = await MentorshipApplication.findByPk(id, { include: [{ model: Course }] }) as any;
+      if (!app) return error(reply, 404, 'NOT_FOUND', 'Application not found');
+      if (app.Course?.tutorId !== request.user!.sub) return error(reply, 403, 'FORBIDDEN', 'Only the course tutor can approve');
+      app.status = 'approved';
+      await app.save();
+      return ok(reply, app, 'Application approved');
+    } catch {
+      return error(reply, 500, 'APPROVE_FAILED', 'Failed to approve application');
+    }
+  });
+
+  fastify.post('/:id/reject', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const app = await MentorshipApplication.findByPk(id, { include: [{ model: Course }] }) as any;
+      if (!app) return error(reply, 404, 'NOT_FOUND', 'Application not found');
+      if (app.Course?.tutorId !== request.user!.sub) return error(reply, 403, 'FORBIDDEN', 'Only the course tutor can reject');
+      app.status = 'rejected';
+      await app.save();
+      return ok(reply, app, 'Application rejected');
+    } catch {
+      return error(reply, 500, 'REJECT_FAILED', 'Failed to reject application');
     }
   });
 }

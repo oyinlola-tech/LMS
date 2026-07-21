@@ -11,10 +11,12 @@ class Assignment extends Model<InferAttributes<Assignment>, InferCreationAttribu
   declare totalPoints: number | null;
   declare status: CreationOptional<string>;
   declare dueDate: string | null;
+  declare dueDaysFromEnrollment: number | null;
   declare moduleNumber: number | null;
   declare proTip: string | null;
   declare coreObjective: string | null;
   declare keyDeliverables: object | null;
+  declare downloadAssetsUrl: string | null;
   declare CourseId: string;
   declare moduleId: string;
   declare createdById: string;
@@ -27,10 +29,12 @@ Assignment.init({
   totalPoints: { type: DataTypes.INTEGER, allowNull: true },
   status: { type: DataTypes.ENUM('draft', 'published'), allowNull: false, defaultValue: 'draft' },
   dueDate: { type: DataTypes.DATE, allowNull: true },
+  dueDaysFromEnrollment: { type: DataTypes.INTEGER, allowNull: true },
   moduleNumber: { type: DataTypes.INTEGER, allowNull: true },
   proTip: { type: DataTypes.TEXT, allowNull: true },
   coreObjective: { type: DataTypes.TEXT, allowNull: true },
   keyDeliverables: { type: DataTypes.JSON, allowNull: true },
+  downloadAssetsUrl: { type: DataTypes.STRING(500), allowNull: true },
 
   CourseId: { type: DataTypes.UUID, allowNull: false },
   moduleId: { type: DataTypes.UUID, allowNull: false },

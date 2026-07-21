@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Super Admin</title>
+  <link href="/css/styles.css" rel="stylesheet"/><link href="/css/modal.css" rel="stylesheet"/>
+  <style>body{background:var(--background)}
+  .super-badge{display:inline-flex;align-items:center;gap:0.35rem;padding:0.3rem 0.85rem;border-radius:999px;font-size:0.75rem;font-weight:700;background:linear-gradient(135deg,#000,#333);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+  .profile-cover{height:200px;border-radius:1.5rem;background:linear-gradient(135deg,#0f0f0f,#1a1a2e,#0a0a0a);position:relative;overflow:hidden}
+  .profile-cover::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(255,255,255,0.03),transparent,rgba(255,255,255,0.03),transparent);animation:rotate 8s linear infinite}
+  @keyframes rotate{to{transform:rotate(360deg)}}
+  .profile-info{display:flex;align-items:flex-end;gap:2rem;padding:0 2rem;margin-top:-3.5rem;position:relative;z-index:2}
+  .profile-avatar{width:7rem;height:7rem;border-radius:50%;background-size:cover;background-position:center;border:4px solid #fff;box-shadow:0 4px 20px rgba(0,0,0,0.2);flex-shrink:0}
+  @media(max-width:768px){.profile-info{flex-direction:column;align-items:center;text-align:center;margin-top:-2.5rem}.profile-avatar{width:5.5rem;height:5.5rem}}
+  </style>
+</head>
+<body>
+<div data-include="header"></div>
+<main style="padding-top:5rem">
+<div id="loading-profile" style="padding:3rem 0"><div class="container"><div class="skeleton" style="height:200px;border-radius:1.5rem"></div></div></div>
+<div id="error-profile" style="display:none;padding:6rem 0" class="text-center">
+  <span class="material-symbols-outlined" style="font-size:4rem;color:var(--error);margin-bottom:1rem">shield</span>
+  <h2 class="text-2xl font-bold mb-2">Not Found</h2>
+  <a href="/" class="btn-primary">Go Home</a>
+</div>
+<div id="profile-content" style="display:none;padding:1.5rem 0 3rem">
+  <div class="container">
+    <div class="profile-cover"><div style="position:absolute;inset:0;background:rgba(0,0,0,0.3);z-index:1"></div></div>
+    <div class="profile-info">
+      <div class="profile-avatar" id="profile-avatar"></div>
+      <div class="profile-details grow">
+        <div class="flex items-center gap-3 mb-1">
+          <h1 class="text-2xl font-black" id="profile-name"></h1>
+          <span class="super-badge"><span class="material-symbols-outlined" style="font-size:1rem">verified</span> SUPER ADMIN</span>
+        </div>
+        <p class="text-sm" style="color:var(--on-surface-variant)" id="profile-bio"></p>
+        <button id="profile-msg-btn" class="btn-secondary text-sm py-1.5 px-4 mt-3" style="display:none"><span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle">chat</span> Message</button>
+      </div>
+    </div>
+    <div class="mt-8 rounded-2xl border p-6" style="background:#fff;border-color:var(--outline-variant)"><div id="about-content"></div></div>
+  </div>
+</div>
+</main>
+<div data-include="footer"></div><div data-include="auth-modal"></div>
+<script src="/js/components/include.js"></script>
+<script src="/js/apis/api.js"></script>
+<script src="/js/apis/auth.js"></script>
+<script src="/js/profile.js"></script>
+</body>
+</html>

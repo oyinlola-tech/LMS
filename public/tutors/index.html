@@ -6,60 +6,182 @@
   <title>LearnBridge - Tutor Dashboard</title>
   <link href="/css/styles.css" rel="stylesheet"/>
   <link href="/css/modal.css" rel="stylesheet"/>
-  <style>
-    body { background: var(--surface); }
-    .admin-layout { display: flex; min-height: 100vh; }
-    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
-    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    .admin-header h1 { font-size: 1.5rem; font-weight: 700; }
-    .admin-header .user-info { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--on-surface-variant); }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-    .stat-card { background: var(--surface-container); border-radius: 1rem; padding: 1.25rem; border: 1px solid var(--outline-variant); }
-    .stat-card .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); }
-    .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--primary); margin-top: 0.25rem; }
-    .section-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
-    .table-container { background: var(--surface-container); border-radius: 1rem; border: 1px solid var(--outline-variant); overflow: hidden; }
-    .table-container table { width: 100%; border-collapse: collapse; }
-    .table-container th { text-align: left; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); border-bottom: 1px solid var(--outline-variant); background: var(--surface-container-high); }
-    .table-container td { padding: 0.75rem 1rem; font-size: 0.875rem; border-bottom: 1px solid var(--outline-variant); }
-    .table-container tr:last-child td { border-bottom: none; }
-    .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
-    .badge.active { background: var(--primary-fixed); color: var(--on-primary-fixed); }
-    .badge.pending { background: var(--tertiary-fixed); color: var(--on-tertiary-fixed); }
-    .btn-icon { background: none; border: none; color: var(--on-surface-variant); cursor: pointer; padding: 0.25rem; border-radius: 0.5rem; transition: var(--transition); font-size: 0.875rem; }
-    .btn-icon:hover { background: var(--surface-container-high); color: var(--on-surface); }
-    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .stats-grid { grid-template-columns: 1fr 1fr; } }
-  </style>
+  <link href="/tutors/css/dashboard.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet"/>
 </head>
 <body>
   <div class="admin-layout">
-    <div data-include="tutor-sidebar"></div>
+    <div data-include="/tutors/components/tutor-sidebar"></div>
+
     <main class="admin-main">
-      <div data-include="tutor-header"></div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="label">My Courses</div><div class="value" id="stat-courses">—</div></div>
-        <div class="stat-card"><div class="label">Total Students</div><div class="value" id="stat-students">—</div></div>
-        <div class="stat-card"><div class="label">Avg Rating</div><div class="value" id="stat-rating">—</div></div>
-        <div class="stat-card"><div class="label">Pending Reviews</div><div class="value" id="stat-pending">—</div></div>
-      </div>
-      <div class="section-title">Recent Submissions</div>
-      <div class="table-container">
-        <table>
-          <thead><tr><th>Student</th><th>Course</th><th>Assignment</th><th>Status</th><th></th></tr></thead>
-          <tbody id="submissions-body">
-            <tr><td colspan="5" style="text-align: center; color: var(--on-surface-variant)">Loading submissions...</td></tr>
-          </tbody>
-        </table>
+      <div data-include="/tutors/components/tutor-header"></div>
+
+      <div class="tutor-dash">
+
+        <!-- Stats Row -->
+        <div class="dash-stats">
+          <div class="stat-card" id="stat-revenue">
+            <div class="stat-icon" style="background:#dbeafe;color:#2563eb">&#x1F4B0;</div>
+            <div class="stat-body"><span class="stat-label">Revenue</span><span class="stat-value" id="s-revenue">—</span><span class="stat-delta" id="s-revenue-delta"></span></div>
+          </div>
+          <div class="stat-card" id="stat-students">
+            <div class="stat-icon" style="background:#fce7f3;color:#db2777">&#x1F465;</div>
+            <div class="stat-body"><span class="stat-label">Students</span><span class="stat-value" id="s-students">—</span></div>
+          </div>
+          <div class="stat-card" id="stat-courses">
+            <div class="stat-icon" style="background:#ede9fe;color:#7c3aed">&#x1F4DA;</div>
+            <div class="stat-body"><span class="stat-label">Courses</span><span class="stat-value" id="s-courses">—</span><span class="stat-sub" id="s-courses-sub"></span></div>
+          </div>
+          <div class="stat-card" id="stat-rating">
+            <div class="stat-icon" style="background:#fef3c7;color:#d97706">&#x2B50;</div>
+            <div class="stat-body"><span class="stat-label">Rating</span><span class="stat-value" id="s-rating">—</span></div>
+          </div>
+          <div class="stat-card" id="stat-pending">
+            <div class="stat-icon" style="background:#fee2e2;color:#dc2626">&#x1F4DD;</div>
+            <div class="stat-body"><span class="stat-label">Pending</span><span class="stat-value" id="s-pending">—</span></div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dash-quick-actions">
+          <button class="qa-btn" onclick="window.location.href='/tutor/courses/create'"><span class="material-symbols-outlined">add_circle</span> Create Course</button>
+          <button class="qa-btn" onclick="window.location.href='/tutor/assignments/create'"><span class="material-symbols-outlined">assignment_add</span> New Assignment</button>
+          <button class="qa-btn" onclick="window.location.href='/tutor/office-hours'"><span class="material-symbols-outlined">event</span> Office Hours</button>
+          <button class="qa-btn" onclick="window.location.href='/tutor/earnings'"><span class="material-symbols-outlined">payments</span> View Earnings</button>
+          <button class="qa-btn" onclick="window.location.href='/tutor/blog'"><span class="material-symbols-outlined">article</span> Write Post</button>
+        </div>
+
+        <div class="dash-grid">
+          <!-- Left Column -->
+          <div class="dash-col-left">
+
+            <!-- Earnings Chart -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3>Earnings <span class="badge" id="earnings-period">This Month</span></h3>
+                <a href="/tutor/earnings" class="link">View all</a>
+              </div>
+              <div class="earnings-chart" id="earnings-chart">
+                <div class="skeleton" style="height:160px;border-radius:0.75rem"></div>
+              </div>
+            </div>
+
+            <!-- Course Analytics -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3>Course Analytics</h3>
+                <a href="/tutor/courses" class="link">Manage courses</a>
+              </div>
+              <div class="course-analytics" id="course-analytics">
+                <div class="skeleton" style="height:100px;border-radius:0.75rem"></div>
+              </div>
+            </div>
+
+            <!-- Recent Submissions -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3>Recent Submissions</h3>
+                <a href="/tutor/submissions" class="link">View all</a>
+              </div>
+              <div id="submissions-section">
+                <div class="skeleton" style="height:120px;border-radius:0.75rem"></div>
+              </div>
+            </div>
+
+            <!-- Active Courses -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3>Active Courses</h3>
+                <a href="/tutor/courses" class="link">Manage</a>
+              </div>
+              <div id="active-courses-section">
+                <div class="skeleton" style="height:120px;border-radius:0.75rem"></div>
+              </div>
+            </div>
+
+            <!-- Learner Activity Feed -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3>Recent Activity</h3>
+              </div>
+              <div id="activity-feed">
+                <div class="skeleton" style="height:160px;border-radius:0.75rem"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column -->
+          <div class="dash-col-right">
+
+            <!-- Quick Stats / Mini Analytics -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3>Performance</h3>
+              </div>
+              <div class="perf-grid" id="perf-grid">
+                <div class="skeleton" style="height:80px;border-radius:0.75rem"></div>
+              </div>
+            </div>
+
+            <!-- Students Overview -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3>Top Students</h3>
+                <a href="/tutor/students" class="link">All students</a>
+              </div>
+              <div id="students-section">
+                <div class="skeleton" style="height:120px;border-radius:0.75rem"></div>
+              </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3>Upcoming Events</h3>
+                <a href="/tutor/calendar" class="link">Calendar</a>
+              </div>
+              <div id="events-section">
+                <div class="skeleton" style="height:100px;border-radius:0.75rem"></div>
+              </div>
+            </div>
+
+            <!-- Recent Reviews -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3>Recent Reviews</h3>
+              </div>
+              <div id="reviews-section">
+                <div class="skeleton" style="height:100px;border-radius:0.75rem"></div>
+              </div>
+            </div>
+
+            <!-- Discussions -->
+            <div class="dash-card">
+              <div class="dash-card-header">
+                <h3>Recent Discussions</h3>
+                <a href="/tutor/discussions" class="link">View all</a>
+              </div>
+              <div id="discussions-section">
+                <div class="skeleton" style="height:100px;border-radius:0.75rem"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
 
+  <div data-include="/tutors/components/tutor-bottom-nav"></div>
   <div data-include="auth-modal"></div>
 
   <script src="/js/components/include.js"></script>
+  <script src="/js/components/active-page.js"></script>
   <script src="/js/apis/api.js"></script>
   <script src="/js/apis/auth.js"></script>
   <script src="/js/components/auth-modal.js"></script>
-  <script src="/js/tutor.js"></script>
+  <script src="/tutors/js/dashboard.js"></script>
 </body>
 </html>

@@ -18,6 +18,7 @@ import { hashPassword } from './utils/password.util';
 import { sendEmail, templates } from './services/mail';
 import { attachWebSocketServer } from './utils/wsHub.util';
 import { attachDiscussionWebSocket } from './utils/wsDiscussions.util';
+import { initFirebase } from './utils/firebase.util';
 import { startEmailJob } from './jobs/email.job';
 import { initRedisSubscriber } from './utils/notificationStream.util';
 import { seedDevDatabase } from './utils/devSeed.util';
@@ -76,6 +77,7 @@ const start = async () => {
     server = http.createServer(app as any);
     attachWebSocketServer(server);
     attachDiscussionWebSocket(server);
+    initFirebase();
     initRedisSubscriber().catch(() => null);
     startEmailJob();
 

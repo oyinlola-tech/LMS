@@ -1,0 +1,59 @@
+{
+  "name": "learnbridge-backend",
+  "version": "1.1.0",
+  "main": "dist/server.js",
+  "type": "commonjs",
+  "author": "Oluwayemi Oyinlola Michael (https://oyinlola.site)",
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "node dist/server.js",
+    "build": "tsc",
+    "swagger": "node scripts/generate-swagger.js",
+    "seed:dev": "node scripts/seed-dev-db.js",
+    "lint": "eslint --config .eslintrc.cjs \"src/**/*.ts\"",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.1.2",
+    "@fastify/cors": "^11.3.0",
+    "@fastify/formbody": "^8.0.2",
+    "@fastify/helmet": "^13.1.0",
+    "@fastify/jwt": "^10.2.0",
+    "@fastify/multipart": "^10.1.0",
+    "@fastify/rate-limit": "^11.1.0",
+    "@fastify/static": "^10.1.0",
+    "@fastify/swagger": "^9.8.1",
+    "@fastify/swagger-ui": "^6.1.0",
+    "@prisma/client": "^7.8.0",
+    "argon2": "^0.44.0",
+    "bullmq": "^5.80.9",
+    "dotenv": "^17.4.2",
+    "fastify": "^5.10.0",
+    "fastify-plugin": "^6.0.0",
+    "firebase-admin": "^14.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^9.0.3",
+    "pdfkit": "^0.18.0",
+    "pg": "^8.22.0",
+    "pg-hstore": "^2.3.4",
+    "puppeteer": "^25.3.0",
+    "qrcode": "^1.5.4",
+    "redis": "^5.12.1",
+    "sequelize": "^6.37.8",
+    "ws": "^8.21.1"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.1.1",
+    "eslint": "^10.7.0",
+    "prisma": "^7.8.0",
+    "supertest": "^7.2.2",
+    "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "basic-ftp": ">=5.3.0"
+  },
+  "allowScripts": {
+    "@firebase/util@1.15.1": true
+  }
+}

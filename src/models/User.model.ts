@@ -20,6 +20,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare isLegacyUser: CreationOptional<boolean>;
   declare trustedDeviceHash: string | null;
   declare trustedIp: string | null;
+  declare fcmToken: string | null;
 }
 
 User.init({
@@ -41,6 +42,7 @@ User.init({
   isLegacyUser: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true, comment: 'True for existing users - no login OTP required. New users get false.' },
   trustedDeviceHash: { type: DataTypes.STRING(255), allowNull: true, comment: 'Hash of trusted device for login OTP' },
   trustedIp: { type: DataTypes.STRING(45), allowNull: true, comment: 'Trusted IP address for login OTP' },
+  fcmToken: { type: DataTypes.STRING(500), allowNull: true, comment: 'Firebase Cloud Messaging token' },
 }, { sequelize, modelName: 'User', indexes: [{ unique: true, fields: ['email'] }, { fields: ['googleId'] }, { fields: ['githubId'] }] });
 
 export function associate(models: any) {

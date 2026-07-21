@@ -177,3 +177,46 @@ button { cursor: pointer; font-family: inherit; }
 @media (min-width: 1024px) {
   .fixed-header { padding: 0.75rem 6rem; }
 }
+
+/* ===== Bottom Navigation ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.5rem 0;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  background: var(--surface-container);
+  border-top: 1px solid var(--outline-variant);
+  z-index: 100;
+  display: none;
+}
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  text-decoration: none;
+  color: var(--on-surface-variant);
+  font-size: 0.625rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.75rem;
+  transition: var(--transition);
+  min-width: 4rem;
+}
+.bottom-nav-item .material-symbols-outlined {
+  font-size: 1.5rem;
+}
+.bottom-nav-item.active {
+  color: var(--primary);
+}
+.bottom-nav-item.active .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1;
+}
+@media (max-width: 768px) {
+  .bottom-nav { display: flex; }
+}

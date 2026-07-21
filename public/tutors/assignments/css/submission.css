@@ -1,0 +1,105 @@
+.submission-container {
+  padding: 1.5rem 0 4rem;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-variant) 25%, #e8eaed 50%, var(--surface-variant) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.breadcrumb { font-size: 0.8125rem; color: var(--on-surface-variant); margin-bottom: 0.5rem; }
+.breadcrumb a { color: var(--primary); text-decoration: none; }
+.page-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 1.5rem; }
+
+.submission-grid {
+  display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start;
+}
+@media (max-width: 900px) {
+  .submission-grid { grid-template-columns: 1fr; }
+}
+
+.dropzone {
+  position: relative;
+  border: 2px dashed var(--outline-variant);
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--surface-container-low);
+  margin-bottom: 1.5rem;
+}
+.dropzone:hover, .dropzone.drag-over {
+  border-color: var(--primary);
+  background: var(--primary-fixed);
+}
+.dropzone-icon { font-size: 3rem; color: var(--outline); margin-bottom: 0.75rem; }
+.dropzone-text { font-size: 0.9375rem; color: var(--on-surface); margin-bottom: 0.25rem; }
+.dropzone-hint { font-size: 0.75rem; color: var(--on-surface-variant); }
+
+.uploaded-files { margin-bottom: 1.5rem; }
+.uploaded-files h3 { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.75rem; }
+
+.files-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem; }
+.file-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.6rem 0.75rem; border-radius: 0.5rem;
+  border: 1px solid var(--surface-variant); background: #fff;
+  font-size: 0.8125rem;
+}
+.file-item .material-symbols-outlined { color: var(--primary); font-size: 1.25rem; }
+.file-name { flex: 1; font-weight: 600; }
+.file-size { font-size: 0.75rem; color: var(--on-surface-variant); }
+.file-remove {
+  width: 1.5rem; height: 1.5rem; border-radius: 50%; border: none;
+  background: transparent; cursor: pointer; color: var(--on-surface-variant);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.file-remove:hover { background: var(--error-container); color: var(--error); }
+
+.upload-progress { display: flex; align-items: center; gap: 0.75rem; }
+.progress-bar-track { flex: 1; height: 6px; background: var(--surface-variant); border-radius: 999px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--primary); border-radius: 999px; transition: width 0.3s; }
+.progress-text { font-size: 0.75rem; font-weight: 700; color: var(--primary); min-width: 2.5rem; }
+
+.notes-section { margin-bottom: 1.5rem; }
+.notes-section h3 { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.5rem; }
+.notes-input {
+  width: 100%; padding: 0.75rem; border-radius: 0.75rem;
+  border: 1.5px solid var(--outline-variant); font-family: inherit;
+  font-size: 0.875rem; resize: vertical; color: var(--on-surface);
+  transition: border-color 0.2s;
+}
+.notes-input:focus { outline: none; border-color: var(--primary); }
+
+.submission-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.submit-btn, .btn-secondary {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.5rem; border-radius: 999px; font-size: 0.875rem;
+  font-weight: 700; cursor: pointer; font-family: inherit; border: none;
+  transition: all 0.15s;
+}
+.submit-btn { background: var(--primary); color: var(--on-primary); }
+.submit-btn:hover { background: var(--primary-container); }
+.submit-btn:disabled { opacity: 0.6; cursor: default; }
+.btn-secondary { background: var(--surface-variant); color: var(--on-surface); }
+.btn-secondary:hover { background: var(--surface-container-high); }
+
+.info-card {
+  background: #fff; border: 1px solid var(--outline-variant);
+  border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem;
+}
+.info-card h3 { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--surface-variant); }
+.info-rows { display: flex; flex-direction: column; gap: 0.5rem; }
+.info-row { display: flex; justify-content: space-between; font-size: 0.8125rem; }
+.info-label { color: var(--on-surface-variant); }
+.info-value { font-weight: 600; text-align: right; }
+
+.requirements-content { font-size: 0.8125rem; color: var(--on-surface-variant); line-height: 1.6; }
+.requirements-content ul { padding-left: 1.25rem; margin-top: 0.5rem; }
+.requirements-content li { margin-bottom: 0.25rem; }

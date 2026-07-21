@@ -19,6 +19,36 @@ import {
 import type { UpdateProfileBody, UpdateAvatarBody, UpdateInterestsBody, UpdateEmailBody, UpdateWeeklyGoalBody } from '../types';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
+  fastify.get('/search', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { q, studentId } = request.query as { q?: string; studentId?: string };
+      const where: Record<string, any> = { role: 'learner' };
+
+      if (studentId) {
+        where.studentId = studentId;
+      } else if (q) {
+        const escaped = String(q).replace(/[\\%_]/g, '\\$&');
+        where[Op.or as any] = [
+          { fullName: { [Op.like]: `%${escaped}%` } },
+          { email: { [Op.like]: `%${escaped}%` } },
+          { studentId: { [Op.like]: `%${escaped}%` } },
+        ];
+      } else {
+        return error(reply, 400, 'VALIDATION_ERROR', 'Provide q or studentId parameter');
+      }
+
+      const users = await User.findAll({
+        where,
+        attributes: ['id', 'fullName', 'email', 'role', 'avatarUrl', 'studentId'],
+        limit: 20,
+      });
+
+      return ok(reply, users, 'Users found');
+    } catch {
+      return error(reply, 500, 'SEARCH_FAILED', 'Failed to search users');
+    }
+  });
+
   fastify.get('/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { id } = request.params as { id: string };

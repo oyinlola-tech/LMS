@@ -3,6 +3,7 @@ import { userRepository } from '../../../repositories/user.repository';
 import { otpRepository } from '../../../repositories/otp.repository';
 import { hashPassword } from '../../../utils/password.util';
 import { generateOtp, hashOtp } from '../../../utils/otp.util';
+import { generateStudentId } from '../../../utils/studentId.util';
 import { sendEmail, templates } from '../../../services/mail';
 import { normalizeEmail } from '../../../validators/auth.validator';
 import { UserRole } from '../../../enums';
@@ -28,11 +29,14 @@ export class RegisterCommand {
 
     const passwordHash = await hashPassword(params.password);
 
+    const studentId = await generateStudentId();
+
     const user = await userRepository.create({
       fullName: String(params.fullName).trim(),
       email: normalizedEmail,
       passwordHash,
       role: UserRole.LEARNER,
+      studentId,
       isLegacyUser: false,
     });
 

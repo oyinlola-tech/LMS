@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Assignments</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <link href="/tutors/assignments/css/list.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/tutors/components/assignment-sidebar"></div>
+
+    <main class="admin-main">
+      <div data-include="/tutors/components/assignment-header"></div>
+
+      <div class="list-container">
+        <div class="container">
+          <div class="list-header">
+            <div>
+              <h1 class="list-title">Assignments</h1>
+              <p class="list-subtitle" id="list-subtitle">Loading...</p>
+            </div>
+            <a href="/tutor/assignments/builder/new" class="btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.25rem">
+              <span class="material-symbols-outlined">add</span> New Assignment
+            </a>
+          </div>
+
+          <div class="list-toolbar">
+            <div class="search-wrapper">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" id="search-input" class="search-input" placeholder="Search assignments..."/>
+            </div>
+            <div class="filter-group">
+              <select id="status-filter" class="filter-select">
+                <option value="">All Statuses</option>
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+              <select id="type-filter" class="filter-select">
+                <option value="">All Types</option>
+                <option value="essay">Essay</option>
+                <option value="project">Project</option>
+                <option value="quiz">Quiz</option>
+                <option value="lab">Lab</option>
+                <option value="portfolio">Portfolio</option>
+              </select>
+              <select id="difficulty-filter" class="filter-select">
+                <option value="">All Levels</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="assignments-grid" id="assignments-grid">
+            <div class="loading-state" id="loading-state">
+              <div class="skeleton-card" style="height:200px"></div>
+              <div class="skeleton-card" style="height:200px"></div>
+              <div class="skeleton-card" style="height:200px"></div>
+            </div>
+          </div>
+
+          <div class="empty-state" id="empty-state" style="display:none">
+            <span class="material-symbols-outlined" style="font-size:4rem;color:var(--outline);margin-bottom:1rem">assignment</span>
+            <h3 style="font-size:1.25rem;font-weight:700;margin-bottom:0.5rem">No assignments found</h3>
+            <p style="color:var(--on-surface-variant);margin-bottom:1.5rem">Create your first assignment to get started.</p>
+            <a href="/tutor/assignments/builder/new" class="btn-primary">Create Assignment</a>
+          </div>
+
+          <div class="pagination-bar" id="pagination-bar"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div data-include="/tutors/components/assignment-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script src="/tutors/assignments/js/list.js"></script>
+</body>
+</html>

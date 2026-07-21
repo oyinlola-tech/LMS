@@ -17,6 +17,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare phoneNumber: string | null;
   declare location: string | null;
   declare team: string | null;
+  declare studentId: string | null;
   declare isLegacyUser: CreationOptional<boolean>;
   declare trustedDeviceHash: string | null;
   declare trustedIp: string | null;
@@ -39,11 +40,12 @@ User.init({
   phoneNumber: { type: DataTypes.STRING(40), allowNull: true },
   location: { type: DataTypes.STRING(120), allowNull: true },
   team: { type: DataTypes.STRING(120), allowNull: true },
+  studentId: { type: DataTypes.STRING(30), allowNull: true, unique: true, comment: 'Unique student/matric number for learners' },
   isLegacyUser: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true, comment: 'True for existing users - no login OTP required. New users get false.' },
   trustedDeviceHash: { type: DataTypes.STRING(255), allowNull: true, comment: 'Hash of trusted device for login OTP' },
   trustedIp: { type: DataTypes.STRING(45), allowNull: true, comment: 'Trusted IP address for login OTP' },
   fcmToken: { type: DataTypes.STRING(500), allowNull: true, comment: 'Firebase Cloud Messaging token' },
-}, { sequelize, modelName: 'User', indexes: [{ unique: true, fields: ['email'] }, { fields: ['googleId'] }, { fields: ['githubId'] }] });
+}, { sequelize, modelName: 'User', indexes: [{ unique: true, fields: ['email'] }, { unique: true, fields: ['studentId'] }, { fields: ['googleId'] }, { fields: ['githubId'] }] });
 
 export function associate(models: any) {
   User.hasMany(models.MessageThread, { foreignKey: { name: 'userAId', allowNull: false }, onDelete: 'CASCADE' });

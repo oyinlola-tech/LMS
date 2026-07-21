@@ -1,0 +1,67 @@
+.review-container { padding: 1.5rem 0 4rem; }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-variant) 25%, #e8eaed 50%, var(--surface-variant) 75%);
+  background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0.5rem;
+}
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.breadcrumb { font-size: 0.8125rem; color: var(--on-surface-variant); margin-bottom: 0.5rem; }
+.breadcrumb a { color: var(--primary); text-decoration: none; }
+.page-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 1.5rem; }
+
+.review-grid { display: grid; grid-template-columns: 1fr 300px; gap: 1.5rem; align-items: start; }
+@media (max-width: 900px) { .review-grid { grid-template-columns: 1fr; } }
+
+.review-card {
+  background: #fff; border: 1px solid var(--outline-variant);
+  border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem;
+}
+.card-title { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.card-title .material-symbols-outlined { font-size: 1.25rem; color: var(--primary); }
+
+.grade-display { text-align: center; padding: 1rem 0; }
+.grade-score { font-size: 3rem; font-weight: 900; line-height: 1; }
+.grade-label { font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 0.25rem; }
+.grade-passed { color: #16a34a; }
+.grade-failed { color: var(--error); }
+
+.rubric-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+.rubric-table th { text-align: left; padding: 0.5rem 0.75rem; background: var(--surface-variant); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+.rubric-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--surface-variant); }
+.rubric-table tr:last-child td { border-bottom: none; }
+
+.submitted-files { display: flex; flex-direction: column; gap: 0.5rem; }
+.submitted-file {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.6rem 0.75rem; border-radius: 0.5rem;
+  border: 1px solid var(--surface-variant); font-size: 0.8125rem;
+}
+.submitted-file .material-symbols-outlined { color: var(--primary); font-size: 1.25rem; }
+.file-name { flex: 1; font-weight: 600; }
+.file-download { color: var(--primary); text-decoration: none; font-weight: 600; }
+.file-download:hover { text-decoration: underline; }
+
+.feedback-content { font-size: 0.875rem; line-height: 1.7; color: var(--on-surface-variant); }
+.feedback-content .feedback-author { font-weight: 700; color: var(--on-surface); margin-bottom: 0.5rem; }
+.feedback-content .feedback-date { font-size: 0.75rem; color: var(--on-surface-variant); }
+
+.info-card {
+  background: #fff; border: 1px solid var(--outline-variant);
+  border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem;
+}
+.info-card h3 { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--surface-variant); }
+
+.timeline { display: flex; flex-direction: column; gap: 0.75rem; }
+.timeline-item { display: flex; gap: 0.75rem; position: relative; padding-left: 1.5rem; }
+.timeline-item::before {
+  content: ''; position: absolute; left: 0.35rem; top: 0.35rem;
+  width: 0.5rem; height: 0.5rem; border-radius: 50%;
+  background: var(--primary);
+}
+.timeline-item:not(:last-child)::after {
+  content: ''; position: absolute; left: 0.55rem; top: 1rem;
+  width: 1px; height: calc(100% - 0.5rem); background: var(--outline-variant);
+}
+.timeline-date { font-size: 0.75rem; color: var(--on-surface-variant); min-width: 5rem; }
+.timeline-event { font-size: 0.8125rem; color: var(--on-surface); }

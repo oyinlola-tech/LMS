@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Assignment Details</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <link href="/tutors/assignments/css/details.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/tutors/components/assignment-sidebar"></div>
+
+    <main class="admin-main">
+      <div data-include="/tutors/components/assignment-header"></div>
+
+      <div class="details-container">
+        <div class="container">
+          <div class="loading-state" id="loading-state">
+            <div class="skeleton" style="height:2rem;width:40%;margin-bottom:1rem"></div>
+            <div class="skeleton" style="height:1rem;width:60%;margin-bottom:0.5rem"></div>
+            <div class="skeleton" style="height:1rem;width:30%;margin-bottom:2rem"></div>
+            <div class="skeleton" style="height:12rem;border-radius:0.75rem"></div>
+          </div>
+
+          <div class="error-state" id="error-state" style="display:none">
+            <div class="text-center" style="padding:4rem 0">
+              <span class="material-symbols-outlined" style="font-size:4rem;color:var(--error);margin-bottom:1rem">error</span>
+              <h2 class="text-2xl font-bold mb-2">Assignment Not Found</h2>
+              <p style="color:var(--on-surface-variant)" class="mb-6">This assignment doesn't exist or has been removed.</p>
+              <a href="/tutor/assignments" class="btn-primary">Back to Assignments</a>
+            </div>
+          </div>
+
+          <div id="details-content" style="display:none">
+            <div class="details-header">
+              <div class="breadcrumb" id="breadcrumb"></div>
+              <div class="header-actions">
+                <button class="btn-outline" id="edit-btn"><span class="material-symbols-outlined">edit</span> Edit</button>
+                <button class="btn-outline" id="preview-btn"><span class="material-symbols-outlined">visibility</span> Preview</button>
+              </div>
+            </div>
+
+            <div class="details-grid">
+              <div class="details-main">
+                <section class="detail-card overview-card">
+                  <div class="overview-top">
+                    <div>
+                      <div class="badge-row" id="badge-row"></div>
+                      <h1 class="assignment-title" id="assignment-title"></h1>
+                      <p class="assignment-desc" id="assignment-desc"></p>
+                    </div>
+                  </div>
+                  <div class="overview-meta" id="overview-meta"></div>
+                  <div class="overview-progress" id="overview-progress" style="display:none">
+                    <div class="progress-label">Submissions</div>
+                    <div class="progress-bar-track"><div class="progress-bar-fill" id="submissions-bar" style="width:0%"></div></div>
+                    <div class="progress-stats" id="progress-stats"></div>
+                  </div>
+                </section>
+
+                <section class="detail-card" id="instructions-section">
+                  <h2 class="card-title"><span class="material-symbols-outlined">description</span> Instructions</h2>
+                  <div class="card-body rich-text" id="instructions-body"></div>
+                </section>
+
+                <section class="detail-card" id="deliverables-section">
+                  <h2 class="card-title"><span class="material-symbols-outlined">checklist</span> Key Deliverables</h2>
+                  <ul class="deliverables-list" id="deliverables-list"></ul>
+                </section>
+
+                <section class="detail-card" id="rubric-section" style="display:none">
+                  <h2 class="card-title"><span class="material-symbols-outlined">grading</span> Grading Rubric</h2>
+                  <div class="rubric-table" id="rubric-table"></div>
+                  <div class="rubric-total">Total Points: <strong id="rubric-total"></strong></div>
+                </section>
+
+                <section class="detail-card" id="resources-section">
+                  <h2 class="card-title"><span class="material-symbols-outlined">folder</span> Resources & Reference Files</h2>
+                  <div class="resources-list" id="resources-list"></div>
+                </section>
+
+                <section class="detail-card" id="discussion-section">
+                  <h2 class="card-title"><span class="material-symbols-outlined">forum</span> Discussion</h2>
+                  <div class="discussion-area" id="discussion-area">
+                    <p class="text-sm" style="color:var(--on-surface-variant)">Discussion will be available after assignment is published.</p>
+                  </div>
+                </section>
+              </div>
+
+              <div class="details-sidebar">
+                <div class="sidebar-sticky">
+                  <div class="info-card">
+                    <h3>Assignment Info</h3>
+                    <div class="info-rows" id="info-rows"></div>
+                  </div>
+
+                  <div class="info-card" id="submission-info" style="display:none">
+                    <h3>Submission Info</h3>
+                    <div class="info-rows" id="submission-info-rows"></div>
+                  </div>
+
+                  <div class="info-card" id="files-card" style="display:none">
+                    <h3>Allowed File Formats</h3>
+                    <div class="file-types" id="file-types"></div>
+                    <div class="max-size" id="max-size"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div data-include="/tutors/components/assignment-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script src="/tutors/assignments/js/details.js"></script>
+</body>
+</html>

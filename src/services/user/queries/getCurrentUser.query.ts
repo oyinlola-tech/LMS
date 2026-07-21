@@ -10,6 +10,7 @@ export interface CurrentUserResult {
   avatarUrl?: string | null;
   phoneNumber?: string | null;
   location?: string | null;
+  studentId?: string | null;
   isEmailVerified: boolean;
   UserInterests?: Array<{ id: string; name: string }>;
 }
@@ -39,6 +40,7 @@ export class GetCurrentUserQuery {
       avatarUrl: user.avatarUrl,
       phoneNumber: user.phoneNumber,
       location: user.location,
+      studentId: user.studentId,
       isEmailVerified: user.isEmailVerified,
       UserInterests: interests.map((i: any) => ({ id: i.id, name: i.name })),
     };

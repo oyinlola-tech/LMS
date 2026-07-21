@@ -1,6 +1,6 @@
 import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import { sequelize } from '../config/db.config';
-import { User } from './User';
+import { User } from './User.model';
 
 class BlogPost extends Model<InferAttributes<BlogPost>, InferCreationAttributes<BlogPost>> {
   declare id: CreationOptional<string>;

@@ -60,7 +60,7 @@ const attachDiscussionWebSocket = (server) => {
       }
 
       const payload = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
-      const user = await User.findByPk(payload.sub, { attributes: ['id', 'fullName', 'avatarUrl', 'status'] });
+      const user = await User.findByPk(payload.sub as string, { attributes: ['id', 'fullName', 'avatarUrl', 'status'] });
       if (!user || user.status !== 'active') {
         socket.close(1008, 'Account inactive');
         return;

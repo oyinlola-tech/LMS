@@ -8,6 +8,7 @@ class Assignment extends Model<InferAttributes<Assignment>, InferCreationAttribu
   declare id: CreationOptional<string>;
   declare title: string;
   declare description: string | null;
+  declare type: CreationOptional<string>;
   declare totalPoints: number | null;
   declare status: CreationOptional<string>;
   declare dueDate: string | null;
@@ -17,6 +18,12 @@ class Assignment extends Model<InferAttributes<Assignment>, InferCreationAttribu
   declare coreObjective: string | null;
   declare keyDeliverables: object | null;
   declare downloadAssetsUrl: string | null;
+  declare estimatedTime: number | null;
+  declare attemptsAllowed: CreationOptional<number>;
+  declare submissionType: CreationOptional<string>;
+  declare lateSubmissionPolicy: string | null;
+  declare difficulty: CreationOptional<string>;
+  declare instructions: string | null;
   declare CourseId: string;
   declare moduleId: string;
   declare createdById: string;
@@ -26,6 +33,7 @@ Assignment.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   title: { type: DataTypes.STRING(200), allowNull: false },
   description: { type: DataTypes.TEXT, allowNull: true },
+  type: { type: DataTypes.ENUM('essay', 'project', 'quiz', 'lab', 'portfolio'), allowNull: false, defaultValue: 'essay' },
   totalPoints: { type: DataTypes.INTEGER, allowNull: true },
   status: { type: DataTypes.ENUM('draft', 'published'), allowNull: false, defaultValue: 'draft' },
   dueDate: { type: DataTypes.DATE, allowNull: true },
@@ -35,7 +43,12 @@ Assignment.init({
   coreObjective: { type: DataTypes.TEXT, allowNull: true },
   keyDeliverables: { type: DataTypes.JSON, allowNull: true },
   downloadAssetsUrl: { type: DataTypes.STRING(500), allowNull: true },
-
+  estimatedTime: { type: DataTypes.INTEGER, allowNull: true },
+  attemptsAllowed: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
+  submissionType: { type: DataTypes.ENUM('file', 'text', 'both'), allowNull: false, defaultValue: 'file' },
+  lateSubmissionPolicy: { type: DataTypes.TEXT, allowNull: true },
+  difficulty: { type: DataTypes.ENUM('beginner', 'intermediate', 'advanced'), allowNull: false, defaultValue: 'intermediate' },
+  instructions: { type: DataTypes.TEXT, allowNull: true },
   CourseId: { type: DataTypes.UUID, allowNull: false },
   moduleId: { type: DataTypes.UUID, allowNull: false },
   createdById: { type: DataTypes.UUID, allowNull: false },

@@ -40,6 +40,8 @@ import { QuizAttempt } from './QuizAttempt.model';
 import { Assignment } from './Assignment.model';
 import { AssignmentRequirement } from './AssignmentRequirement.model';
 import { AssignmentSubmission } from './AssignmentSubmission.model';
+import { AssignmentResource } from './AssignmentResource.model';
+import { GradingRubricCriterion } from './GradingRubricCriterion.model';
 
 import { MessageThread, associate as messageThreadAssociate } from './MessageThread.model';
 import { Message, associate as messageAssociate } from './Message.model';
@@ -111,6 +113,8 @@ export {
   Assignment,
   AssignmentRequirement,
   AssignmentSubmission,
+  AssignmentResource,
+  GradingRubricCriterion,
   MessageThread,
   Message,
   SupportTicket,

@@ -1,6 +1,6 @@
 # Security Policy
 
-We take security seriously at TalentFlow. This document explains how to report issues and what to expect from us.
+We take security seriously at LearnBridge. This document explains how to report issues and what to expect from us.
 
 ## Supported Versions
 - `main` branch (latest)

@@ -1,6 +1,7 @@
 import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import { sequelize } from '../config/db.config';
 import { User } from './User.model';
+import { BlogComment } from './BlogComment.model';
 
 class BlogPost extends Model<InferAttributes<BlogPost>, InferCreationAttributes<BlogPost>> {
   declare id: CreationOptional<string>;
@@ -32,5 +33,7 @@ BlogPost.init({
 
 User.hasMany(BlogPost, { foreignKey: { name: 'authorId', allowNull: false }, onDelete: 'CASCADE' });
 BlogPost.belongsTo(User, { as: 'author', foreignKey: 'authorId' });
+BlogPost.hasMany(BlogComment, { foreignKey: { name: 'blogPostId', allowNull: false }, onDelete: 'CASCADE' });
+BlogComment.belongsTo(BlogPost, { foreignKey: 'blogPostId' });
 
 export { BlogPost };

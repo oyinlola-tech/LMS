@@ -142,7 +142,7 @@ Error (403):
 ```
 
 ## GET /certificates/badge
-Returns the TalentFlow Verified badge (SVG).
+Returns the LearnBridge Verified badge (SVG).
 Response (200):
 ```
 SVG badge
@@ -156,7 +156,7 @@ HTML badge share page
 ```
 
 ## GET /certificates/badge.png
-Returns the TalentFlow Verified badge (PNG).
+Returns the LearnBridge Verified badge (PNG).
 Response (200):
 ```
 PNG badge

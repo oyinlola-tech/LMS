@@ -21,29 +21,29 @@ import { attachDiscussionWebSocket } from './utils/wsDiscussions.util';
 import { initFirebase } from './utils/firebase.util';
 import { startEmailJob } from './jobs/email.job';
 import { initRedisSubscriber } from './utils/notificationStream.util';
-import { seedDevDatabase } from './utils/devSeed.util';
 
-const { PORT, ADMIN_EMAIL, ADMIN_PASSWORD, APP_NAME, DB_SYNC_ALTER } = process.env;
+const { PORT, SUPER_ADMIN_EMAIL, SUPER_ADMIN_PASSWORD, APP_NAME, DB_SYNC_ALTER } = process.env;
 
-const isDevelopment = String(process.env.NODE_ENV || '').toLowerCase() === 'development';
-
-const ensureAdmin = async () => {
-  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) return;
-  const normalizedEmail = String(ADMIN_EMAIL).trim().toLowerCase();
+const ensureSuperAdmin = async () => {
+  if (!SUPER_ADMIN_EMAIL || !SUPER_ADMIN_PASSWORD) return;
+  const normalizedEmail = String(SUPER_ADMIN_EMAIL).trim().toLowerCase();
   const existing = await User.findOne({ where: { email: normalizedEmail } });
-  if (existing) return;
-  const passwordHash = await hashPassword(ADMIN_PASSWORD);
+  if (existing) {
+    if (existing.role !== UserRole.SUPER_ADMIN) {
+      await existing.update({ role: UserRole.SUPER_ADMIN });
+      logger.info('[Server] Upgraded existing user to super admin');
+    }
+    return;
+  }
+  const passwordHash = await hashPassword(SUPER_ADMIN_PASSWORD);
   await User.create({
-    fullName: `${APP_NAME} Admin`,
+    fullName: `${APP_NAME} Super Admin`,
     email: normalizedEmail,
     passwordHash,
-    role: UserRole.ADMIN,
+    role: UserRole.SUPER_ADMIN,
     isEmailVerified: true,
   });
-  const emailPayload = templates.adminCreated({ email: normalizedEmail, password: ADMIN_PASSWORD });
-  sendEmail({ to: normalizedEmail, ...emailPayload }).catch((err: Error) => {
-    logger.warn('[Email] Admin welcome email failed (non-blocking)', err.message);
-  });
+  logger.info(`[Server] Super admin created: ${normalizedEmail}`);
 };
 
 const REQUIRED_ENV_VARS = ['JWT_SECRET', 'PORT'];
@@ -63,13 +63,8 @@ const start = async () => {
       process.exit(1);
     }
 
-    if (isDevelopment) {
-      await seedDevDatabase({ reset: true });
-    } else {
-      await sequelize.sync({ alter: String(DB_SYNC_ALTER) === 'true' });
-    }
-
-    await ensureAdmin();
+    await sequelize.sync({ alter: String(DB_SYNC_ALTER) === 'true' });
+    await ensureSuperAdmin();
 
     const app = await buildApp();
     await app.ready();

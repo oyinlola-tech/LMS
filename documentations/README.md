@@ -1,10 +1,10 @@
-# TalentFlow API Documentation
+# LearnBridge API Documentation
 
 This folder contains role-based API documentation organized by user role and feature area.
 
 ## Overview
 
-TalentFlow provides distinct API sets for different user roles:
+LearnBridge provides distinct API sets for different user roles:
 
 - **Learner**: Students enrolled in courses
 - **Tutor**: Course creators and instructors

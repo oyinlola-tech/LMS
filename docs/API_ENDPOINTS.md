@@ -1633,7 +1633,7 @@ API: **undefined API** (v1.0.0)
 
 ## GET /certificates/badge
 
-- Name: TalentFlow Verified badge (SVG)
+- Name: LearnBridge Verified badge (SVG)
 
 ### Request
 
@@ -1651,7 +1651,7 @@ API: **undefined API** (v1.0.0)
 
 ## GET /certificates/badge.png
 
-- Name: TalentFlow Verified badge (PNG)
+- Name: LearnBridge Verified badge (PNG)
 
 ### Request
 
@@ -1669,7 +1669,7 @@ API: **undefined API** (v1.0.0)
 
 ## GET /certificates/badge/page
 
-- Name: TalentFlow Verified badge page (social share)
+- Name: LearnBridge Verified badge page (social share)
 
 ### Request
 

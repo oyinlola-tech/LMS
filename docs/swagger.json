@@ -2965,7 +2965,7 @@
     },
     "/certificates/badge": {
       "get": {
-        "summary": "TalentFlow Verified badge (SVG)",
+        "summary": "LearnBridge Verified badge (SVG)",
         "responses": {
           "200": {
             "description": "SVG badge"
@@ -2975,7 +2975,7 @@
     },
     "/certificates/badge/page": {
       "get": {
-        "summary": "TalentFlow Verified badge page (social share)",
+        "summary": "LearnBridge Verified badge page (social share)",
         "responses": {
           "200": {
             "description": "HTML badge share page"
@@ -2985,7 +2985,7 @@
     },
     "/certificates/badge.png": {
       "get": {
-        "summary": "TalentFlow Verified badge (PNG)",
+        "summary": "LearnBridge Verified badge (PNG)",
         "responses": {
           "200": {
             "description": "PNG badge"

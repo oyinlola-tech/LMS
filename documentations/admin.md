@@ -57,11 +57,11 @@ Response (200):
 ## POST /admin/users
 Request:
 ```json
-{"fullName":"Alex Kim","email":"alex@talentflow.com","role":"tutor","password":"TempPass123"}
+{"fullName":"Alex Kim","email":"alex@learnbridge.com","role":"tutor","password":"TempPass123"}
 ```
 Response (200):
 ```json
-{"message":"User created","data":{"id":"uuid","email":"alex@talentflow.com","role":"tutor"}}
+{"message":"User created","data":{"id":"uuid","email":"alex@learnbridge.com","role":"tutor"}}
 ```
 
 ## GET /admin/users/:id

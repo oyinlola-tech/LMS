@@ -54,6 +54,11 @@
     "basic-ftp": ">=5.3.0"
   },
   "allowScripts": {
-    "@firebase/util@1.15.1": true
+    "@firebase/util@1.15.1": true,
+    "@prisma/engines@7.8.0": true,
+    "argon2@0.44.0": true,
+    "msgpackr-extract@3.0.4": true,
+    "prisma@7.8.0": true,
+    "puppeteer@25.3.0": true
   }
 }

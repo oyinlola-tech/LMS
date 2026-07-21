@@ -137,6 +137,7 @@ export async function buildApp() {
     ['/support', 'pages/support.html'],
     ['/community', 'pages/community.html'],
     ['/discussions', 'pages/discussions.html'],
+    ['/messages', 'pages/messages.html'],
   ] as const;
 
   for (const [route, file] of pages) {
@@ -144,6 +145,7 @@ export async function buildApp() {
   }
 
   app.get('/course/:id', async (_req, reply) => reply.sendFile('courses/course-details.html'));
+  app.get('/profile/:id', async (_req, reply) => reply.sendFile('pages/profile.html'));
 
   await app.register(authRoutes, { prefix: '/auth' });
   await app.register(userRoutes, { prefix: '/users' });

@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { User } from '../models';
+import { Op } from 'sequelize';
+import { User, TutorProfile, LearnerStats, UserStreak, Milestone, UserSkillProgress, Follow } from '../models';
 import { ok, error } from '../utils/response.util';
 import { getCurrentUserQuery } from '../services/user/queries/getCurrentUser.query';
 import { updateProfileCommand } from '../services/user/commands/updateProfile.command';
@@ -18,6 +19,30 @@ import {
 import type { UpdateProfileBody, UpdateAvatarBody, UpdateInterestsBody, UpdateEmailBody, UpdateWeeklyGoalBody } from '../types';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
+  fastify.get('/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const user = await User.findByPk(id, {
+        attributes: ['id', 'fullName', 'email', 'role', 'bio', 'avatarUrl', 'location', 'skills'],
+        include: [
+          { model: TutorProfile, attributes: ['headline'] },
+          { model: LearnerStats, attributes: ['coursesActive', 'coursesCompleted', 'hoursSpent', 'weeklyGoalHours', 'weeklyGoalProgressHours'] },
+          { model: UserStreak, attributes: ['currentStreak', 'longestStreak', 'lastActiveDate'] },
+          { model: Milestone, attributes: ['id', 'title', 'dueDate', 'completedAt'], limit: 10, order: [['createdAt', 'DESC']] },
+          { model: UserSkillProgress, attributes: ['skill', 'level', 'percent', 'lessonsCompleted', 'hoursSpent'], limit: 20 },
+        ],
+      });
+      if (!user) return error(reply, 404, 'NOT_FOUND', 'User not found');
+
+      const followerCount = await Follow.count({ where: { followingId: id } });
+      const followingCount = await Follow.count({ where: { followerId: id } });
+
+      return ok(reply, { ...user.toJSON(), followerCount, followingCount }, 'Profile loaded');
+    } catch {
+      return error(reply, 500, 'PROFILE_LOAD_FAILED', 'Failed to load profile');
+    }
+  });
+
   fastify.get('/me', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const result = await getCurrentUserQuery.execute(request.user!.sub);

@@ -12,10 +12,15 @@
         <a class="text-sm font-medium hover:text-primary transition-colors" style="color: var(--on-surface-variant)" href="/about">About</a>
       </nav>
     </div>
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-3">
+      <a href="/messages" id="header-messages" class="relative hidden sm:inline-flex items-center justify-center size-10 rounded-xl transition-colors" style="color: var(--on-surface-variant); display:none" title="Messages">
+        <span class="material-symbols-outlined" style="font-size: 1.35rem">chat</span>
+        <span id="msg-badge" class="absolute -top-0.5 -right-0.5 size-4 rounded-full flex items-center justify-center text-[9px] font-bold" style="background: var(--error); color: #fff; display: none"></span>
+      </a>
       <a href="/login" id="header-login" class="hidden sm:inline-block text-sm font-bold px-4 py-2 rounded-lg transition-colors" style="color: var(--on-surface-variant)">Login</a>
       <a href="/register" id="header-join" class="btn-primary text-sm">Join for Free</a>
       <a href="/dashboard" id="header-profile" class="btn-secondary text-sm" style="display:none">Dashboard</a>
+      <a href="/profile/me" id="header-profile-icon" class="size-10 rounded-full" style="display:none; background-size:cover; background-position:center; border: 2px solid var(--outline-variant)" title="My Profile"></a>
       <button id="header-logout" class="btn-secondary text-sm" style="display:none">Logout</button>
     </div>
   </div>

@@ -4,7 +4,8 @@
   <meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>LearnBridge - Instructor Profile</title>
   <link href="/css/styles.css" rel="stylesheet"/><link href="/css/modal.css" rel="stylesheet"/>
-  <style>.profile-cover{height:260px;border-radius:1.5rem;background:linear-gradient(135deg,var(--primary-container),var(--secondary));position:relative;overflow:hidden}
+  <style>body{background:var(--surface)}.admin-layout{display:flex;min-height:100vh}.admin-main{flex:1;padding:2rem;overflow-y:auto}
+  .profile-cover{height:260px;border-radius:1.5rem;background:linear-gradient(135deg,var(--primary-container),var(--secondary));position:relative;overflow:hidden}
   .profile-info{display:flex;align-items:flex-end;gap:2rem;padding:0 2rem;margin-top:-4rem;position:relative;z-index:2}
   .profile-avatar{width:8rem;height:8rem;border-radius:50%;background-size:cover;background-position:center;border:4px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.1);flex-shrink:0}
   .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
@@ -12,12 +13,13 @@
   .tab-btn{padding:0.75rem 1.5rem;font-weight:600;font-size:0.9rem;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--on-surface-variant)}
   .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
   .tab-content{display:none}.tab-content.active{display:block}
-  @media(max-width:768px){.profile-info{flex-direction:column;align-items:center;text-align:center;margin-top:-3rem}.profile-avatar{width:6rem;height:6rem}}
+  @media(max-width:768px){.admin-sidebar{display:none}.admin-main{padding:1rem}.profile-info{flex-direction:column;align-items:center;text-align:center;margin-top:-3rem}.profile-avatar{width:6rem;height:6rem}}
   </style>
 </head>
 <body>
-<div data-include="header"></div>
-<main style="padding-top:5rem">
+<div class="admin-layout">
+<div data-include="/tutors/components/tutor-sidebar"></div>
+<main class="admin-main">
 <div id="loading-profile" style="padding:3rem 0"><div class="container"><div class="skeleton" style="height:260px;border-radius:1.5rem"></div></div></div>
 <div id="error-profile" style="display:none;padding:6rem 0" class="text-center">
   <span class="material-symbols-outlined" style="font-size:4rem;color:var(--error);margin-bottom:1rem">school</span>
@@ -56,11 +58,14 @@
   </div>
 </div>
 </main>
-<div data-include="footer"></div><div data-include="auth-modal"></div>
+</div>
+<div data-include="/tutors/components/tutor-bottom-nav"></div>
+<div data-include="auth-modal"></div>
 <script src="/js/components/include.js"></script>
 <script src="/js/apis/api.js"></script>
 <script src="/js/apis/auth.js"></script>
 <script src="/js/apis/public.js"></script>
+<script src="/js/components/active-page.js"></script>
 <script src="/js/profile.js"></script>
 </body>
 </html>

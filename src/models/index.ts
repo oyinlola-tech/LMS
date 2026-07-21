@@ -53,6 +53,7 @@ import { Subscription } from './Subscription.model';
 import { DiscussionThread } from './DiscussionThread.model';
 import { DiscussionReply } from './DiscussionReply.model';
 import { BlogPost } from './BlogPost.model';
+import { BlogComment } from './BlogComment.model';
 import { Career } from './Career.model';
 
 
@@ -114,5 +115,6 @@ export {
   DiscussionThread,
   DiscussionReply,
   BlogPost,
+  BlogComment,
   Career,
 };

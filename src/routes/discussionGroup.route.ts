@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { Op } from 'sequelize';
-import { DiscussionGroup, GroupMember, DiscussionMessage, User } from '../models';
+import { DiscussionGroup, GroupMember, DiscussionMessage, ThreadSubscription, User } from '../models';
 import { UserRole } from '../enums';
 import { ok, created, error } from '../utils/response.util';
 
@@ -158,6 +158,41 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       return ok(reply, members, 'Members loaded');
     } catch {
       return error(reply, 500, 'MEMBERS_LIST_FAILED', 'Failed to load members');
+    }
+  });
+
+  fastify.post('/:id/subscribe', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const existing = await ThreadSubscription.findOne({ where: { groupId: id, userId: request.user!.sub } });
+      if (existing) return error(reply, 409, 'ALREADY_SUBSCRIBED', 'Already subscribed');
+      await ThreadSubscription.create({ groupId: id, userId: request.user!.sub });
+      return created(reply, null, 'Subscribed');
+    } catch {
+      return error(reply, 500, 'SUBSCRIBE_FAILED', 'Failed to subscribe');
+    }
+  });
+
+  fastify.post('/:id/unsubscribe', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id } = request.params as { id: string };
+      await ThreadSubscription.destroy({ where: { groupId: id, userId: request.user!.sub } });
+      return ok(reply, null, 'Unsubscribed');
+    } catch {
+      return error(reply, 500, 'UNSUBSCRIBE_FAILED', 'Failed to unsubscribe');
+    }
+  });
+
+  fastify.get('/:id/subscribers', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const subs = await ThreadSubscription.findAll({
+        where: { groupId: id },
+        include: [{ model: User, attributes: ['id', 'fullName', 'avatarUrl'] }],
+      });
+      return ok(reply, subs, 'Subscribers loaded');
+    } catch {
+      return error(reply, 500, 'SUBSCRIBERS_LIST_FAILED', 'Failed to load subscribers');
     }
   });
 }

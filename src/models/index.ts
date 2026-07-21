@@ -56,6 +56,7 @@ import { DiscussionMessage } from './DiscussionMessage.model';
 import { DiscussionGroup } from './DiscussionGroup.model';
 import { GroupMember } from './GroupMember.model';
 import { Follow } from './Follow.model';
+import { ThreadSubscription } from './ThreadSubscription.model';
 import { BlogPost } from './BlogPost.model';
 import { BlogComment } from './BlogComment.model';
 import { Career } from './Career.model';
@@ -122,6 +123,7 @@ export {
   DiscussionGroup,
   GroupMember,
   Follow,
+  ThreadSubscription,
   BlogPost,
   BlogComment,
   Career,

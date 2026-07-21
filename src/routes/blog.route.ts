@@ -1,9 +1,11 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { Op } from 'sequelize';
-import { BlogPost, BlogComment, User } from '../models';
+import { BlogPost, BlogComment, User, Follow } from '../models';
 import { UserRole } from '../enums';
 import { ok, created, error } from '../utils/response.util';
 import { AppError } from '../errors';
+import { broadcastNotification } from '../utils/wsHub.util';
+import { sendPushNotification } from '../utils/firebase.util';
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'post';
@@ -127,6 +129,29 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         isPublished: body.isPublished !== undefined ? body.isPublished : true,
         publishedAt: body.isPublished !== false ? new Date() : undefined,
       });
+
+      if (post.isPublished) {
+        try {
+          const author = await User.findByPk(request.user!.sub, { attributes: ['fullName'] });
+          const authorName = author?.fullName || 'A tutor';
+          const followers = await Follow.findAll({
+            where: { followingId: request.user!.sub },
+            attributes: ['followerId'],
+          });
+          for (const f of followers) {
+            broadcastNotification({
+              userId: f.followerId,
+              type: 'blog_post',
+              title: 'New Blog Post',
+              message: `${authorName} published "${body.title}"`,
+            });
+            sendPushNotification(f.followerId, 'New Blog Post', `${authorName} published "${body.title}"`, { postId: String(post.id), slug: finalSlug });
+          }
+        } catch (notifErr) {
+          request.log.warn('Failed to notify followers of blog post');
+        }
+      }
+
       return created(reply, post, 'Blog post created');
     } catch (err: unknown) {
       return error(reply, 500, 'BLOG_CREATE_FAILED', 'Failed to create blog post');

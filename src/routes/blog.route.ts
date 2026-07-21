@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { Op } from 'sequelize';
-import { BlogPost, User } from '../models';
+import { BlogPost, BlogComment, User } from '../models';
 import { UserRole } from '../enums';
 import { ok, created, error } from '../utils/response.util';
 import { AppError } from '../errors';
@@ -49,6 +49,56 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       return ok(reply, post, 'Blog post loaded');
     } catch {
       return error(reply, 500, 'BLOG_GET_FAILED', 'Failed to load blog post');
+    }
+  });
+
+  fastify.get('/:slug/comments', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { slug } = request.params as { slug: string };
+      const post = await BlogPost.findOne({ where: { slug } });
+      if (!post) return error(reply, 404, 'NOT_FOUND', 'Blog post not found');
+      const comments = await BlogComment.findAll({
+        where: { blogPostId: post.id },
+        include: [{ model: User, as: 'author', attributes: ['id', 'fullName', 'avatarUrl'] }],
+        order: [['createdAt', 'ASC']],
+      });
+      return ok(reply, comments, 'Comments loaded');
+    } catch {
+      return error(reply, 500, 'COMMENT_LIST_FAILED', 'Failed to load comments');
+    }
+  });
+
+  fastify.post('/:slug/comments', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { slug } = request.params as { slug: string };
+      const post = await BlogPost.findOne({ where: { slug } });
+      if (!post) return error(reply, 404, 'NOT_FOUND', 'Blog post not found');
+      const { content } = (request.body || {}) as { content: string };
+      if (!content || !content.trim()) return error(reply, 400, 'VALIDATION_ERROR', 'Content is required');
+      const comment = await BlogComment.create({
+        blogPostId: post.id,
+        authorId: request.user!.sub,
+        content: content.trim(),
+      });
+      return created(reply, comment, 'Comment added');
+    } catch {
+      return error(reply, 500, 'COMMENT_CREATE_FAILED', 'Failed to add comment');
+    }
+  });
+
+  fastify.delete('/comments/:id', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { id } = request.params as { id: string };
+      const comment = await BlogComment.findByPk(id);
+      if (!comment) return error(reply, 404, 'NOT_FOUND', 'Comment not found');
+      const role = request.user!.role;
+      if (comment.authorId !== request.user!.sub && role !== UserRole.ADMIN && role !== UserRole.TUTOR) {
+        return error(reply, 403, 'FORBIDDEN', 'You can only delete your own comments');
+      }
+      await comment.destroy();
+      return ok(reply, null, 'Comment deleted');
+    } catch {
+      return error(reply, 500, 'COMMENT_DELETE_FAILED', 'Failed to delete comment');
     }
   });
 

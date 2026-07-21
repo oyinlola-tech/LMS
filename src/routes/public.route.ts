@@ -4,7 +4,20 @@ import { User, BlogPost, TutorProfile, Course, Enrollment, CourseCertificate } f
 import { courseReviewRepository } from '../repositories/courseReview.repository';
 import { ok, error } from '../utils/response.util';
 
+const { APP_NAME, APP_NAME_SHORT, SUPPORT_EMAIL, BRAND_APP_URL } = process.env;
+
 export default async function (fastify: FastifyInstance): Promise<void> {
+  fastify.get('/config', async (_request: FastifyRequest, reply: FastifyReply) => {
+    return ok(reply, {
+      appName: APP_NAME || 'LearnBridge',
+      appNameShort: APP_NAME_SHORT || 'LearnBridge',
+      supportEmail: SUPPORT_EMAIL || '',
+      appUrl: BRAND_APP_URL || '',
+      defaultAvatarUrl: '/img/placeholder.svg',
+      defaultThumbnailUrl: '/img/placeholder.svg',
+    }, 'App config loaded');
+  });
+
   fastify.get('/landing', async (_request: FastifyRequest, reply: FastifyReply) => {
     try {
       const featuredCourses = await Course.findAll({

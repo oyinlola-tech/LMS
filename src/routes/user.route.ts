@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { Op } from 'sequelize';
-import { User, TutorProfile, LearnerStats, UserStreak, Milestone, UserSkillProgress, Follow } from '../models';
+import { User, TutorProfile, LearnerStats, UserStreak, Milestone, UserSkillProgress, Follow, UserInterest } from '../models';
 import { ok, error } from '../utils/response.util';
 import { getCurrentUserQuery } from '../services/user/queries/getCurrentUser.query';
 import { updateProfileCommand } from '../services/user/commands/updateProfile.command';

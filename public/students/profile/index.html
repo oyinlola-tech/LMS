@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Student Profile</title>
+  <link href="/css/styles.css" rel="stylesheet"/><link href="/css/modal.css" rel="stylesheet"/>
+  <style>body{background:var(--surface)}.admin-layout{display:flex;min-height:100vh}.admin-main{flex:1;padding:2rem;overflow-y:auto}
+  .profile-cover{height:220px;border-radius:1.5rem;background:linear-gradient(135deg,#667eea,#764ba2);position:relative;overflow:hidden}
+  .profile-info{display:flex;align-items:flex-end;gap:2rem;padding:0 2rem;margin-top:-3.5rem;position:relative;z-index:2}
+  .profile-avatar{width:7rem;height:7rem;border-radius:50%;background-size:cover;background-position:center;border:4px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.1);flex-shrink:0}
+  .stat-card{padding:1.25rem;border-radius:1rem;background:#fff;border:1px solid var(--outline-variant);text-align:center}
+  .tab-btn{padding:0.75rem 1.5rem;font-weight:600;font-size:0.9rem;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:var(--on-surface-variant)}
+  .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
+  .tab-content{display:none}.tab-content.active{display:block}
+  .badge-verified{display:inline-flex;align-items:center;gap:0.25rem;padding:0.2rem 0.6rem;border-radius:999px;font-size:0.7rem;font-weight:700;text-transform:uppercase;background:#000;color:#fff}
+  @media(max-width:768px){.admin-sidebar{display:none}.admin-main{padding:1rem}.profile-info{flex-direction:column;align-items:center;text-align:center;margin-top:-2.5rem}.profile-avatar{width:5.5rem;height:5.5rem}}
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+<div data-include="/students/components/learner-sidebar"></div>
+<main class="admin-main">
+<div id="loading-profile" style="padding:3rem 0"><div class="container"><div class="skeleton" style="height:220px;border-radius:1.5rem"></div></div></div>
+<div id="error-profile" style="display:none;padding:6rem 0" class="text-center">
+  <span class="material-symbols-outlined" style="font-size:4rem;color:var(--error);margin-bottom:1rem">person_off</span>
+  <h2 class="text-2xl font-bold mb-2">Student Not Found</h2>
+  <p style="color:var(--on-surface-variant)" class="mb-6">This profile doesn't exist.</p>
+  <a href="/" class="btn-primary">Go Home</a>
+</div>
+<div id="profile-content" style="display:none;padding:1.5rem 0 3rem">
+  <div class="container">
+    <div class="profile-cover"><div style="position:absolute;inset:0;background:rgba(0,0,0,0.1)"></div></div>
+    <div class="profile-info">
+      <div class="profile-avatar" id="profile-avatar"></div>
+      <div class="profile-details grow">
+        <h1 class="text-2xl font-black" id="profile-name"></h1>
+        <p class="text-sm font-semibold mb-1" style="color:var(--primary)">Student</p>
+        <p class="text-sm" style="color:var(--on-surface-variant)" id="profile-bio"></p>
+        <div class="flex items-center gap-4 mt-3 flex-wrap">
+          <div class="flex items-center gap-1 text-sm" style="color:var(--on-surface-variant)"><span class="material-symbols-outlined" style="font-size:1.1rem">local_fire_department</span><span id="profile-streak">0</span> day streak</div>
+          <button id="profile-msg-btn" class="btn-secondary text-sm py-1.5 px-4" style="display:none"><span class="material-symbols-outlined" style="font-size:1rem;vertical-align:middle">chat</span> Message</button>
+          <button id="profile-follow-btn" class="text-sm font-bold py-1.5 px-4 rounded-lg" style="background:var(--surface-variant);color:var(--on-surface);display:none"></button>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8" id="learner-stats"></div>
+    <div class="mt-8" style="border-bottom:1px solid var(--outline-variant)">
+      <div class="flex gap-1 overflow-x-auto">
+        <button class="tab-btn active" data-tab="achievements">Achievements</button>
+        <button class="tab-btn" data-tab="goals">Goals</button>
+        <button class="tab-btn" data-tab="about">About</button>
+      </div>
+    </div>
+    <div id="tab-achievements" class="tab-content active mt-6"><div id="achievements-content"></div></div>
+    <div id="tab-goals" class="tab-content mt-6"><div id="goals-content"></div></div>
+    <div id="tab-about" class="tab-content mt-6"><div class="rounded-2xl border p-6" style="background:#fff;border-color:var(--outline-variant)"><div id="about-content"></div></div></div>
+  </div>
+</div>
+</main>
+</div>
+<div data-include="/students/components/learner-bottom-nav"></div>
+<div data-include="auth-modal"></div>
+<script src="/js/components/include.js"></script>
+<script src="/js/apis/api.js"></script>
+<script src="/js/apis/auth.js"></script>
+<script src="/js/components/active-page.js"></script>
+<script src="/js/profile.js"></script>
+</body>
+</html>

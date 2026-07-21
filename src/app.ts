@@ -40,6 +40,8 @@ import instructorsPublicRoutes from './routes/instructors.route';
 import gradebookRoutes from './routes/gradebook.route';
 import submissionsRoutes from './routes/submissions.route';
 import discussionsRoutes from './routes/discussions.route';
+import discussionGroupRoutes from './routes/discussionGroup.route';
+import followRoutes from './routes/follow.route';
 import blogRoutes from './routes/blog.route';
 import careerRoutes from './routes/career.route';
 import publicRoutes from './routes/public.route';
@@ -115,8 +117,8 @@ export async function buildApp() {
     ['/verify-otp', 'auth/verify-otp.html'],
     ['/forgot-password', 'auth/forgot-password.html'],
     ['/change-password', 'auth/change-password.html'],
-    ['/dashboard', 'pages/dashboard.html'],
-    ['/tutor', 'pages/tutor.html'],
+    ['/dashboard', 'students/index.html'],
+    ['/tutor', 'tutors/index.html'],
     ['/admin', 'admin/index.html'],
     ['/courses', 'pages/courses.html'],
     ['/learning-paths', 'pages/learning-paths.html'],
@@ -168,6 +170,8 @@ export async function buildApp() {
   await app.register(discussionsRoutes, { prefix: '/discussions' });
   await app.register(blogRoutes, { prefix: '/api/blog' });
   await app.register(careerRoutes, { prefix: '/api/careers' });
+  await app.register(discussionGroupRoutes, { prefix: '/api/groups' });
+  await app.register(followRoutes, { prefix: '/api/follow' });
   await app.register(publicRoutes, { prefix: '/public' });
 
   app.get('/api/health', async () => ({

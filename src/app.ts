@@ -23,6 +23,7 @@ import tutorRoutes from './routes/tutors.route';
 import progressRoutes from './routes/progress.route';
 import tutorDashboardRoutes from './routes/tutorDashboard.route';
 import tutorFinancialsRoutes from './routes/tutorFinancials.route';
+import tutorAssignmentBuilderRoutes from './routes/tutorAssignmentBuilder.route';
 import notificationRoutes from './routes/notifications.route';
 import certificateRoutes from './routes/certificates.route';
 import courseBuilderRoutes from './routes/courseBuilder.route';
@@ -145,6 +146,8 @@ export async function buildApp() {
   }
 
   app.get('/assignments/:id/student', async (_req, reply) => reply.sendFile('students/assignment.html'));
+  app.get('/tutor/assignments/builder/:id', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
+  app.get('/tutor/assignments/builder/:id/step/:step', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
 
   app.get('/course/:id', async (_req, reply) => reply.sendFile('courses/course-details.html'));
 
@@ -185,6 +188,7 @@ export async function buildApp() {
   await app.register(adminSupportRoutes, { prefix: '/admin/support' });
   await app.register(adminInstructorsRoutes, { prefix: '/admin/instructors' });
   await app.register(tutorFinancialsRoutes, { prefix: '/tutor' });
+  await app.register(tutorAssignmentBuilderRoutes, { prefix: '/tutor/assignments' });
   await app.register(uploadRoutes, { prefix: '/uploads' });
   await app.register(messageRoutes, { prefix: '/messages' });
   await app.register(supportRoutes, { prefix: '/support' });

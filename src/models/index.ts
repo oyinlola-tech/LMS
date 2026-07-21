@@ -52,6 +52,9 @@ import { MentorshipApplication } from './MentorshipApplication.model';
 import { Subscription } from './Subscription.model';
 import { DiscussionThread } from './DiscussionThread.model';
 import { DiscussionReply } from './DiscussionReply.model';
+import { DiscussionGroup } from './DiscussionGroup.model';
+import { GroupMember } from './GroupMember.model';
+import { Follow } from './Follow.model';
 import { BlogPost } from './BlogPost.model';
 import { BlogComment } from './BlogComment.model';
 import { Career } from './Career.model';
@@ -114,6 +117,9 @@ export {
   Subscription,
   DiscussionThread,
   DiscussionReply,
+  DiscussionGroup,
+  GroupMember,
+  Follow,
   BlogPost,
   BlogComment,
   Career,

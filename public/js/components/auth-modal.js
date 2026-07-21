@@ -57,6 +57,17 @@
     currentMode = panel;
   }
 
+  function redirectAfterAuth(token) {
+    try {
+      var payload = JSON.parse(atob(token.split('.')[1]));
+      var role = payload.role || '';
+      var urls = { learner: '/dashboard', tutor: '/tutor', admin: '/admin', super_admin: '/superadmin' };
+      window.location.href = urls[role] || '/dashboard';
+    } catch (_) {
+      window.location.href = '/dashboard';
+    }
+  }
+
   function openModal(panel) {
     if (!modal) return;
     showPanel(panel || 'login');
@@ -96,7 +107,7 @@
         } else if (result.data.token) {
           localStorage.setItem('token', result.data.token);
           closeModal();
-          window.location.reload();
+          redirectAfterAuth(result.data.token);
         }
       })
       .catch(function (err) {
@@ -159,7 +170,7 @@
           localStorage.setItem('token', result.data.token);
           localStorage.removeItem('pendingUserId');
           closeModal();
-          window.location.reload();
+          redirectAfterAuth(result.data.token);
         } else {
           otpError.textContent = result.message || 'Verification failed.';
           otpError.style.display = 'block';

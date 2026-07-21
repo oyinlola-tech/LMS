@@ -6,50 +6,167 @@
   <title>LearnBridge - Dashboard</title>
   <link href="/css/styles.css" rel="stylesheet"/>
   <link href="/css/modal.css" rel="stylesheet"/>
+  <link href="/students/css/dashboard.css" rel="stylesheet"/>
   <style>
     body { background: var(--surface); }
     .admin-layout { display: flex; min-height: 100vh; }
-    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
-    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    .admin-header h1 { font-size: 1.5rem; font-weight: 700; }
-    .admin-header .user-info { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; color: var(--on-surface-variant); }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-    .stat-card { background: var(--surface-container); border-radius: 1rem; padding: 1.25rem; border: 1px solid var(--outline-variant); }
-    .stat-card .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); }
-    .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--primary); margin-top: 0.25rem; }
-    .section-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
-    .course-progress-card { background: var(--surface-container); border-radius: 1rem; padding: 1rem; border: 1px solid var(--outline-variant); display: flex; align-items: center; gap: 1rem; }
-    .progress-bar { flex: 1; height: 0.5rem; border-radius: 999px; background: var(--surface-container-high); overflow: hidden; }
-    .progress-bar-fill { height: 100%; border-radius: 999px; background: var(--primary); transition: width 0.3s; }
-    .btn-icon { background: none; border: none; color: var(--on-surface-variant); cursor: pointer; padding: 0.25rem; border-radius: 0.5rem; transition: var(--transition); font-size: 0.875rem; }
-    .btn-icon:hover { background: var(--surface-container-high); color: var(--on-surface); }
-    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .admin-sidebar {
+      width: 240px;
+      background: var(--surface-container);
+      border-right: 1px solid var(--outline-variant);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .admin-sidebar .brand { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+    .admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .admin-nav a {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1rem; border-radius: 0.75rem;
+      color: var(--on-surface-variant); text-decoration: none;
+      font-size: 0.875rem; font-weight: 500;
+      transition: var(--transition);
+    }
+    .admin-nav a:hover,
+    .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .admin-nav a .icon { font-size: 1.25rem; }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+    }
+    .dash-main-col { min-width: 0; }
+    .dash-side-col { min-width: 0; }
+    @media (max-width: 1024px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .admin-sidebar { width: 220px; padding: 1rem; }
+    }
+    @media (max-width: 768px) {
+      .admin-sidebar { display: none; }
+      .admin-main { padding: 1rem; }
+    }
   </style>
 </head>
 <body>
   <div class="admin-layout">
-    <div data-include="learner-sidebar"></div>
+    <div data-include="/students/components/dashboard-sidebar"></div>
     <main class="admin-main">
-      <div data-include="student-header"></div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="label">Enrolled Courses</div><div class="value" id="stat-enrolled">—</div></div>
-        <div class="stat-card"><div class="label">Completed</div><div class="value" id="stat-completed">—</div></div>
-        <div class="stat-card"><div class="label">Certificates</div><div class="value" id="stat-certificates">—</div></div>
-        <div class="stat-card"><div class="label">Streak Days</div><div class="value" id="stat-streak">—</div></div>
+      <div data-include="/students/components/dashboard-header"></div>
+
+      <div class="dashboard-grid">
+        <!-- Main Column -->
+        <div class="dash-main-col">
+
+          <!-- Mastery Summary -->
+          <div class="mastery-card mb-6" id="mastery-section">
+            <div class="flex items-center gap-6 flex-wrap">
+              <div class="mastery-score-ring">
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                  <circle class="bg" cx="60" cy="60" r="52"/>
+                  <circle class="fg" id="mastery-ring" cx="60" cy="60" r="52" stroke-dasharray="326.73" stroke-dashoffset="326.73"/>
+                </svg>
+                <div class="mastery-score-value">
+                  <span class="num" id="mastery-score-num">0</span>
+                  <span class="lbl">Mastery</span>
+                </div>
+              </div>
+              <div class="grow">
+                <p class="mastery-encouragement mb-2" id="mastery-encouragement">Loading your progress...</p>
+                <div class="mastery-stats">
+                  <div class="mastery-stat-item"><div class="val" id="mstat-courses">0</div><div class="lbl">Courses</div></div>
+                  <div class="mastery-stat-item"><div class="val" id="mstat-hours">0</div><div class="lbl">Hours</div></div>
+                  <div class="mastery-stat-item"><div class="val" id="mstat-streak">0</div><div class="lbl">Day Streak</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Announcements -->
+          <div class="mb-6" id="announcements-section">
+            <div class="dash-section-header">
+              <h2>Announcements</h2>
+              <a href="/announcements">View all</a>
+            </div>
+            <div id="announcements-list" class="space-y-2">
+              <div style="padding:1rem;text-align:center;color:var(--on-surface-variant);font-size:0.875rem">Loading announcements...</div>
+            </div>
+          </div>
+
+          <!-- Ongoing Courses -->
+          <div class="mb-6" id="courses-section">
+            <div class="dash-section-header">
+              <h2>Ongoing Courses</h2>
+              <a href="/courses">View all</a>
+            </div>
+            <div id="ongoing-courses-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div style="padding:2rem;text-align:center;color:var(--on-surface-variant);font-size:0.875rem">Loading courses...</div>
+            </div>
+          </div>
+
+          <!-- Milestones -->
+          <div id="milestones-section">
+            <div class="dash-section-header">
+              <h2>Milestones</h2>
+              <a href="/dashboard/milestones">View all</a>
+            </div>
+            <div class="rounded-2xl border p-4" style="background:var(--surface-container);border-color:var(--outline-variant)">
+              <div id="milestones-list"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Side Column -->
+        <div class="dash-side-col">
+
+          <!-- Weekly Goal -->
+          <div class="rounded-2xl border p-4 mb-6" style="background:var(--surface-container);border-color:var(--outline-variant)">
+            <p class="text-xs font-bold uppercase tracking-wide mb-2" style="color:var(--on-surface-variant)">Weekly Goal</p>
+            <div class="progress-bar mb-2" style="height:0.625rem">
+              <div class="progress-bar-fill" id="weekly-goal-bar" style="width:0%"></div>
+            </div>
+            <p class="text-xs" id="weekly-goal-text" style="color:var(--on-surface-variant)">Set a weekly goal</p>
+          </div>
+
+          <!-- Recommended Mentors -->
+          <div class="mb-6" id="mentors-section">
+            <div class="dash-section-header">
+              <h2>Mentors</h2>
+              <a href="/mentorship">View all</a>
+            </div>
+            <div id="mentors-list" class="space-y-2">
+              <div style="padding:1rem;text-align:center;color:var(--on-surface-variant);font-size:0.875rem">Loading mentors...</div>
+            </div>
+          </div>
+
+          <!-- Recent Notifications -->
+          <div id="notifications-section">
+            <div class="dash-section-header">
+              <h2>Recent</h2>
+            </div>
+            <div class="rounded-2xl border p-3" style="background:var(--surface-container);border-color:var(--outline-variant)">
+              <div id="recent-notif-list">
+                <div style="padding:1rem;text-align:center;color:var(--on-surface-variant);font-size:0.8125rem">No recent notifications</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
-      <div class="section-title">My Courses</div>
-      <div class="space-y-3" id="my-courses-list">
-        <div style="text-align: center; padding: 2rem; color: var(--on-surface-variant)">Loading your courses...</div>
-      </div>
+
     </main>
   </div>
 
+  <div data-include="/students/components/dashboard-bottom-nav"></div>
   <div data-include="auth-modal"></div>
 
   <script src="/js/components/include.js"></script>
   <script src="/js/apis/api.js"></script>
   <script src="/js/apis/auth.js"></script>
   <script src="/js/components/auth-modal.js"></script>
-  <script src="/js/dashboard.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script src="/students/js/dashboard.js"></script>
 </body>
 </html>

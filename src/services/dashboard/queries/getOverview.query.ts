@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import {
   User, Enrollment, Course, Lesson, CourseAnnouncement, CourseEvent,
   TutorProfile, LearnerStats, Milestone, UserInterest, Specialization,
+  UserStreak,
 } from '../../../models';
 import { UserRole } from '../../../enums';
 
@@ -11,9 +12,10 @@ export interface OverviewData {
   events: any[];
   recommendedMentors: any[];
   resumeLesson: any;
-  stats: { coursesActive: number; coursesCompleted: number; hoursSpent: number };
+  stats: { coursesActive: number; coursesCompleted: number; hoursSpent: number; masteryScore: number; streakDays: number };
   weeklyGoal: { weeklyGoalHours: number; weeklyGoalProgressHours: number; weeklyGoalPercent: number; message: string };
   milestones: any[];
+  completedMilestones: any[];
   recommendedCourses: any[];
 }
 
@@ -77,6 +79,18 @@ export class GetOverviewQuery {
       limit: 5,
     });
 
+    const completedMilestones = await Milestone.findAll({
+      where: { UserId: user.id, completedAt: { [Op.ne]: null } },
+      order: [['completedAt', 'DESC']],
+      limit: 5,
+    });
+
+    const streak = await UserStreak.findOne({ where: { UserId: user.id } });
+    const streakDays = streak ? streak.currentStreak : 0;
+
+    const totalProgress = enrollments.reduce((sum: number, e: any) => sum + (e.progressPercent || 0), 0);
+    const masteryScore = enrollments.length ? Math.round(totalProgress / enrollments.length) : 0;
+
     const interests = await UserInterest.findAll({ where: { UserId: user.id } });
     const interestNames = interests.map((i: any) => i.name);
 
@@ -114,7 +128,7 @@ export class GetOverviewQuery {
             progressPercent: resume.progressPercent,
           }
         : null,
-      stats: { coursesActive, coursesCompleted, hoursSpent },
+      stats: { coursesActive, coursesCompleted, hoursSpent, masteryScore, streakDays },
       weeklyGoal: {
         weeklyGoalHours,
         weeklyGoalProgressHours,
@@ -124,6 +138,7 @@ export class GetOverviewQuery {
           : 'Set a weekly goal to track your progress.',
       },
       milestones,
+      completedMilestones,
       recommendedCourses,
     };
   }

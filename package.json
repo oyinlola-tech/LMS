@@ -21,26 +21,25 @@
     "@fastify/jwt": "^10.2.0",
     "@fastify/multipart": "^10.1.0",
     "@fastify/rate-limit": "^11.1.0",
-    "@fastify/static": "^10.1.0",
+    "@fastify/static": "^10.1.2",
     "@fastify/swagger": "^9.8.1",
     "@fastify/swagger-ui": "^6.1.0",
     "@prisma/client": "^7.9.0",
     "@sendbyte/node": "^0.2.1",
-    "argon2": "^0.44.0",
-    "bullmq": "^5.80.9",
+    "argon2": "^0.45.1",
+    "bullmq": "^5.80.10",
     "dotenv": "^17.4.2",
     "fastify": "^5.10.0",
     "fastify-plugin": "^6.0.0",
     "firebase-admin": "^10.3.0",
     "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^9.0.3",
     "pdfkit": "^0.18.0",
     "pg": "^8.22.0",
     "pg-hstore": "^2.3.4",
     "puppeteer": "^25.3.0",
     "qrcode": "^1.5.4",
     "redis": "^5.12.1",
-    "sequelize": "^3.30.0",
+    "sequelize": "^6.37.8",
     "ws": "^8.21.1"
   },
   "devDependencies": {
@@ -52,14 +51,25 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
-    "basic-ftp": ">=5.3.0"
+    "basic-ftp": ">=5.3.0",
+    "lodash": "4.17.21",
+    "dottie": "2.0.4",
+    "validator": "13.12.0",
+    "@grpc/grpc-js": "1.12.6",
+    "google-gax": {
+      "protobufjs": "6.11.4"
+    },
+    "firebase-admin": {
+      "jsonwebtoken": "^9.0.0"
+    }
   },
   "allowScripts": {
-    "@firebase/util@1.15.1": true,
-    "@prisma/engines@7.8.0": true,
-    "argon2@0.44.0": true,
+    "argon2@0.45.1": true,
     "msgpackr-extract@3.0.4": true,
-    "prisma@7.8.0": true,
-    "puppeteer@25.3.0": true
+    "puppeteer@25.3.0": true,
+    "@prisma/engines@7.9.0": true,
+    "prisma@7.9.0": true,
+    "protobufjs@6.11.4": true,
+    "protobufjs@7.6.5": true
   }
 }

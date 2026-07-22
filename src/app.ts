@@ -131,7 +131,7 @@ export async function buildApp() {
     ['/corporate-training', 'pages/corporate-training.html'],
     ['/about', 'pages/about.html'],
     ['/careers', 'pages/careers.html'],
-    ['/blog', 'pages/blog.html'],
+    ['/blog', 'blog/index.html'],
     ['/courses/recommendations', 'pages/course-recommendations.html'],
     ['/contact', 'pages/contact.html'],
     ['/privacy', 'pages/privacy.html'],
@@ -147,7 +147,7 @@ export async function buildApp() {
     app.get(route, async (_req, reply) => reply.sendFile(file));
   }
 
-  app.get('/blog/:slug', async (_req, reply) => reply.sendFile('pages/blog-details.html'));
+  app.get('/blog/:slug', async (_req, reply) => reply.sendFile('blog/details.html'));
 
   app.get('/assignments/:id/student', async (_req, reply) => reply.sendFile('students/assignment.html'));
   app.get('/tutor/assignments', async (_req, reply) => reply.sendFile('tutors/assignments/index.html'));

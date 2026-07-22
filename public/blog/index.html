@@ -6,115 +6,51 @@
   <title>LearnBridge - Blog</title>
   <link href="/css/styles.css" rel="stylesheet"/>
   <link href="/css/modal.css" rel="stylesheet"/>
-  <style>
-    body { background: var(--surface); }
-    .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 50; border-bottom: 1px solid var(--outline-variant); background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); padding: 0.75rem 1rem; }
-    .header-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-    .header-links { display: flex; align-items: center; gap: 1.5rem; }
-    .header-links a { font-size: 0.875rem; font-weight: 500; color: var(--on-surface-variant); text-decoration: none; transition: color 0.2s; }
-    .header-links a:hover { color: var(--primary); }
-    main { margin-top: 4rem; }
-    .hero { padding: 4rem 1.5rem; text-align: center; max-width: 720px; margin: 0 auto; }
-    .hero h1 { font-size: 2.5rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 0.75rem; }
-    .hero p { font-size: 1.125rem; color: var(--on-surface-variant); line-height: 1.6; }
-    .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
-    .toolbar { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
-    .search-wrapper { display: flex; align-items: center; gap: 0.5rem; background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 0.75rem; padding: 0.5rem 0.75rem; flex: 1; max-width: 400px; }
-    .search-wrapper input { border: none; background: none; outline: none; font-size: 0.875rem; color: var(--on-surface); width: 100%; font-family: inherit; }
-    .filter-select { padding: 0.5rem 0.75rem; border: 1px solid var(--outline-variant); border-radius: 0.75rem; background: var(--surface-container); color: var(--on-surface); font-size: 0.875rem; font-family: inherit; cursor: pointer; }
-    .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; padding-bottom: 4rem; }
-    .blog-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; overflow: hidden; transition: all 0.2s; cursor: pointer; }
-    .blog-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
-    .blog-card-img { height: 180px; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; color: var(--primary-fixed-dim); font-size: 2.5rem; }
-    .blog-card-body { padding: 1.25rem; }
-    .blog-card-body .tag { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.6875rem; font-weight: 600; background: var(--primary-fixed); color: var(--on-primary-fixed); margin-bottom: 0.5rem; }
-    .blog-card-body h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.4; }
-    .blog-card-body p { font-size: 0.875rem; color: var(--on-surface-variant); line-height: 1.5; margin-bottom: 1rem; }
-    .blog-card-body .meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--on-surface-variant); }
-    .blog-card-body .meta .author { display: flex; align-items: center; gap: 0.5rem; }
-    .blog-card-body .meta .author-avatar { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; font-size: 0.625rem; font-weight: 700; color: var(--primary); }
-    .pagination { display: flex; justify-content: center; gap: 0.5rem; padding-bottom: 4rem; }
-    .pagination button { padding: 0.5rem 1rem; border: 1px solid var(--outline-variant); border-radius: 0.75rem; background: var(--surface-container); color: var(--on-surface); font-size: 0.875rem; cursor: pointer; font-family: inherit; }
-    .pagination button:hover { background: var(--surface-container-high); }
-    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--on-surface-variant); grid-column: 1/-1; }
-    footer { border-top: 1px solid var(--outline-variant); padding: 2rem 1.5rem; text-align: center; font-size: 0.8125rem; color: var(--on-surface-variant); }
-    @media (max-width: 768px) { .hero h1 { font-size: 1.75rem; } .blog-grid { grid-template-columns: 1fr; } }
-  </style>
 </head>
 <body>
-  <header class="fixed-header">
-    <div class="header-inner">
-      <a href="/" style="font-size:1.25rem;font-weight:800;text-decoration:none;color:var(--on-surface)">LearnBridge</a>
-      <nav class="header-links">
-        <a href="/courses">Courses</a>
-        <a href="/blog" style="color:var(--primary)">Blog</a>
-        <a href="/mentors">Mentors</a>
-        <a href="/about">About</a>
-        <a href="/login" class="btn-primary" style="padding:0.5rem 1rem;font-size:0.8125rem;text-decoration:none">Sign In</a>
-      </nav>
-    </div>
-  </header>
-  <main>
-    <div class="hero">
-      <h1>LearnBridge Blog</h1>
-      <p>Insights, tutorials, and updates from our community of educators and learners</p>
-    </div>
-    <div class="container">
-      <div class="toolbar">
-        <div class="search-wrapper">
-          <span class="material-symbols-outlined" style="font-size:1.25rem;color:var(--on-surface-variant)">search</span>
-          <input type="text" id="search-input" placeholder="Search articles..." oninput="loadPosts()"/>
+  <div data-include="/blog/blog-header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 4rem 0">
+      <div class="container" style="max-width: 48rem">
+        <h1 class="text-4xl font-black mb-6">LearnBridge Blog</h1>
+        <p class="text-lg mb-8" style="color: var(--on-surface-variant)">Insights, tutorials, and stories from our community of learners and instructors.</p>
+        <div id="blog-list" class="space-y-6">
+          <div class="p-8 text-center" style="color: var(--on-surface-variant)">Loading posts...</div>
         </div>
-        <select id="category-filter" class="filter-select" onchange="loadPosts()">
-          <option value="">All Categories</option>
-          <option value="tutorial">Tutorial</option>
-          <option value="news">News</option>
-          <option value="opinion">Opinion</option>
-          <option value="case-study">Case Study</option>
-        </select>
       </div>
-      <div id="blog-grid" class="blog-grid">
-        <div class="empty-state"><span class="material-symbols-outlined" style="font-size:2.5rem;display:block;margin-bottom:0.5rem">rss_feed</span><p>Loading articles...</p></div>
-      </div>
-      <div class="pagination" id="pagination">
-        <button id="prev-page" onclick="changePage(-1)" disabled>Previous</button>
-        <span id="page-info" style="font-size:0.875rem;color:var(--on-surface-variant)">Page 1</span>
-        <button id="next-page" onclick="changePage(1)">Next</button>
-      </div>
-    </div>
+    </section>
   </main>
-  <footer>&copy; 2026 LearnBridge. All rights reserved.</footer>
-  <script src="/js/components/include.js"></script>
+  <div data-include="/blog/blog-footer"></div>
+  <div data-include="auth-modal"></div>
+<script src="/js/components/include.js"></script>
+  <script src="/js/components/auth-ui.js"></script>
   <script src="/js/apis/api.js"></script>
   <script src="/js/apis/auth.js"></script>
   <script src="/js/apis/blog.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
   <script>
-    (function() {
-      var currentPage = 1, pageSize = 9, totalPages = 1;
-      var $ = function(id) { return document.getElementById(id); };
-      function loadPosts() {
-        var search = ($('search-input')||{}).value||'';
-        var category = ($('category-filter')||{}).value||'';
-        var path = '/blog?limit='+pageSize+'&page='+currentPage+'&search='+encodeURIComponent(search);
-        if (category) path += '&category='+category;
-        api.get(path).then(function(r) {
-          var items = r.data || r.posts || r.articles || [];
-          totalPages = r.totalPages || (r.total ? Math.ceil(r.total/pageSize) : 1);
-          var grid = $('blog-grid');
-          if (!items.length) { grid.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined" style="font-size:2.5rem;display:block;margin-bottom:0.5rem">rss_feed</span><p>No articles found</p></div>'; return; }
-          grid.innerHTML = items.map(function(p) {
-            var initials = (p.authorName||'A').split(' ').map(function(s){return s[0]}).join('').substring(0,2).toUpperCase();
-            return '<div class="blog-card" onclick="window.location.href=\'/blog/'+p.slug+'\'"><div class="blog-card-img"><span class="material-symbols-outlined">article</span></div><div class="blog-card-body"><span class="tag">'+(p.category||'general')+'</span><h3>'+(p.title||'Untitled')+'</h3><p>'+(p.excerpt||(p.content||'').substring(0,120))+'</p><div class="meta"><div class="author"><div class="author-avatar">'+initials+'</div><span>'+(p.authorName||'LearnBridge')+'</span></div><span>'+(p.createdAt?new Date(p.createdAt).toLocaleDateString():'')+'</span></div></div></div>';
-          }).join('');
-          $('page-info').textContent = 'Page '+currentPage+' of '+totalPages;
-          $('prev-page').disabled = currentPage <= 1;
-          $('next-page').disabled = currentPage >= totalPages;
-        }).catch(function(e) { console.error(e); $('blog-grid').innerHTML = '<div class="empty-state" style="color:var(--error)">Failed to load articles</div>'; });
+    document.addEventListener('components-loaded', async () => {
+      const el = document.getElementById('blog-list');
+      try {
+        const { data: posts } = await BlogAPI.list();
+        if (!posts || !posts.length) {
+          el.innerHTML = '<div class="p-8 text-center" style="color: var(--on-surface-variant)">No posts yet. Check back soon!</div>';
+          return;
+        }
+        el.innerHTML = posts.map(p => {
+          const date = p.publishedAt ? new Date(p.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+          const name = p.author ? p.author.fullName || 'Author' : 'LearnBridge';
+          return `<article class="p-6 rounded-2xl border" style="background: #fff; border-color: var(--outline-variant)">
+            <p class="text-xs font-bold uppercase tracking-widest" style="color: var(--primary)">${date}</p>
+            <h3 class="text-xl font-bold mt-1 mb-2"><a href="/blog/${p.slug}" style="text-decoration: none; color: inherit">${p.title}</a></h3>
+            <p class="text-sm mb-2" style="color: var(--on-surface-variant)">${p.excerpt || (p.content ? p.content.slice(0, 200) : '')}</p>
+            <p class="text-xs" style="color: var(--on-surface-variant)">By ${name}</p>
+          </article>`;
+        }).join('');
+      } catch {
+        el.innerHTML = '<div class="p-8 text-center" style="color: var(--error)">Failed to load blog posts.</div>';
       }
-      window.loadPosts = loadPosts;
-      window.changePage = function(d) { currentPage = Math.max(1, Math.min(currentPage+d, totalPages)); loadPosts(); };
-      document.addEventListener('components-loaded', loadPosts);
-    })();
+    });
   </script>
 </body>
 </html>

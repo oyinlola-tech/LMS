@@ -12,6 +12,10 @@
       <a href="/blog" class="text-sm font-bold" style="color:var(--primary)">Blog</a>
       <a href="/about" class="text-sm font-medium hover:text-primary transition-colors" style="color:var(--on-surface-variant)">About</a>
     </nav>
-    <a href="/login" class="btn-primary text-sm" style="padding:0.5rem 1rem">Sign In</a>
+    <div class="flex items-center gap-3">
+      <a href="/login" data-auth="guest" class="btn-primary text-sm" style="padding:0.5rem 1rem">Sign In</a>
+      <a href="/dashboard" data-auth="user" class="btn-primary text-sm" style="padding:0.5rem 1rem;display:none">Dashboard</a>
+      <button id="logout-btn" data-auth="user" class="btn-secondary text-sm" style="padding:0.5rem 1rem;display:none;border:none;background:transparent;color:var(--on-surface-variant);cursor:pointer;font-family:inherit;font-weight:500">Logout</button>
+    </div>
   </div>
 </header>

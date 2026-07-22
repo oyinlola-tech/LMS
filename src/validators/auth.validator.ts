@@ -54,28 +54,25 @@ export const validateRegister = (body: Record<string, unknown>): ValidationResul
 };
 
 export const validateLogin = (body: Record<string, unknown>): ValidationResult => {
-  const { email, password } = body as unknown as LoginDto;
-  if (!email || !password) {
-    return { valid: false, errorCode: 'VALIDATION_ERROR', errorMessage: 'Email and password are required' };
-  }
-  if (!isValidEmail(email)) {
-    return { valid: false, errorCode: 'VALIDATION_ERROR', errorMessage: 'Invalid email format' };
+  const { identifier, password } = body as unknown as LoginDto;
+  if (!identifier || !password) {
+    return { valid: false, errorCode: 'VALIDATION_ERROR', errorMessage: 'Email/Matric Number and password are required' };
   }
   return { valid: true };
 };
 
 export const validateVerifyOtp = (body: Record<string, unknown>): ValidationResult => {
-  const { email, code } = body as unknown as VerifyOtpDto;
-  if (!email || !code) {
-    return { valid: false, errorCode: 'VALIDATION_ERROR', errorMessage: 'Email and code are required' };
+  const { identifier, code } = body as unknown as VerifyOtpDto;
+  if (!identifier || !code) {
+    return { valid: false, errorCode: 'VALIDATION_ERROR', errorMessage: 'Identifier and code are required' };
   }
   return { valid: true };
 };
 
 export const validateResendOtp = (body: Record<string, unknown>): ValidationResult => {
-  const { email } = body as unknown as ResendOtpDto;
-  if (!email) {
-    return { valid: false, errorCode: 'VALIDATION_ERROR', errorMessage: 'Email is required' };
+  const { identifier } = body as unknown as ResendOtpDto;
+  if (!identifier) {
+    return { valid: false, errorCode: 'VALIDATION_ERROR', errorMessage: 'Identifier is required' };
   }
   return { valid: true };
 };

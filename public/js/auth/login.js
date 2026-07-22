@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('login-form');
-  const emailInput = document.getElementById('email');
+  const identifierInput = document.getElementById('identifier');
   const passwordInput = document.getElementById('password');
   const submitBtn = form.querySelector('.btn-submit');
   const errorEl = document.getElementById('form-error');
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const result = await AuthAPI.login({
-        email: emailInput.value.trim(),
+        identifier: identifierInput.value.trim(),
         password: passwordInput.value,
       });
 

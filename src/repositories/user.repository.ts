@@ -36,6 +36,11 @@ export class UserRepository {
     return user as unknown as IUserAttributes | null;
   }
 
+  async findByStudentId(studentId: string): Promise<IUserAttributes | null> {
+    const user = await User.findOne({ where: { studentId } });
+    return user as unknown as IUserAttributes | null;
+  }
+
   async findByGithubId(githubId: string): Promise<IUserAttributes | null> {
     const user = await User.findOne({ where: { githubId } });
     return user as unknown as IUserAttributes | null;

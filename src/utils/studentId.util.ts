@@ -1,23 +1,27 @@
-import { User } from '../models';
+import { sequelize } from '../config/db.config';
+import { QueryTypes } from 'sequelize';
 
 const PREFIX = 'LB';
-const YEAR = new Date().getFullYear().toString().slice(-2);
+const SEQUENCE_NAME = 'student_id_seq';
+
+let sequenceEnsured = false;
+
+async function ensureSequence(): Promise<void> {
+  if (sequenceEnsured) return;
+  await sequelize.query(`CREATE SEQUENCE IF NOT EXISTS "${SEQUENCE_NAME}" START 1`);
+  sequenceEnsured = true;
+}
 
 export async function generateStudentId(): Promise<string> {
-  const lastUser = await User.findOne({
-    where: { role: 'learner' },
-    order: [['createdAt', 'DESC']],
-    attributes: ['studentId'],
-    paranoid: false,
-  });
+  await ensureSequence();
 
-  let nextNum = 1;
-  if (lastUser && lastUser.studentId) {
-    const parts = lastUser.studentId.split('/');
-    const lastNum = parseInt(parts[parts.length - 1], 10);
-    if (!isNaN(lastNum)) nextNum = lastNum + 1;
-  }
+  const year = new Date().getFullYear().toString().slice(-2);
 
-  const padded = String(nextNum).padStart(5, '0');
-  return `${PREFIX}/${YEAR}/${padded}`;
+  const rows = await sequelize.query<{ seq: number }>(
+    `SELECT nextval('${SEQUENCE_NAME}') AS seq`,
+    { type: QueryTypes.SELECT }
+  );
+
+  const seqNum = rows[0].seq;
+  return `${PREFIX}/${year}/${String(seqNum).padStart(7, '0')}`;
 }

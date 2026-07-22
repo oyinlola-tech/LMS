@@ -78,6 +78,10 @@
   color: var(--primary);
 }
 
+.auth-header {
+  margin-bottom: 1.5rem;
+}
+
 .auth-header h2 {
   font-size: 2rem;
   font-weight: 700;
@@ -88,6 +92,14 @@
 .auth-header p {
   color: var(--on-surface-variant);
   line-height: 1.5;
+}
+
+.auth-header--compact {
+  margin-bottom: 2rem;
+}
+
+.auth-header--compact h2 {
+  font-size: 1.5rem;
 }
 
 .form-group {

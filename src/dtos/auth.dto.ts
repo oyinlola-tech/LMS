@@ -6,17 +6,17 @@ export interface RegisterDto {
 }
 
 export interface LoginDto {
-  email: string;
+  identifier: string;
   password: string;
 }
 
 export interface VerifyOtpDto {
-  email: string;
+  identifier: string;
   code: string;
 }
 
 export interface ResendOtpDto {
-  email: string;
+  identifier: string;
 }
 
 export interface ForgotPasswordDto {

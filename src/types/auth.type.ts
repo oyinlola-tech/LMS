@@ -16,17 +16,17 @@ export interface RegisterBody {
 }
 
 export interface LoginBody {
-  email: string;
+  identifier: string;
   password: string;
 }
 
 export interface VerifyOtpBody {
-  email: string;
+  identifier: string;
   code: string;
 }
 
 export interface ResendOtpBody {
-  email: string;
+  identifier: string;
 }
 
 export interface ForgotPasswordBody {

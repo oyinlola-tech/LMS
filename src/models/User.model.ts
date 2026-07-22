@@ -13,6 +13,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare isEmailVerified: CreationOptional<boolean>;
   declare googleId: string | null;
   declare githubId: string | null;
+  declare appleId: string | null;
   declare status: CreationOptional<string>;
   declare phoneNumber: string | null;
   declare location: string | null;
@@ -29,13 +30,14 @@ User.init({
   fullName: { type: DataTypes.STRING(120), allowNull: false },
   email: { type: DataTypes.STRING(191), allowNull: false, unique: true },
   passwordHash: { type: DataTypes.STRING(255), allowNull: true },
-  role: { type: DataTypes.ENUM('learner', 'tutor', 'admin'), allowNull: false, defaultValue: 'learner' },
+  role: { type: DataTypes.ENUM('learner', 'tutor', 'admin', 'super_admin'), allowNull: false, defaultValue: 'learner' },
   bio: { type: DataTypes.TEXT, allowNull: true },
   skills: { type: DataTypes.JSON, allowNull: true },
   avatarUrl: { type: DataTypes.STRING(500), allowNull: true },
   isEmailVerified: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
   googleId: { type: DataTypes.STRING(191), allowNull: true },
   githubId: { type: DataTypes.STRING(191), allowNull: true },
+  appleId: { type: DataTypes.STRING(191), allowNull: true },
   status: { type: DataTypes.ENUM('active', 'suspended', 'deactivated'), allowNull: false, defaultValue: 'active' },
   phoneNumber: { type: DataTypes.STRING(40), allowNull: true },
   location: { type: DataTypes.STRING(120), allowNull: true },
@@ -45,7 +47,7 @@ User.init({
   trustedDeviceHash: { type: DataTypes.STRING(255), allowNull: true, comment: 'Hash of trusted device for login OTP' },
   trustedIp: { type: DataTypes.STRING(45), allowNull: true, comment: 'Trusted IP address for login OTP' },
   fcmToken: { type: DataTypes.STRING(500), allowNull: true, comment: 'Firebase Cloud Messaging token' },
-}, { sequelize, modelName: 'User', indexes: [{ unique: true, fields: ['email'] }, { unique: true, fields: ['studentId'] }, { fields: ['googleId'] }, { fields: ['githubId'] }] });
+}, { sequelize, modelName: 'User', indexes: [{ unique: true, fields: ['email'] }, { unique: true, fields: ['studentId'] }, { fields: ['googleId'] }, { fields: ['githubId'] }, { fields: ['appleId'] }] });
 
 export function associate(models: any) {
   User.hasMany(models.MessageThread, { foreignKey: { name: 'userAId', allowNull: false }, onDelete: 'CASCADE' });

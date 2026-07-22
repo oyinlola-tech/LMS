@@ -30,18 +30,25 @@ export interface LoginCommandResult {
 
 export class LoginCommand {
   async execute(params: {
-    email: string;
+    identifier: string;
     password: string;
     ip: string;
     userAgent: string | undefined;
   }): Promise<LoginCommandResult> {
-    const normalizedEmail = normalizeEmail(params.email);
+    const isEmail = String(params.identifier).includes('@');
+    let user: any;
 
-    const user = await userRepository.findByEmail(normalizedEmail);
+    if (isEmail) {
+      const normalizedEmail = normalizeEmail(params.identifier);
+      user = await userRepository.findByEmail(normalizedEmail);
+    } else {
+      user = await userRepository.findByStudentId(String(params.identifier).trim());
+    }
+
     if (!user || !user.passwordHash) {
       await logSecurityEvent({
         title: 'Failed login attempt',
-        content: `Login failed for ${normalizedEmail} from ${params.ip}`,
+        content: `Login failed for ${params.identifier} from ${params.ip}`,
         meta: { ip: params.ip, userAgent: params.userAgent || '' },
         actorId: undefined,
       });

@@ -97,13 +97,13 @@
     e.preventDefault();
     loginError.textContent = '';
     loginError.style.display = 'none';
-    var email = document.getElementById('modal-login-email').value.trim();
+    var identifier = document.getElementById('modal-login-identifier').value.trim();
     var password = document.getElementById('modal-login-password').value;
     var btn = loginForm.querySelector('.btn-submit');
     btn.disabled = true;
     btn.textContent = 'Signing in...';
 
-    AuthAPI.login({ email: email, password: password })
+    AuthAPI.login({ identifier: identifier, password: password })
       .then(function (result) {
         if (result.data.requiresOtp) {
           localStorage.setItem('pendingUserId', result.data.userId);
@@ -164,12 +164,12 @@
       otpError.style.display = 'block';
       return;
     }
-    var email = localStorage.getItem('pendingUserId');
+    var identifier = localStorage.getItem('pendingUserId');
     var btn = otpForm.querySelector('.btn-submit');
     btn.disabled = true;
     btn.textContent = 'Verifying...';
 
-    AuthAPI.verifyOtp({ email: email, code: code })
+    AuthAPI.verifyOtp({ identifier: identifier, code: code })
       .then(function (result) {
         if (result.data && result.data.token) {
           localStorage.setItem('token', result.data.token);

@@ -59,7 +59,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       const ip = (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || request.ip || '';
       const result = await loginCommand.execute({
-        email: body.email,
+        identifier: body.identifier,
         password: body.password,
         ip,
         userAgent: request.headers['user-agent'] as string,
@@ -92,7 +92,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       const ip = (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || request.ip || '';
       const result = await verifyOtpCommand.execute({
-        email: body.email,
+        identifier: body.identifier,
         code: body.code,
         ip,
         userAgent: request.headers['user-agent'] as string,
@@ -123,7 +123,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       return error(reply, 400, validation.errorCode!, validation.errorMessage!);
     }
     try {
-      await resendOtpCommand.execute({ email: body.email });
+      await resendOtpCommand.execute({ identifier: body.identifier });
       return ok(reply, null, 'OTP resent');
     } catch (err: unknown) {
       if (err instanceof AppError && ['NOT_FOUND', 'EMAIL_ALREADY_VERIFIED', 'RATE_LIMITED'].includes(err.code)) {
@@ -149,7 +149,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       await forgotPasswordCommand.execute({ email: body.email });
       return ok(reply, null, 'If the email exists, you will receive a reset link');
-    } catch {
+    } catch (err) {
+      request.log.error(err, '[auth] Forgot password command failed');
       return error(reply, 500, 'FORGOT_PASSWORD_FAILED', 'Request failed');
     }
   });
@@ -191,6 +192,14 @@ export default async function(fastify: FastifyInstance): Promise<void> {
   });
 
   fastify.get('/github/callback', async (_request, reply) => {
+    return reply.status(503).send({ error: 'OAUTH_UNAVAILABLE', message: 'OAuth is handled by the frontend' });
+  });
+
+  fastify.get('/apple', async (_request, reply) => {
+    return reply.status(503).send({ error: 'OAUTH_UNAVAILABLE', message: 'OAuth is handled by the frontend' });
+  });
+
+  fastify.get('/apple/callback', async (_request, reply) => {
     return reply.status(503).send({ error: 'OAUTH_UNAVAILABLE', message: 'OAuth is handled by the frontend' });
   });
 

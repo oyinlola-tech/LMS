@@ -9,8 +9,16 @@ const otpExpiryMinutes = Number(process.env.OTP_EXPIRY_MINUTES || 10);
 const otpResendCooldownSeconds = Number(process.env.OTP_RESEND_COOLDOWN_SECONDS || 60);
 
 export class ResendOtpCommand {
-  async execute(params: { email: string }): Promise<void> {
-    const user = await userRepository.findByEmail(normalizeEmail(params.email));
+  async execute(params: { identifier: string }): Promise<void> {
+    const isEmail = String(params.identifier).includes('@');
+    let user: any;
+
+    if (isEmail) {
+      user = await userRepository.findByEmail(normalizeEmail(params.identifier));
+    } else {
+      user = await userRepository.findById(String(params.identifier).trim());
+    }
+
     if (!user) {
       const error: any = new Error('User not found');
       error.code = 'NOT_FOUND';

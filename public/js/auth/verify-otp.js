@@ -48,10 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Verifying...';
 
-    const email = localStorage.getItem('pendingUserId');
+    const identifier = localStorage.getItem('pendingUserId');
 
     try {
-      const result = await AuthAPI.verifyOtp({ email, code });
+      const result = await AuthAPI.verifyOtp({ identifier, code });
       if (result.data?.token) {
         localStorage.setItem('token', result.data.token);
         localStorage.removeItem('pendingUserId');
@@ -75,9 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (resendBtn) {
     resendBtn.addEventListener('click', async () => {
       resendBtn.disabled = true;
-      const email = localStorage.getItem('pendingUserId');
+      const identifier = localStorage.getItem('pendingUserId');
       try {
-        await AuthAPI.resendOtp({ email });
+        await AuthAPI.resendOtp({ identifier });
         startTimer(59);
       } catch {
         resendBtn.disabled = false;

@@ -238,7 +238,7 @@
   function setVal(id, val) {
     var el = $(id);
     if (!el) return;
-    if (el.tagName === 'DIV') { el.innerHTML = val || ''; return; }
+    if (el.tagName === 'DIV') { el.textContent = val || ''; return; }
     if (el.type === 'datetime-local' && val) {
       el.value = val.substring(0, 16);
     } else {

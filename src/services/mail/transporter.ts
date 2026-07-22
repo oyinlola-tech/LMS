@@ -1,53 +1,25 @@
-import nodemailer from 'nodemailer';
+import { SendByte } from '@sendbyte/node';
 import { logger } from '../../core/loggers';
 
-const { SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
+const apiKey = process.env.SENDBYTE_API_KEY;
+const fromAddress = process.env.MAIL_FROM || 'LearnBridge <noreply@learnbridge.com>';
 
-const defaultPort = SMTP_PORT
-  ? Number(SMTP_PORT)
-  : (String(SMTP_SECURE).toLowerCase() === 'true' ? 465 : 587);
+let client: SendByte | null = null;
 
-if (SMTP_HOST) {
-  logger.info('[Email] SMTP config loaded:', {
-    host: SMTP_HOST,
-    port: defaultPort,
-    secure: String(SMTP_SECURE).toLowerCase() === 'true',
-    hasAuth: Boolean(SMTP_USER && SMTP_PASS),
-    from: SMTP_FROM,
-  });
+if (apiKey) {
+  client = new SendByte(apiKey);
+  logger.info('[Email] SendByte client initialized');
+} else {
+  logger.warn('[Email] SENDBYTE_API_KEY not set — email sending disabled');
 }
 
-export const transporter = SMTP_HOST && SMTP_USER && SMTP_PASS
-  ? nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: defaultPort,
-      secure: String(SMTP_SECURE).toLowerCase() === 'true',
-      auth: { user: SMTP_USER, pass: SMTP_PASS },
-      tls: { rejectUnauthorized: false, family: 4 },
-      pool: true,
-      maxConnections: 5,
-      maxMessages: 100,
-      rateDelta: 1000,
-      rateLimit: 5,
-      connectionTimeout: 30000,
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
-    })
+export const transporter = client
+  ? {
+      sendMail: async ({ from, to, subject, html, text }: { from: string; to: string; subject: string; html: string; text: string }) => {
+        const { id } = await client!.emails.send({ from, to, subject, html });
+        return { messageId: id };
+      },
+    }
   : null;
 
-if (transporter) {
-  transporter.verify((err: any) => {
-    if (err) {
-      logger.error('[Email] SMTP connection verification failed:', {
-        message: err.message,
-        code: err.code,
-        host: SMTP_HOST,
-        port: defaultPort,
-      });
-    } else {
-      logger.info('[Email] SMTP connection verified — ready to send mail');
-    }
-  });
-}
-
-export const SMTP_FROM_ADDRESS = SMTP_FROM;
+export const SMTP_FROM_ADDRESS = fromAddress;

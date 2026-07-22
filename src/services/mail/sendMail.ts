@@ -10,9 +10,7 @@ export const sendEmailNow = async ({ to, subject, html, text }: { to: string; su
     return;
   }
   if (!transporter) {
-    logger.error('[Email] Transporter is null — SMTP credentials may be missing', {
-      SMTP_HOST: process.env.SMTP_HOST || '(not set)',
-    });
+    logger.error('[Email] Transporter is null — SENDBYTE_API_KEY may be missing');
     return;
   }
 
@@ -27,14 +25,12 @@ export const sendEmailNow = async ({ to, subject, html, text }: { to: string; su
       return;
     } catch (error: any) {
       lastError = error;
-      const code = error?.code;
-      const isRetryable = RETRYABLE_CODES.has(code) || error?.message?.includes('timeout');
+      const code = error?.code || error?.statusCode;
+      const isRetryable = RETRYABLE_CODES.has(code) || error?.message?.includes('timeout') || (typeof code === 'number' && code >= 500 && code < 600);
 
       logger.error(`[Email] Attempt ${attempt}/${MAX_ATTEMPTS} failed for ${to}:`, {
         message: error?.message,
         code,
-        command: error?.command,
-        responseCode: error?.responseCode,
       });
 
       if (!isRetryable || attempt === MAX_ATTEMPTS) break;
@@ -60,7 +56,7 @@ export const sendEmail = async ({ to, subject, html, text }: { to: string; subje
 };
 
 export const renderTemplate = (templateName: string, templates: Record<string, Function>, params: Record<string, any>) => {
-  if (!templates[templateName]) {
+  if (!Object.prototype.hasOwnProperty.call(templates, templateName) || typeof templates[templateName] !== 'function') {
     throw new Error(`Template '${templateName}' not found`);
   }
   return templates[templateName](params);

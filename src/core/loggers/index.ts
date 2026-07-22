@@ -18,9 +18,27 @@ function shouldLog(level: LogLevel): boolean {
   return LOG_LEVELS[level] >= (LOG_LEVELS[currentLevel as LogLevel] ?? 1);
 }
 
+const SENSITIVE_KEYS = /password|secret|token|authorization|key|private|credential|jwt|api[_-]?key/i;
+
+function redactSensitive(meta: unknown): unknown {
+  if (typeof meta === 'object' && meta !== null) {
+    const obj: any = Array.isArray(meta) ? [...meta] : { ...meta };
+    for (const key of Object.keys(obj)) {
+      if (SENSITIVE_KEYS.test(key)) {
+        obj[key] = '[REDACTED]';
+      } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+        obj[key] = redactSensitive(obj[key]);
+      }
+    }
+    return obj;
+  }
+  return meta;
+}
+
 function formatMessage(level: LogLevel, message: string, meta?: unknown): string {
   const timestamp = new Date().toISOString();
-  const metaStr = meta !== undefined ? ` ${typeof meta === 'string' ? meta : JSON.stringify(meta)}` : '';
+  const sanitized = meta !== undefined ? redactSensitive(meta) : undefined;
+  const metaStr = sanitized !== undefined ? ` ${typeof sanitized === 'string' ? sanitized : JSON.stringify(sanitized)}` : '';
   return `[${timestamp}] [${level.toUpperCase()}] ${message}${metaStr}`;
 }
 

@@ -23,7 +23,7 @@
         }
       })
       .catch(function () {
-        el.outerHTML = '<!-- failed to load component: ' + name + ' -->';
+        el.outerHTML = '<!-- failed to load component: ' + name.replace(/-->/g, '') + ' -->';
         loaded++;
         if (loaded === total) {
           document.dispatchEvent(new CustomEvent('components-loaded'));

@@ -90,20 +90,21 @@
     var dueClass = daysLeft != null ? (daysLeft <= 0 ? 'due-overdue' : daysLeft <= 3 ? 'due-warning' : 'due-safe') : '';
     var dueText = daysLeft != null ? (daysLeft <= 0 ? 'Overdue' : daysLeft + ' day' + (daysLeft > 1 ? 's' : '') + ' left') : 'No due date';
 
-    var statusHtml = '<span class="badge badge-status ' + (a.status || 'draft') + '">' + (a.status || 'draft') + '</span>';
+    var status = escHtml(a.status || 'draft');
+    var statusHtml = '<span class="badge badge-status ' + status + '">' + status + '</span>';
 
-    return '<div class="assignment-card" data-id="' + a.id + '">' +
+    return '<div class="assignment-card" data-id="' + escHtml(a.id) + '">' +
       '<div class="assignment-card-top">' +
         '<div class="assignment-card-badges">' +
-          '<span class="badge badge-type">' + capitalize(a.type || 'essay') + '</span>' +
-          '<span class="badge badge-difficulty ' + (a.difficulty || 'intermediate') + '">' + capitalize(a.difficulty || 'intermediate') + '</span>' +
+          '<span class="badge badge-type">' + escHtml(capitalize(a.type || 'essay')) + '</span>' +
+          '<span class="badge badge-difficulty ' + escHtml(a.difficulty || 'intermediate') + '">' + escHtml(capitalize(a.difficulty || 'intermediate')) + '</span>' +
           statusHtml +
         '</div>' +
       '</div>' +
       '<h3 class="assignment-card-title">' + escHtml(a.title) + '</h3>' +
       (a.course ? '<div class="assignment-card-course">' + escHtml(a.course.title) + '</div>' : '') +
       '<div class="assignment-card-meta">' +
-        (a.totalPoints != null ? '<span><span class="material-symbols-outlined">fact_check</span>' + a.totalPoints + ' pts</span>' : '') +
+        (a.totalPoints != null ? '<span><span class="material-symbols-outlined">fact_check</span>' + escHtml(String(a.totalPoints)) + ' pts</span>' : '') +
         (a.module ? '<span><span class="material-symbols-outlined">folder</span>' + escHtml(a.module.title) + '</span>' : '') +
         '<span class="' + dueClass + '"><span class="material-symbols-outlined">event</span>' + dueText + '</span>' +
       '</div>' +
@@ -112,8 +113,8 @@
           '<span class="submission-count">' + (a.submissionCount || 0) + ' submission' + ((a.submissionCount || 0) !== 1 ? 's' : '') + '</span>' +
         '</div>' +
         '<div class="card-footer-right">' +
-          '<button class="card-action-btn" data-action="edit" data-id="' + a.id + '"><span class="material-symbols-outlined">edit</span> Edit</button>' +
-          '<button class="card-action-btn primary" data-action="preview" data-id="' + a.id + '"><span class="material-symbols-outlined">visibility</span> Preview</button>' +
+          '<button class="card-action-btn" data-action="edit" data-id="' + escHtml(a.id) + '"><span class="material-symbols-outlined">edit</span> Edit</button>' +
+          '<button class="card-action-btn primary" data-action="preview" data-id="' + escHtml(a.id) + '"><span class="material-symbols-outlined">visibility</span> Preview</button>' +
         '</div>' +
       '</div>' +
     '</div>';

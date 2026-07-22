@@ -72,11 +72,8 @@ async function authPlugin(fastify: FastifyInstance): Promise<void> {
     const token = authHeader.split(' ')[1];
     if (!token) return;
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret || secret.length < 32) return;
-
     try {
-      const decoded: any = jwt.verify(token, secret);
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
       const user = await userRepository.findByIdWithStatus(decoded.sub);
       if (user && user.status !== 'banned') {
         request.user = { sub: decoded.sub, role: decoded.role, email: decoded.email };

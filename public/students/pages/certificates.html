@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Certificates</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .admin-sidebar { width: 240px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .admin-sidebar .brand { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+    .admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .admin-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: var(--transition); }
+    .admin-nav a:hover, .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .admin-nav a .icon { font-size: 1.25rem; }
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .page-header p { font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 0.125rem; }
+    .certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+    .cert-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; overflow: hidden; transition: all 0.2s; }
+    .cert-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .cert-card-banner { height: 100px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2rem; }
+    .cert-card-body { padding: 1.25rem; }
+    .cert-card-body h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .cert-card-body .instructor { font-size: 0.8125rem; color: var(--on-surface-variant); margin-bottom: 0.75rem; }
+    .cert-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--on-surface-variant); }
+    .cert-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .cert-actions a { flex: 1; text-align: center; padding: 0.5rem; border-radius: 0.75rem; font-size: 0.8125rem; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+    .btn-view { background: var(--primary); color: #fff; }
+    .btn-view:hover { background: var(--surface-tint); }
+    .btn-download { background: var(--surface-container-high); color: var(--on-surface); }
+    .btn-download:hover { background: var(--surface-container-highest); }
+    .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+    .badge.verified { background: #d1fae5; color: #065f46; }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--on-surface-variant); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .certs-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/students/components/dashboard-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/students/components/dashboard-header"></div>
+      <div class="page-header">
+        <h1>Certificates</h1>
+        <p>Your earned course certificates</p>
+      </div>
+      <div id="certs-grid" class="certs-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--on-surface-variant)">Loading certificates...</div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/students/components/dashboard-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    (function() {
+      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
+      function loadCertificates() {
+        var grid = document.getElementById('certs-grid');
+        api.get('/certificates').then(function(r) {
+          var items = r.data || [];
+          if (!items.length) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><span class="icon material-symbols-outlined">verified</span><p>No certificates yet</p><p style="font-size:0.8125rem">Complete courses to earn certificates</p></div>'; return; }
+          grid.innerHTML = items.map(function(c) {
+            return '<div class="cert-card"><div class="cert-card-banner"><span class="material-symbols-outlined" style="font-size:2.5rem">verified</span></div><div class="cert-card-body"><h3>'+(c.courseTitle||'Course Certificate')+'</h3><div class="instructor">'+(c.instructorName||'LearnBridge')+'</div><div class="cert-meta"><span>Issued '+(c.issuedAt||c.createdAt?new Date(c.issuedAt||c.createdAt).toLocaleDateString():'—')+'</span><span class="badge verified">Verified</span></div><div class="cert-actions"><a class="btn-view" href="'+(c.verificationUrl||'/certificates/verify/'+c.id)+'" target="_blank">View</a><a class="btn-download" href="'+(c.certificateUrl||'/certificates/download/'+c.id)+'" target="_blank">Download</a></div></div></div>';
+          }).join('');
+        }).catch(function(e) { console.error(e); grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;color:var(--error)">Failed to load certificates</div>'; });
+      }
+      document.addEventListener('components-loaded', loadCertificates);
+    })();
+  </script>
+</body>
+</html>

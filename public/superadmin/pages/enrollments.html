@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - All Enrollments</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .page-header p { font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 0.25rem; }
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-chip { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 0.75rem; padding: 0.75rem; text-align: center; }
+    .stat-chip .val { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+    .stat-chip .lbl { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); font-weight: 600; }
+    .toolbar { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .search-wrapper { display: flex; align-items: center; gap: 0.5rem; background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 0.75rem; padding: 0.5rem 0.75rem; flex: 1; min-width: 200px; max-width: 400px; }
+    .search-wrapper input { border: none; background: none; outline: none; font-size: 0.875rem; color: var(--on-surface); width: 100%; font-family: inherit; }
+    .filter-select { padding: 0.5rem 0.75rem; border: 1px solid var(--outline-variant); border-radius: 0.75rem; background: var(--surface-container); color: var(--on-surface); font-size: 0.875rem; font-family: inherit; cursor: pointer; }
+    .table-container { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; overflow: hidden; }
+    .table-container table { width: 100%; border-collapse: collapse; }
+    .table-container th { text-align: left; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); border-bottom: 1px solid var(--outline-variant); background: var(--surface-container-high); }
+    .table-container td { padding: 0.75rem 1rem; font-size: 0.875rem; border-bottom: 1px solid var(--outline-variant); }
+    .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+    .badge.active { background: #d1fae5; color: #065f46; }
+    .badge.completed { background: var(--primary-fixed); color: var(--on-primary-fixed); }
+    .badge.dropped { background: var(--error-container); color: var(--on-error-container); }
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 0.5rem; padding: 1rem; }
+    .pagination button { padding: 0.375rem 0.75rem; border: 1px solid var(--outline-variant); border-radius: 0.5rem; background: var(--surface-container); color: var(--on-surface); font-size: 0.8125rem; cursor: pointer; font-family: inherit; }
+    @media (max-width: 768px) { .admin-main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <main class="admin-main">
+      <div class="page-header">
+        <h1>Enrollments</h1>
+        <p>Monitor all course enrollments across the platform</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-chip"><div class="val" id="s-total">—</div><div class="lbl">Total</div></div>
+        <div class="stat-chip"><div class="val" id="s-active">—</div><div class="lbl">Active</div></div>
+        <div class="stat-chip"><div class="val" id="s-completed">—</div><div class="lbl">Completed</div></div>
+        <div class="stat-chip"><div class="val" id="s-dropped">—</div><div class="lbl">Dropped</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrapper">
+          <span class="material-symbols-outlined" style="font-size:1.25rem;color:var(--on-surface-variant)">search</span>
+          <input type="text" id="search-input" placeholder="Search..." oninput="loadEnrollments()"/>
+        </div>
+        <select id="status-filter" class="filter-select" onchange="loadEnrollments()">
+          <option value="">All</option><option value="active">Active</option><option value="completed">Completed</option><option value="dropped">Dropped</option>
+        </select>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Student</th><th>Course</th><th>Status</th><th>Progress</th><th>Enrolled</th></tr></thead>
+          <tbody id="enrollments-tbody"><tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--on-surface-variant)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button id="prev-page" onclick="changePage(-1)" disabled>Previous</button>
+        <span id="page-info" style="font-size:0.8125rem;color:var(--on-surface-variant)">Page 1</span>
+        <button id="next-page" onclick="changePage(1)">Next</button>
+      </div>
+    </main>
+  </div>
+  <div data-include="/superadmin/components/superadmin-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    (function() {
+      var token = localStorage.getItem('token');
+      if (!token) { window.location.href = '/login'; return; }
+      var cp = 1, ps = 20, tp = 1;
+      var $ = function(id) { return document.getElementById(id); };
+      window.loadEnrollments = function() {
+        var s = ($('search-input')||{}).value||'', st = ($('status-filter')||{}).value||'';
+        api.get('/admin/enrollments?limit='+ps+'&page='+cp+'&search='+encodeURIComponent(s)+'&status='+st).then(function(r){
+          var items = (r.data||{}).items||(r.data||{}).enrollments||[];
+          tp = (r.data||{}).totalPages || ((r.data||{}).total ? Math.ceil((r.data||{}).total/ps) : 1);
+          var tb = $('enrollments-tbody');
+          if (!items.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--on-surface-variant)">No enrollments</td></tr>'; }
+          else { tb.innerHTML = items.map(function(e){ return '<tr><td><span style="font-weight:600">'+(e.User?.fullName||e.studentName||'—')+'</span></td><td>'+(e.Course?.title||e.courseTitle||'—')+'</td><td><span class="badge '+(e.status||'active')+'">'+(e.status||'active')+'</span></td><td>'+(e.progress||e.completionPercent||0)+'%</td><td style="font-size:0.8125rem;color:var(--on-surface-variant)">'+(e.createdAt?new Date(e.createdAt).toLocaleDateString():'—')+'</td></tr>'; }).join(''); }
+          $('page-info').textContent='Page '+cp+' of '+tp; $('prev-page').disabled=cp<=1; $('next-page').disabled=cp>=tp;
+          if((r.data||{}).totals){ $('s-total').textContent=(r.data.totals.total||r.data.totals.all||'—'); $('s-active').textContent=(r.data.totals.active||'—'); $('s-completed').textContent=(r.data.totals.completed||'—'); $('s-dropped').textContent=(r.data.totals.dropped||'—'); }
+        }).catch(function(e){ console.error(e); $('enrollments-tbody').innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--error);padding:2rem">Failed to load</td></tr>'; });
+      };
+      window.changePage = function(d){ cp=Math.max(1,Math.min(cp+d,tp)); loadEnrollments(); };
+      document.addEventListener('components-loaded', loadEnrollments);
+    })();
+  </script>
+</body>
+</html>

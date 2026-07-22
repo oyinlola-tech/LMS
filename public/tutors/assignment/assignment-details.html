@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Assignment Details</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .admin-sidebar { width: 260px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .admin-sidebar .brand { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+    .admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .admin-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: var(--transition); }
+    .admin-nav a:hover, .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .admin-nav a .icon { font-size: 1.25rem; }
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .page-header .back { display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem; color: var(--on-surface-variant); text-decoration: none; margin-bottom: 0.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .page-header .status-badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+    .status-badge.published { background: #d1fae5; color: #065f46; }
+    .status-badge.draft { background: var(--surface-container-high); color: var(--on-surface-variant); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
+    .detail-section { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.25rem; }
+    .detail-section h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
+    .detail-section .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); margin-bottom: 0.25rem; }
+    .detail-section .value { font-size: 0.9375rem; color: var(--on-surface); margin-bottom: 1rem; }
+    .detail-section .value:last-child { margin-bottom: 0; }
+    .info-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--outline-variant); }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .lbl { font-size: 0.8125rem; color: var(--on-surface-variant); }
+    .info-row .val { font-size: 0.8125rem; font-weight: 600; color: var(--on-surface); }
+    .submissions-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .submission-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: var(--surface-container-low); border-radius: 0.75rem; }
+    .submission-item .avatar { width: 2rem; height: 2rem; border-radius: 50%; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--primary); flex-shrink: 0; }
+    .submission-item .info { flex: 1; }
+    .submission-item .info .name { font-size: 0.8125rem; font-weight: 600; }
+    .submission-item .info .date { font-size: 0.75rem; color: var(--on-surface-variant); }
+    .submission-item .score { font-size: 0.875rem; font-weight: 700; }
+    .btn-primary { padding: 0.5rem 1rem; font-size: 0.8125rem; }
+    .btn-secondary { padding: 0.5rem 1rem; font-size: 0.8125rem; background: var(--surface-container-high); color: var(--on-surface); border: none; border-radius: 0.75rem; cursor: pointer; font-family: inherit; transition: var(--transition); }
+    .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .skeleton { background: linear-gradient(90deg, var(--surface-container) 25%, var(--surface-container-high) 50%, var(--surface-container) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0.5rem; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .detail-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/tutors/components/assignment-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/tutors/components/assignment-header"></div>
+      <a class="back" href="/tutor/assignments"><span class="material-symbols-outlined">arrow_back</span> Back to Assignments</a>
+      <div class="page-header" id="header-section">
+        <div>
+          <h1 id="assignment-title">Loading...</h1>
+          <span class="status-badge" id="assignment-status">draft</span>
+        </div>
+        <div class="action-bar">
+          <button class="btn-primary" onclick="editAssignment()"><span class="material-symbols-outlined" style="font-size:1.125rem">edit</span> Edit</button>
+          <button class="btn-secondary" onclick="previewAssignment()"><span class="material-symbols-outlined" style="font-size:1.125rem">visibility</span> Preview</button>
+        </div>
+      </div>
+      <div class="detail-grid">
+        <div>
+          <div class="detail-section" id="description-section">
+            <div class="skeleton" style="height:120px;border-radius:0.75rem"></div>
+          </div>
+          <div class="detail-section">
+            <h2>Submissions</h2>
+            <div id="submissions-section">
+              <div class="skeleton" style="height:80px;border-radius:0.75rem;margin-bottom:0.75rem"></div>
+              <div class="skeleton" style="height:80px;border-radius:0.75rem"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="detail-section">
+            <h2>Assignment Info</h2>
+            <div id="info-section">
+              <div class="skeleton" style="height:200px;border-radius:0.75rem"></div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <h2>Grading</h2>
+            <div id="grading-section">
+              <div class="skeleton" style="height:80px;border-radius:0.75rem"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/tutors/components/tutor-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    (function() {
+      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
+      var assignmentId = window.location.pathname.split('/').filter(Boolean).pop();
+      function loadAssignment() {
+        if (!assignmentId || assignmentId === 'assignment-details.html') {
+          document.getElementById('assignment-title').textContent = 'Select an assignment';
+          return;
+        }
+        api.get('/assignments/'+assignmentId).then(function(r) {
+          var a = r.data || r;
+          var $ = function(id) { return document.getElementById(id); };
+          $('assignment-title').textContent = a.title || 'Assignment';
+          var statusEl = $('assignment-status');
+          statusEl.textContent = a.status || 'draft';
+          statusEl.className = 'status-badge ' + (a.status || 'draft');
+          $('description-section').innerHTML = '<h2>Description</h2><div class="value">'+(a.description||'No description')+'</div><div class="label">Instructions</div><div class="value">'+(a.instructions||'No instructions provided')+'</div>';
+          var infoHtml = '';
+          infoHtml += '<div class="info-row"><span class="lbl">Type</span><span class="val">'+(a.type||'essay')+'</span></div>';
+          infoHtml += '<div class="info-row"><span class="lbl">Difficulty</span><span class="val">'+(a.difficulty||'intermediate')+'</span></div>';
+          infoHtml += '<div class="info-row"><span class="lbl">Points</span><span class="val">'+(a.totalPoints||'—')+'</span></div>';
+          infoHtml += '<div class="info-row"><span class="lbl">Due Date</span><span class="val">'+(a.dueDate?new Date(a.dueDate).toLocaleDateString():'No due date')+'</span></div>';
+          infoHtml += '<div class="info-row"><span class="lbl">Course</span><span class="val">'+(a.course?.title||'—')+'</span></div>';
+          infoHtml += '<div class="info-row"><span class="lbl">Module</span><span class="val">'+(a.module?.title||'—')+'</span></div>';
+          $('info-section').innerHTML = infoHtml;
+          $('grading-section').innerHTML = '<div class="info-row"><span class="lbl">Rubric</span><span class="val">'+(a.rubric||'Not set')+'</span></div><div class="info-row"><span class="lbl">Submissions</span><span class="val">'+(a.submissionCount||0)+'</span></div><div class="info-row"><span class="lbl">Avg Score</span><span class="val">'+(a.avgScore||'—')+'</span></div>';
+          if (a.submissions && a.submissions.length) {
+            $('submissions-section').innerHTML = '<div class="submissions-list">'+a.submissions.map(function(s) {
+              var initials = (s.studentName||'?').split(' ').map(function(x){return x[0]}).join('').substring(0,2).toUpperCase();
+              return '<div class="submission-item"><div class="avatar">'+initials+'</div><div class="info"><div class="name">'+(s.studentName||'Unknown')+'</div><div class="date">'+(s.submittedAt?new Date(s.submittedAt).toLocaleDateString():'')+'</div></div><div class="score">'+(s.score?s.score+'/'+a.totalPoints:'Pending')+'</div></div>';
+            }).join('')+'</div>';
+          } else {
+            $('submissions-section').innerHTML = '<p style="text-align:center;padding:1rem;color:var(--on-surface-variant);font-size:0.875rem">No submissions yet</p>';
+          }
+        }).catch(function(e) { console.error(e); document.getElementById('assignment-title').textContent = 'Failed to load assignment'; });
+      }
+      window.editAssignment = function() { window.location.href='/tutor/assignments/builder/'+assignmentId; };
+      window.previewAssignment = function() { window.open('/assignments/'+assignmentId+'/preview','_blank'); };
+      document.addEventListener('components-loaded', loadAssignment);
+    })();
+  </script>
+</body>
+</html>

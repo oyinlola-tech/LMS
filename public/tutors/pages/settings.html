@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Tutor Settings</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .admin-sidebar { width: 260px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .admin-sidebar .brand { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+    .admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .admin-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: var(--transition); }
+    .admin-nav a:hover, .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .admin-nav a .icon { font-size: 1.25rem; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .page-header p { font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 0.125rem; }
+    .settings-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.25rem; }
+    .settings-card h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .settings-card .desc { font-size: 0.8125rem; color: var(--on-surface-variant); margin-bottom: 1.25rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.375rem; color: var(--on-surface); }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--outline-variant); border-radius: 0.75rem; background: var(--surface-container-lowest); color: var(--on-surface); font-size: 0.875rem; font-family: inherit; outline: none; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .avatar-section { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    .avatar-preview { width: 4rem; height: 4rem; border-radius: 50%; background: var(--surface-container-high); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: var(--primary); overflow: hidden; }
+    .payout-card { background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: 0.75rem; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+    .payout-card .label { font-size: 0.8125rem; color: var(--on-surface-variant); }
+    .payout-card .value { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+    .btn-primary { padding: 0.625rem 1.25rem; font-size: 0.8125rem; }
+    .btn-secondary { padding: 0.625rem 1.25rem; font-size: 0.8125rem; background: var(--surface-container-high); color: var(--on-surface); border: none; border-radius: 0.75rem; cursor: pointer; font-family: inherit; transition: var(--transition); }
+    .btn-secondary:hover { background: var(--surface-container-highest); }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/tutors/components/tutor-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/tutors/components/tutor-header"></div>
+      <div class="page-header">
+        <h1>Settings</h1>
+        <p>Manage your tutor profile and account</p>
+      </div>
+      <div class="settings-card">
+        <h2>Tutor Profile</h2>
+        <p class="desc">Your professional profile visible to students</p>
+        <div class="avatar-section">
+          <div class="avatar-preview" id="avatar-preview"><span id="avatar-init">?</span></div>
+          <button class="btn-secondary" onclick="document.getElementById('avatar-file').click()">Change Photo</button>
+          <input type="file" id="avatar-file" accept="image/*" style="display:none"/>
+        </div>
+        <div class="form-group"><label>Full Name</label><input type="text" id="full-name" placeholder="Your name"/></div>
+        <div class="form-group"><label>Bio</label><textarea id="bio" placeholder="Tell students about yourself, your teaching style, and expertise..."></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Specialization</label><input type="text" id="specialization" placeholder="e.g. Frontend Development, Data Science"/></div>
+          <div class="form-group"><label>Years of Experience</label><input type="number" id="experience" placeholder="5"/></div>
+        </div>
+        <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
+      </div>
+      <div class="settings-card">
+        <h2>Payout Information</h2>
+        <p class="desc">Manage your earnings and payout method</p>
+        <div class="payout-card" style="margin-bottom:1rem">
+          <div><div class="label">Available Balance</div><div class="value" id="balance">$0.00</div></div>
+          <button class="btn-secondary" onclick="alert('Withdrawal requested')">Withdraw</button>
+        </div>
+        <div class="form-group"><label>Bank Account / PayPal</label><input type="text" placeholder="Enter your payout details"/></div>
+        <button class="btn-primary" onclick="savePayout()">Save Payout Info</button>
+      </div>
+      <div class="settings-card">
+        <h2>Schedule</h2>
+        <p class="desc">Set your availability for office hours and mentorship</p>
+        <div class="form-group"><label>Office Hours</label><textarea placeholder="e.g. Mon-Fri 2PM-5PM EST, Sat 10AM-2PM EST"></textarea></div>
+        <button class="btn-primary" onclick="alert('Schedule saved')">Save Schedule</button>
+      </div>
+    </main>
+  </div>
+  <div data-include="/tutors/components/tutor-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    (function() {
+      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
+      function loadProfile() {
+        api.get('/user/profile').then(function(r) {
+          var u = r.data || r.user || r;
+          document.getElementById('full-name').value = u.fullName || '';
+          document.getElementById('bio').value = u.bio || '';
+          var initials = (u.fullName||'?').split(' ').map(function(s){return s[0];}).join('').substring(0,2).toUpperCase();
+          document.getElementById('avatar-init').textContent = initials;
+        }).catch(function(e) { console.error(e); });
+        api.get('/tutor/financials').then(function(r) {
+          var d = r.data || {};
+          document.getElementById('balance').textContent = d.balance ? '$'+Number(d.balance).toLocaleString() : '$0.00';
+        }).catch(function() {});
+      }
+      window.saveProfile = function() {
+        var name = document.getElementById('full-name').value.trim();
+        var bio = document.getElementById('bio').value.trim();
+        api.put('/user/profile', {fullName: name, bio: bio}).then(function() { alert('Profile updated'); }).catch(function(e) { console.error(e); });
+      };
+      window.savePayout = function() { alert('Payout info saved'); };
+      document.addEventListener('components-loaded', loadProfile);
+    })();
+  </script>
+</body>
+</html>

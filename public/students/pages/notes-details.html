@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Note Details</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .admin-sidebar { width: 240px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .admin-sidebar .brand { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+    .admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .admin-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: var(--transition); }
+    .admin-nav a:hover, .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .admin-nav a .icon { font-size: 1.25rem; }
+    .page-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .page-header a { display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem; color: var(--on-surface-variant); text-decoration: none; }
+    .note-container { max-width: 800px; }
+    .note-header { margin-bottom: 1.5rem; }
+    .note-header input { width: 100%; font-size: 1.5rem; font-weight: 700; border: none; background: none; color: var(--on-surface); padding: 0; outline: none; font-family: inherit; }
+    .note-meta { font-size: 0.8125rem; color: var(--on-surface-variant); margin-top: 0.5rem; display: flex; gap: 1rem; }
+    .note-content { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.5rem; min-height: 400px; }
+    .note-content textarea { width: 100%; min-height: 360px; border: none; background: none; color: var(--on-surface); font-size: 0.9375rem; line-height: 1.6; resize: vertical; outline: none; font-family: inherit; }
+    .note-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    .btn-primary, .btn-secondary { padding: 0.625rem 1.25rem; font-size: 0.8125rem; }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/students/components/dashboard-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/students/components/dashboard-header"></div>
+      <div class="page-header">
+        <a href="/notes"><span class="material-symbols-outlined">arrow_back</span> Back to Notes</a>
+      </div>
+      <div class="note-container">
+        <div class="note-header">
+          <input type="text" id="note-title" placeholder="Note title"/>
+          <div class="note-meta">
+            <span id="note-course">General</span>
+            <span id="note-date">Just now</span>
+          </div>
+        </div>
+        <div class="note-content">
+          <textarea id="note-body" placeholder="Start writing..."></textarea>
+        </div>
+        <div class="note-actions">
+          <button class="btn-primary" onclick="saveNote()"><span class="material-symbols-outlined" style="font-size:1.125rem">save</span> Save</button>
+          <button class="btn-secondary" onclick="deleteNote()"><span class="material-symbols-outlined" style="font-size:1.125rem">delete</span> Delete</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/students/components/dashboard-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    (function() {
+      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
+      var noteId = window.location.pathname.split('/').pop();
+      if (noteId && noteId !== 'notes-details.html') {
+        api.get('/notes/'+noteId).then(function(r) {
+          var n = r.data || r;
+          document.getElementById('note-title').value = n.title || '';
+          document.getElementById('note-body').value = n.content || '';
+          document.getElementById('note-date').textContent = n.updatedAt ? new Date(n.updatedAt).toLocaleDateString() : '';
+          if (n.courseTitle) document.getElementById('note-course').textContent = n.courseTitle;
+        }).catch(function(e) { console.error(e); });
+      }
+      window.saveNote = function() {
+        var title = document.getElementById('note-title').value.trim();
+        var content = document.getElementById('note-body').value.trim();
+        if (!title) return;
+        var body = {title:title, content:content};
+        var req = noteId ? api.put('/notes/'+noteId, body) : api.post('/notes', body);
+        req.then(function() { window.location.href = '/notes'; }).catch(function(e) { console.error(e); });
+      };
+      window.deleteNote = function() {
+        if (!noteId || !confirm('Delete this note?')) return;
+        api.del('/notes/'+noteId).then(function() { window.location.href = '/notes'; }).catch(function(e) { console.error(e); });
+      };
+    })();
+  </script>
+</body>
+</html>

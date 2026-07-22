@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Notes</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .admin-sidebar { width: 240px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .admin-sidebar .brand { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+    .admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .admin-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: var(--transition); }
+    .admin-nav a:hover, .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .admin-nav a .icon { font-size: 1.25rem; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .toolbar { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .search-wrapper { display: flex; align-items: center; gap: 0.5rem; background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 0.75rem; padding: 0.5rem 0.75rem; flex: 1; max-width: 360px; }
+    .search-wrapper input { border: none; background: none; outline: none; font-size: 0.875rem; color: var(--on-surface); width: 100%; font-family: inherit; }
+    .notes-layout { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
+    .notes-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .note-item { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1rem; cursor: pointer; transition: all 0.2s; }
+    .note-item:hover { border-color: var(--primary-fixed-dim); }
+    .note-item h3 { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .note-item p { font-size: 0.8125rem; color: var(--on-surface-variant); }
+    .note-item .meta { font-size: 0.75rem; color: var(--on-surface-variant); margin-top: 0.5rem; display: flex; gap: 1rem; }
+    .note-editor { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.25rem; }
+    .note-editor h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
+    .note-editor input, .note-editor textarea { width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--outline-variant); border-radius: 0.75rem; background: var(--surface-container-lowest); color: var(--on-surface); font-size: 0.875rem; font-family: inherit; outline: none; margin-bottom: 0.75rem; }
+    .note-editor textarea { min-height: 200px; resize: vertical; }
+    .note-editor input:focus, .note-editor textarea:focus { border-color: var(--primary); }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--on-surface-variant); }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .notes-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/students/components/dashboard-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/students/components/dashboard-header"></div>
+      <div class="page-header">
+        <h1>Notes</h1>
+        <button class="btn-primary" onclick="newNote()" style="padding:0.5rem 1rem;font-size:0.8125rem">
+          <span class="material-symbols-outlined" style="font-size:1.125rem">add</span> New Note
+        </button>
+      </div>
+      <div class="notes-layout">
+        <div class="notes-list" id="notes-list">
+          <div style="text-align:center;padding:2rem;color:var(--on-surface-variant)">Loading notes...</div>
+        </div>
+        <div class="note-editor" id="note-editor">
+          <h3 id="editor-title">Create Note</h3>
+          <input type="text" id="note-title-input" placeholder="Note title"/>
+          <textarea id="note-content-input" placeholder="Write your notes here..."></textarea>
+          <div style="display:flex;gap:0.5rem">
+            <button class="btn-primary" onclick="saveNote()" style="padding:0.5rem 1rem;font-size:0.8125rem">Save</button>
+            <button class="btn-secondary" onclick="cancelEdit()" style="padding:0.5rem 1rem;font-size:0.8125rem">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/students/components/dashboard-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    (function() {
+      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
+      var currentNoteId = null;
+      function loadNotes() {
+        api.get('/notes').then(function(r) {
+          var items = r.data || [];
+          var list = document.getElementById('notes-list');
+          if (!items.length) { list.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined" style="font-size:2.5rem;display:block;margin-bottom:0.5rem">note</span><p>No notes yet</p></div>'; return; }
+          list.innerHTML = items.map(function(n) {
+            var preview = (n.content||'').substring(0, 80);
+            if ((n.content||'').length > 80) preview += '...';
+            return '<div class="note-item" onclick="editNote(\''+n.id+'\')"><h3>'+(n.title||'Untitled')+'</h3><p>'+preview+'</p><div class="meta"><span>'+(n.courseTitle||'General')+'</span><span>'+(n.updatedAt?new Date(n.updatedAt).toLocaleDateString():'')+'</span></div></div>';
+          }).join('');
+        }).catch(function(e) { console.error(e); document.getElementById('notes-list').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--error)">Failed to load notes</div>'; });
+      }
+      window.newNote = function() {
+        currentNoteId = null;
+        document.getElementById('editor-title').textContent = 'Create Note';
+        document.getElementById('note-title-input').value = '';
+        document.getElementById('note-content-input').value = '';
+      };
+      window.editNote = function(id) {
+        api.get('/notes/'+id).then(function(r) {
+          var n = r.data || r;
+          currentNoteId = n.id;
+          document.getElementById('editor-title').textContent = 'Edit Note';
+          document.getElementById('note-title-input').value = n.title || '';
+          document.getElementById('note-content-input').value = n.content || '';
+        }).catch(function(e) { console.error(e); });
+      };
+      window.saveNote = function() {
+        var title = document.getElementById('note-title-input').value.trim();
+        var content = document.getElementById('note-content-input').value.trim();
+        if (!title) return;
+        var req = currentNoteId ? api.put('/notes/'+currentNoteId, {title:title, content:content}) : api.post('/notes', {title:title, content:content});
+        req.then(function() { loadNotes(); cancelEdit(); }).catch(function(e) { console.error(e); });
+      };
+      window.cancelEdit = function() { currentNoteId = null; document.getElementById('editor-title').textContent = 'Create Note'; document.getElementById('note-title-input').value = ''; document.getElementById('note-content-input').value = ''; };
+      document.addEventListener('components-loaded', loadNotes);
+    })();
+  </script>
+</body>
+</html>

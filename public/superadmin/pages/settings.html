@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - System Settings</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .page-header p { font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 0.25rem; }
+    .settings-grid { display: grid; grid-template-columns: 240px 1fr; gap: 2rem; }
+    .settings-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .settings-nav button { text-align: left; padding: 0.75rem 1rem; border: none; border-radius: 0.75rem; background: none; color: var(--on-surface-variant); font-size: 0.875rem; font-weight: 500; cursor: pointer; font-family: inherit; transition: var(--transition); display: flex; align-items: center; gap: 0.75rem; }
+    .settings-nav button:hover { background: var(--surface-container); color: var(--on-surface); }
+    .settings-nav button.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .settings-nav button .icon { font-size: 1.25rem; }
+    .settings-panel { display: none; }
+    .settings-panel.active { display: block; }
+    .settings-section { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .settings-section h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .settings-section .desc { font-size: 0.8125rem; color: var(--on-surface-variant); margin-bottom: 1.25rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.375rem; color: var(--on-surface); }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--outline-variant); border-radius: 0.75rem; background: var(--surface-container-lowest); color: var(--on-surface); font-size: 0.875rem; font-family: inherit; outline: none; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .toggle-group { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--outline-variant); }
+    .toggle-group:last-child { border-bottom: none; }
+    .toggle { position: relative; width: 2.5rem; height: 1.5rem; background: var(--surface-container-high); border-radius: 999px; cursor: pointer; transition: background 0.2s; border: none; }
+    .toggle.on { background: var(--primary); }
+    .toggle::after { content: ''; position: absolute; top: 0.125rem; left: 0.125rem; width: 1.25rem; height: 1.25rem; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+    .toggle.on::after { transform: translateX(1rem); }
+    @media (max-width: 768px) { .admin-main { padding: 1rem; } .settings-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <main class="admin-main">
+      <div class="page-header">
+        <h1>System Settings</h1>
+        <p>Configure global platform settings</p>
+      </div>
+      <div class="settings-grid">
+        <nav class="settings-nav">
+          <button class="active" data-panel="general"><span class="icon material-symbols-outlined">settings</span> General</button>
+          <button data-panel="auth"><span class="icon material-symbols-outlined">lock</span> Authentication</button>
+          <button data-panel="email"><span class="icon material-symbols-outlined">mail</span> Email</button>
+          <button data-panel="payments"><span class="icon material-symbols-outlined">payments</span> Payments</button>
+          <button data-panel="features"><span class="icon material-symbols-outlined">toggle_on</span> Features</button>
+          <button data-panel="maintenance"><span class="icon material-symbols-outlined">build</span> Maintenance</button>
+        </nav>
+        <div>
+          <div class="settings-panel active" id="panel-general">
+            <div class="settings-section">
+              <h2>General</h2>
+              <p class="desc">Platform-wide configuration</p>
+              <div class="form-group"><label>Platform Name</label><input type="text" id="platform-name" placeholder="LearnBridge"/></div>
+              <div class="form-row">
+                <div class="form-group"><label>Support Email</label><input type="email" placeholder="support@learnbridge.com"/></div>
+                <div class="form-group"><label>Default Language</label><select><option>English</option><option>French</option><option>Spanish</option></select></div>
+              </div>
+              <div class="form-group"><label>Footer Copyright</label><input type="text" placeholder="2026 LearnBridge. All rights reserved."/></div>
+              <button class="btn-primary" onclick="showToast('General settings saved')">Save</button>
+            </div>
+          </div>
+          <div class="settings-panel" id="panel-auth">
+            <div class="settings-section">
+              <h2>Authentication</h2>
+              <p class="desc">Login and security settings</p>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Require OTP for login</span><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Allow Google OAuth</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Allow GitHub OAuth</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Allow Apple Sign In</span><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Registration open</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+              <button class="btn-primary" style="margin-top:1rem" onclick="showToast('Auth settings saved')">Save</button>
+            </div>
+          </div>
+          <div class="settings-panel" id="panel-email">
+            <div class="settings-section">
+              <h2>Email</h2>
+              <p class="desc">Configure transactional email provider</p>
+              <div class="form-group"><label>SendByte API Key</label><input type="password" placeholder="sk_test_..."/></div>
+              <div class="form-group"><label>From Address</label><input type="email" placeholder="noreply@learnbridge.com"/></div>
+              <button class="btn-primary" onclick="showToast('Email settings saved')">Save</button>
+            </div>
+          </div>
+          <div class="settings-panel" id="panel-payments">
+            <div class="settings-section">
+              <h2>Payments</h2>
+              <p class="desc">Configure payment gateway</p>
+              <div class="form-group"><label>Currency</label><select><option>USD</option><option>NGN</option><option>EUR</option><option>GBP</option></select></div>
+              <div class="form-group"><label>Stripe Secret Key</label><input type="password" placeholder="sk_live_..."/></div>
+              <div class="form-group"><label>Stripe Publishable Key</label><input type="text" placeholder="pk_live_..."/></div>
+              <button class="btn-primary" onclick="showToast('Payment settings saved')">Save</button>
+            </div>
+          </div>
+          <div class="settings-panel" id="panel-features">
+            <div class="settings-section">
+              <h2>Feature Toggles</h2>
+              <p class="desc">Enable or disable platform features</p>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Mentorship Program</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Discussion Forums</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Certificate Generation</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Course Reviews</span><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Live Events</span><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+              <div class="toggle-group"><span style="font-size:0.875rem;font-weight:500">Corporate Training</span><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+              <button class="btn-primary" style="margin-top:1rem" onclick="showToast('Feature settings saved')">Save</button>
+            </div>
+          </div>
+          <div class="settings-panel" id="panel-maintenance">
+            <div class="settings-section">
+              <h2>Maintenance</h2>
+              <p class="desc">System maintenance tools</p>
+              <div style="display:flex;flex-direction:column;gap:0.75rem">
+                <button class="btn-secondary" style="justify-content:center" onclick="showToast('Cache cleared')"><span class="material-symbols-outlined">cleaning_services</span> Clear Cache</button>
+                <button class="btn-secondary" style="justify-content:center" onclick="showToast('Logs exported')"><span class="material-symbols-outlined">download</span> Export Logs</button>
+                <button class="btn-secondary" style="justify-content:center;color:var(--error)" onclick="if(confirm('Are you sure?'))showToast('System restarted')"><span class="material-symbols-outlined">restart_alt</span> Restart Application</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/superadmin/components/superadmin-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <div id="toast" class="toast" style="position:fixed;bottom:2rem;right:2rem;background:var(--on-surface);color:var(--surface);padding:0.75rem 1.25rem;border-radius:0.75rem;font-size:0.875rem;z-index:200;opacity:0;transform:translateY(1rem);transition:all 0.3s"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    (function() {
+      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
+      document.querySelectorAll('.settings-nav button').forEach(function(b) {
+        b.addEventListener('click', function() {
+          document.querySelectorAll('.settings-nav button').forEach(function(x){x.classList.remove('active')});
+          document.querySelectorAll('.settings-panel').forEach(function(x){x.classList.remove('active')});
+          b.classList.add('active');
+          var p = document.getElementById('panel-' + b.getAttribute('data-panel'));
+          if(p) p.classList.add('active');
+        });
+      });
+      window.showToast = function(m) { var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); t.style.opacity='1'; t.style.transform='translateY(0)'; setTimeout(function(){t.style.opacity='0';t.style.transform='translateY(1rem)';},3000); };
+    })();
+  </script>
+</body>
+</html>

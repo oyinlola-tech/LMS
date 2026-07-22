@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Progress</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .admin-sidebar { width: 240px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .admin-sidebar .brand { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+    .admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .admin-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: var(--transition); }
+    .admin-nav a:hover, .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .admin-nav a .icon { font-size: 1.25rem; }
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .page-header p { font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 0.125rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.25rem; text-align: center; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--primary); }
+    .stat-card .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); margin-top: 0.25rem; }
+    .progress-section { margin-bottom: 2rem; }
+    .progress-section h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
+    .course-progress-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.25rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 1rem; }
+    .course-progress-card .info { flex: 1; }
+    .course-progress-card .info h3 { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .course-progress-card .info p { font-size: 0.8125rem; color: var(--on-surface-variant); }
+    .progress-bar { height: 0.5rem; background: var(--surface-container-high); border-radius: 999px; overflow: hidden; margin-top: 0.5rem; }
+    .progress-bar .fill { height: 100%; background: var(--primary); border-radius: 999px; transition: width 0.5s; }
+    .progress-pct { font-size: 1.25rem; font-weight: 700; color: var(--primary); min-width: 3rem; text-align: right; }
+    .chart-placeholder { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 2rem; text-align: center; color: var(--on-surface-variant); min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .skeleton { background: linear-gradient(90deg, var(--surface-container) 25%, var(--surface-container-high) 50%, var(--surface-container) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0.5rem; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/students/components/dashboard-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/students/components/dashboard-header"></div>
+      <div class="page-header">
+        <h1>Learning Progress</h1>
+        <p>Track your course completion and learning activity</p>
+      </div>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="value" id="s-enrolled">—</div><div class="label">Enrolled</div></div>
+        <div class="stat-card"><div class="value" id="s-completed">—</div><div class="label">Completed</div></div>
+        <div class="stat-card"><div class="value" id="s-hours">—</div><div class="label">Hours</div></div>
+        <div class="stat-card"><div class="value" id="s-certificates">—</div><div class="label">Certificates</div></div>
+      </div>
+      <div class="progress-section">
+        <h2>Course Progress</h2>
+        <div id="course-progress-list">
+          <div class="skeleton" style="height:80px;border-radius:1rem;margin-bottom:0.75rem"></div>
+          <div class="skeleton" style="height:80px;border-radius:1rem;margin-bottom:0.75rem"></div>
+          <div class="skeleton" style="height:80px;border-radius:1rem"></div>
+        </div>
+      </div>
+      <div class="progress-section">
+        <h2>Activity Overview</h2>
+        <div class="chart-placeholder" id="activity-chart">
+          <span class="material-symbols-outlined" style="font-size:2.5rem;margin-bottom:0.75rem">bar_chart</span>
+          <p style="font-size:0.875rem">Weekly activity chart will appear here</p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/students/components/dashboard-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    (function() {
+      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
+      var $ = function(id) { return document.getElementById(id); };
+      async function loadProgress() {
+        try {
+          var overview = await api.get('/progress/overview');
+          var data = overview.data || {};
+          $('s-enrolled').textContent = data.enrolledCourses || data.totalEnrolled || '—';
+          $('s-completed').textContent = data.completedCourses || data.totalCompleted || '—';
+          $('s-hours').textContent = data.totalHours || '—';
+          $('s-certificates').textContent = data.certificates || data.totalCertificates || '—';
+        } catch(e) { console.error('Overview error:', e); }
+        try {
+          var courses = await api.get('/progress/courses');
+          var list = courses.data || [];
+          var container = $('course-progress-list');
+          if (!list.length) { container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--on-surface-variant)">No enrolled courses</div>'; return; }
+          container.innerHTML = list.map(function(c) {
+            var pct = c.completionPercent || c.progress || 0;
+            return '<div class="course-progress-card"><div class="info"><h3>'+(c.title||'Course')+'</h3><p>'+(c.instructorName||'')+'</p><div class="progress-bar"><div class="fill" style="width:'+pct+'%"></div></div></div><div class="progress-pct">'+pct+'%</div></div>';
+          }).join('');
+        } catch(e) { console.error('Courses error:', e); }
+      }
+      document.addEventListener('components-loaded', loadProgress);
+    })();
+  </script>
+</body>
+</html>

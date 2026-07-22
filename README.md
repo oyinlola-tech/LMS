@@ -1,3 +1,13 @@
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Fastify](https://img.shields.io/badge/Fastify-000000?style=for-the-badge&logo=fastify&logoColor=white)](https://www.fastify.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-DC382C?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![BullMQ](https://img.shields.io/badge/BullMQ-FF6C37?style=for-the-badge&logo=redis&logoColor=white)](https://docs.bullmq.io/)
+[![Puppeteer](https://img.shields.io/badge/Puppeteer-40B5A4?style=for-the-badge&logo=puppeteer&logoColor=white)](https://pptr.dev/)
+
 # LearnBridge API
 
 A comprehensive LMS backend built with TypeScript and Fastify. It provides everything you need to run an online learning platform: user authentication, course management, enrollment, quizzes, assignments, certificates, real-time notifications, messaging, billing, admin tools, and more. The API is designed to be fast, secure, and easily extendable, making it a solid foundation for any educational product.
@@ -40,8 +50,6 @@ The server listens on port `4000` by default. The Swagger documentation is avail
 ## Usage
 
 Once the server is running, you can interact with the API directly or through the built-in Swagger UI. The Swagger UI provides a try-it-out interface and shows all endpoints with their request/response schemas.
-
-For development, you can enable the email and certificate preview routes by setting `DEV_EMAIL_PREVIEW=true` and `DEV_CERT_PREVIEW=true` in your `.env`. These provide a web-based gallery to visually test email templates and certificate generation.
 
 To verify the server is healthy:
 ```bash
@@ -409,8 +417,6 @@ All configuration is driven by environment variables. Reference the `.env.exampl
 | `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS` | General rate limiting | `200` / `900000` |
 | `AUTH_RATE_LIMIT_MAX`, `AUTH_RATE_LIMIT_WINDOW_MS` | Auth rate limiting | `30` / `600000` |
 | `JSON_BODY_LIMIT` | Max request body size | `1mb` |
-| `DEV_EMAIL_PREVIEW` | Enable email template previews | `false` |
-| `DEV_CERT_PREVIEW` | Enable certificate preview gallery | `false` |
 
 ## Contributing
 
@@ -425,13 +431,3 @@ Built by Oluwayemi Oyinlola Michael.
 - Website: [https://oyinlola.site](https://oyinlola.site)
 - X (Twitter): [https://x.com/oyinlola141](https://x.com/oyinlola141)
 
-## Badges
-
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Fastify](https://img.shields.io/badge/Fastify-000000?style=for-the-badge&logo=fastify&logoColor=white)](https://www.fastify.io/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-DC382C?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
-[![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![BullMQ](https://img.shields.io/badge/BullMQ-FF6C37?style=for-the-badge&logo=redis&logoColor=white)](https://docs.bullmq.io/)
-[![Puppeteer](https://img.shields.io/badge/Puppeteer-40B5A4?style=for-the-badge&logo=puppeteer&logoColor=white)](https://pptr.dev/)

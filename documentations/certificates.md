@@ -118,28 +118,6 @@ Error (404):
 {"error":{"code":"NOT_FOUND","message":"Certificate not found","details":null}}
 ```
 
-## GET /certificates/preview?format=html|pdf
-Dev preview (requires `DEV_CERT_PREVIEW=true`).
-Optional query params: `studentName`, `courseTitle`, `instructorName`, `issueDate`, `grade`, `courseHours`.
-Response (200):
-```
-HTML or PDF preview
-```
-Error (403):
-```json
-{"error":{"code":"FORBIDDEN","message":"Certificate preview disabled","details":null}}
-```
-
-## GET /certificates/preview/gallery
-Dev PDF preview gallery (requires `DEV_CERT_PREVIEW=true`).
-Response (200):
-```
-HTML gallery of PDF previews
-```
-Error (403):
-```json
-{"error":{"code":"FORBIDDEN","message":"Certificate preview disabled","details":null}}
-```
 
 ## GET /certificates/badge
 Returns the LearnBridge Verified badge (SVG).

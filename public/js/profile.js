@@ -118,8 +118,11 @@ function loadUserContent(u) {
     }).catch(function() {});
   }
 
-  api.get('/api/groups?createdBy=' + profileId).then(function(res) {
-    if (res && res.data) renderCommunities(res.data);
+  api.get('/discussion-groups/mine').then(function(res) {
+    if (res && res.data) {
+      var mine = res.data.filter(function(g) { return g.creator && g.creator.id === profileId; });
+      renderCommunities(mine);
+    }
   }).catch(function() {});
 
   renderAchievements(u);

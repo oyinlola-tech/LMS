@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import Fastify from 'fastify';
 import { AppError } from './errors';
+import { sequelize } from './models';
 import fastifyCors from '@fastify/cors';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyRateLimit from '@fastify/rate-limit';
@@ -27,7 +28,7 @@ import tutorAssignmentBuilderRoutes from './routes/tutorAssignmentBuilder.route'
 import notificationRoutes from './routes/notifications.route';
 import certificateRoutes from './routes/certificates.route';
 import courseBuilderRoutes from './routes/courseBuilder.route';
-import emailPreviewRoutes from './routes/emailPreview.route';
+
 import adminDashboardRoutes from './routes/adminDashboard.route';
 import adminFinancialsRoutes from './routes/adminFinancials.route';
 import adminUsersRoutes from './routes/adminUsers.route';
@@ -65,8 +66,8 @@ export async function buildApp() {
   fs.mkdirSync(uploadDir, { recursive: true });
 
   const corsOrigins = (process.env.CORS_ORIGIN || '').split(',').map(v => v.trim()).filter(Boolean);
+  if (!corsOrigins.length) throw new Error('CORS_ORIGIN must be set to a comma-separated list of allowed origins');
   const corsCredentials = String(process.env.CORS_ALLOW_CREDENTIALS || 'false') === 'true';
-  const isDevelopment = String(process.env.NODE_ENV || '').toLowerCase() === 'development';
 
   const app = Fastify({
     logger: false,
@@ -82,7 +83,7 @@ export async function buildApp() {
   });
 
   await app.register(fastifyCors, {
-    origin: corsOrigins.length ? corsOrigins : (isDevelopment ? true : false),
+    origin: corsOrigins,
     credentials: corsCredentials,
   });
 
@@ -194,7 +195,7 @@ export async function buildApp() {
   await app.register(notificationRoutes, { prefix: '/notifications' });
   await app.register(certificateRoutes, { prefix: '/certificates' });
   await app.register(courseBuilderRoutes, { prefix: '/builder' });
-  await app.register(emailPreviewRoutes, { prefix: '/dev/email' });
+
   await app.register(adminDashboardRoutes, { prefix: '/admin/dashboard' });
   await app.register(adminFinancialsRoutes, { prefix: '/admin' });
   await app.register(adminUsersRoutes, { prefix: '/admin/users' });
@@ -223,10 +224,17 @@ export async function buildApp() {
     reply.redirect('/favicon.svg');
   });
 
-  app.get('/api/health', async () => ({
-    message: 'Service healthy',
-    data: { name: `${process.env.APP_NAME} API`, status: 'ok' },
-  }));
+  app.get('/api/health', async (_request, reply) => {
+    const dbOk = await sequelize.authenticate().then(() => true).catch(() => false);
+    return reply.status(dbOk ? 200 : 503).send({
+      message: dbOk ? 'Service healthy' : 'Service degraded',
+      data: {
+        name: `${process.env.APP_NAME} API`,
+        status: dbOk ? 'ok' : 'degraded',
+        checks: { database: dbOk ? 'passed' : 'failed' },
+      },
+    });
+  });
 
   app.get('/.well-known/security.txt', async (_req, reply) => {
     const lines: string[] = [`Contact: mailto:${process.env.SECURITY_CONTACT_EMAIL || 'security@your-domain.com'}`];
@@ -250,7 +258,7 @@ export async function buildApp() {
     reply.status(status).send({
       error: {
         code: err instanceof AppError ? err.code : 'INTERNAL_ERROR',
-        message: isDevelopment ? ((err as Error).message || 'An unexpected error occurred') : 'An unexpected error occurred',
+        message: 'An unexpected error occurred',
         details: null,
       },
     });

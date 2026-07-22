@@ -7,9 +7,10 @@ import { ok, created, error } from '../utils/response.util';
 export default async function (fastify: FastifyInstance): Promise<void> {
   fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const { q } = request.query as { q?: string };
+      const { q, createdBy } = request.query as { q?: string; createdBy?: string };
       const where: any = { isPublic: true };
       if (q) where.name = { [Op.iLike]: `%${q}%` };
+      if (createdBy) where.createdById = createdBy;
       const groups = await DiscussionGroup.findAll({
         where,
         include: [
@@ -20,7 +21,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         limit: 50,
       });
       return ok(reply, groups, 'Groups loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'GROUPS_LIST_FAILED');
       return error(reply, 500, 'GROUPS_LIST_FAILED', 'Failed to load groups');
     }
   });
@@ -33,7 +35,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       });
       const groups = memberships.map((m: any) => m.DiscussionGroup).filter(Boolean);
       return ok(reply, groups, 'My groups loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'MY_GROUPS_FAILED');
       return error(reply, 500, 'MY_GROUPS_FAILED', 'Failed to load your groups');
     }
   });
@@ -49,7 +52,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       });
       if (!group) return error(reply, 404, 'NOT_FOUND', 'Group not found');
       return ok(reply, group, 'Group loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'GROUP_GET_FAILED');
       return error(reply, 500, 'GROUP_GET_FAILED', 'Failed to load group');
     }
   });
@@ -69,7 +73,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       });
       await GroupMember.create({ groupId: group.id, userId: request.user!.sub, role: 'admin' });
       return created(reply, group, 'Group created');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'GROUP_CREATE_FAILED');
       return error(reply, 500, 'GROUP_CREATE_FAILED', 'Failed to create group');
     }
   });
@@ -87,7 +92,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       await DiscussionGroup.update(updates, { where: { id } });
       const group = await DiscussionGroup.findByPk(id);
       return ok(reply, group, 'Group updated');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'GROUP_UPDATE_FAILED');
       return error(reply, 500, 'GROUP_UPDATE_FAILED', 'Failed to update group');
     }
   });
@@ -99,7 +105,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       if (!membership) return error(reply, 403, 'FORBIDDEN', 'Only the group admin can delete this group');
       await DiscussionGroup.destroy({ where: { id } });
       return ok(reply, null, 'Group deleted');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'GROUP_DELETE_FAILED');
       return error(reply, 500, 'GROUP_DELETE_FAILED', 'Failed to delete group');
     }
   });
@@ -113,7 +120,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       if (existing) return error(reply, 409, 'ALREADY_MEMBER', 'You are already a member');
       await GroupMember.create({ groupId: id, userId: request.user!.sub });
       return created(reply, null, 'Joined group');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'GROUP_JOIN_FAILED');
       return error(reply, 500, 'GROUP_JOIN_FAILED', 'Failed to join group');
     }
   });
@@ -123,7 +131,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       const { id } = request.params as { id: string };
       await GroupMember.destroy({ where: { groupId: id, userId: request.user!.sub } });
       return ok(reply, null, 'Left group');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'GROUP_LEAVE_FAILED');
       return error(reply, 500, 'GROUP_LEAVE_FAILED', 'Failed to leave group');
     }
   });
@@ -143,7 +152,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         limit: Math.min(Number(limit) || 50, 100),
       });
       return ok(reply, messages.reverse(), 'Messages loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'MESSAGES_LIST_FAILED');
       return error(reply, 500, 'MESSAGES_LIST_FAILED', 'Failed to load messages');
     }
   });
@@ -156,7 +166,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         include: [{ model: User, as: 'member', attributes: ['id', 'fullName', 'avatarUrl'] }],
       });
       return ok(reply, members, 'Members loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'MEMBERS_LIST_FAILED');
       return error(reply, 500, 'MEMBERS_LIST_FAILED', 'Failed to load members');
     }
   });
@@ -168,7 +179,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       if (existing) return error(reply, 409, 'ALREADY_SUBSCRIBED', 'Already subscribed');
       await ThreadSubscription.create({ groupId: id, userId: request.user!.sub });
       return created(reply, null, 'Subscribed');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'SUBSCRIBE_FAILED');
       return error(reply, 500, 'SUBSCRIBE_FAILED', 'Failed to subscribe');
     }
   });
@@ -178,7 +190,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       const { id } = request.params as { id: string };
       await ThreadSubscription.destroy({ where: { groupId: id, userId: request.user!.sub } });
       return ok(reply, null, 'Unsubscribed');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'UNSUBSCRIBE_FAILED');
       return error(reply, 500, 'UNSUBSCRIBE_FAILED', 'Failed to unsubscribe');
     }
   });
@@ -191,7 +204,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         include: [{ model: User, attributes: ['id', 'fullName', 'avatarUrl'] }],
       });
       return ok(reply, subs, 'Subscribers loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'SUBSCRIBERS_LIST_FAILED');
       return error(reply, 500, 'SUBSCRIBERS_LIST_FAILED', 'Failed to load subscribers');
     }
   });

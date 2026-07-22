@@ -42,7 +42,7 @@
           return `<article class="p-6 rounded-2xl border" style="background: #fff; border-color: var(--outline-variant)">
             <p class="text-xs font-bold uppercase tracking-widest" style="color: var(--primary)">${date}</p>
             <h3 class="text-xl font-bold mt-1 mb-2"><a href="/blog/${p.slug}" style="text-decoration: none; color: inherit">${p.title}</a></h3>
-            <p class="text-sm mb-2" style="color: var(--on-surface-variant)">${p.excerpt || p.content.slice(0, 200)}</p>
+            <p class="text-sm mb-2" style="color: var(--on-surface-variant)">${p.excerpt || (p.content ? p.content.slice(0, 200) : '')}</p>
             <p class="text-xs" style="color: var(--on-surface-variant)">By ${name}</p>
           </article>`;
         }).join('');

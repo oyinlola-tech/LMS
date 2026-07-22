@@ -91,8 +91,8 @@
         + '<p class="course-meta">' + progress + '% complete</p>'
         + '<div class="course-actions">'
         + '<button class="btn-sm" style="background:var(--primary);color:#fff" onclick="window.location.href=\'/lessons/' + c.id + '\'">Resume</button>'
-        + '<button class="btn-sm" style="background:var(--surface-container-high);color:var(--on-surface)" onclick="window.location.href=\'/courses/' + c.id + '/materials\'">Materials</button>'
-        + '<button class="btn-sm" style="background:var(--surface-container-high);color:var(--on-surface)" onclick="window.location.href=\'/courses/' + c.id + '\'">Details</button>'
+        + '<button class="btn-sm" style="background:var(--surface-container-high);color:var(--on-surface)" onclick="window.location.href=\'/course/' + c.id + '\'">Materials</button>'
+        + '<button class="btn-sm" style="background:var(--surface-container-high);color:var(--on-surface)" onclick="window.location.href=\'/course/' + c.id + '\'">Details</button>'
         + '</div>'
         + '</div>'
         + '</div>';

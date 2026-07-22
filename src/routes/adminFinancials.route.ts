@@ -117,7 +117,7 @@ export default async function (fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.patch('/payouts/:id', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.patch('/payouts/:id', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     if (!hasPermission(request.user?.role, 'manage_payouts')) {
       return error(reply, 403, 'FORBIDDEN', 'Only super admin can manage payouts');
     }
@@ -139,8 +139,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.get('/settings', { preHandler: [fastify.authenticate] }, async (_request: FastifyRequest, reply: FastifyReply) => {
-    if (!hasPermission(_request.user?.role, 'manage_platform_settings')) {
+  fastify.get('/settings', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    if (!hasPermission(request.user?.role, 'manage_platform_settings')) {
       return error(reply, 403, 'FORBIDDEN', 'Only super admin can view settings');
     }
     try {
@@ -153,7 +153,7 @@ export default async function (fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.put('/settings', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.put('/settings', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     if (!hasPermission(request.user?.role, 'manage_platform_settings')) {
       return error(reply, 403, 'FORBIDDEN', 'Only super admin can update settings');
     }

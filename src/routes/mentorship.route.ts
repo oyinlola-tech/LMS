@@ -26,7 +26,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         include: [{ model: User, attributes: ['id', 'fullName', 'avatarUrl', 'bio'] }],
       });
       return ok(reply, mentors, 'Mentors loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'MENTORS_LOAD_FAILED');
       return error(reply, 500, 'MENTORS_LOAD_FAILED', 'Failed to load mentors');
     }
   });
@@ -36,7 +37,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       const { courseId } = request.params as { courseId: string };
       const app = await getMentorshipApplicationQuery.execute(request.user!.sub, courseId);
       return ok(reply, app, 'Application loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'APPLICATION_LOAD_FAILED');
       return error(reply, 500, 'APPLICATION_LOAD_FAILED', 'Failed to load application');
     }
   });
@@ -46,8 +48,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       const { courseId } = request.params as { courseId: string };
       const course = await Course.findByPk(courseId);
       if (!course) return error(reply, 404, 'NOT_FOUND', 'Course not found');
-      if (course.tutorId !== request.user!.sub && request.user!.role === UserRole.TUTOR) {
-        return error(reply, 403, 'FORBIDDEN', 'Only the course tutor can view applications');
+      if (course.tutorId !== request.user!.sub && request.user!.role !== UserRole.ADMIN) {
+        return error(reply, 403, 'FORBIDDEN', 'Only the course tutor or admin can view applications');
       }
       const apps = await MentorshipApplication.findAll({
         where: { CourseId: courseId },
@@ -55,7 +57,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         order: [['createdAt', 'DESC']],
       });
       return ok(reply, apps, 'Applications loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'APPLICATIONS_LOAD_FAILED');
       return error(reply, 500, 'APPLICATIONS_LOAD_FAILED', 'Failed to load applications');
     }
   });
@@ -69,7 +72,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       app.status = 'approved';
       await app.save();
       return ok(reply, app, 'Application approved');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'APPROVE_FAILED');
       return error(reply, 500, 'APPROVE_FAILED', 'Failed to approve application');
     }
   });
@@ -83,7 +87,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       app.status = 'rejected';
       await app.save();
       return ok(reply, app, 'Application rejected');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'REJECT_FAILED');
       return error(reply, 500, 'REJECT_FAILED', 'Failed to reject application');
     }
   });

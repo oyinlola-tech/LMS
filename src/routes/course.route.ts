@@ -33,7 +33,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       const result = await getFeaturedCoursesQuery.execute();
       return ok(reply, result, 'Featured courses loaded');
-    } catch {
+    } catch (err) {
+      _request.log.error(err, 'FEATURED_FAILED');
       return error(reply, 500, 'FEATURED_FAILED', 'Failed to load featured courses');
     }
   });
@@ -42,7 +43,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       const result = await getRecommendedCoursesQuery.execute(request.user!.sub);
       return ok(reply, result, 'Recommended courses loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'RECOMMENDED_FAILED');
       return error(reply, 500, 'RECOMMENDED_FAILED', 'Failed to load recommendations');
     }
   });
@@ -51,7 +53,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       const result = await getCategoriesQuery.execute();
       return ok(reply, result, 'Categories loaded');
-    } catch {
+    } catch (err) {
+      _request.log.error(err, 'CATEGORIES_FAILED');
       return error(reply, 500, 'CATEGORIES_FAILED', 'Failed to load categories');
     }
   });
@@ -60,7 +63,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       const result = await getDepartmentsQuery.execute();
       return ok(reply, result, 'Departments loaded');
-    } catch {
+    } catch (err) {
+      _request.log.error(err, 'DEPARTMENTS_FAILED');
       return error(reply, 500, 'DEPARTMENTS_FAILED', 'Failed to load departments');
     }
   });
@@ -76,7 +80,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         limit: query.limit ? parseInt(query.limit, 10) : 20,
       });
       return ok(reply, result, 'Courses loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'COURSE_LIST_FAILED');
       return error(reply, 500, 'COURSE_LIST_FAILED', 'Failed to load courses');
     }
   });
@@ -130,7 +135,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       if (!body.rating || body.rating < 1 || body.rating > 5) {
         return error(reply, 400, 'VALIDATION_ERROR', 'Rating must be between 1 and 5');
       }
-      const existing = await courseReviewRepository.findByCourseId(id);
+      const existing = (await courseReviewRepository.findByCourseId(id)) || [];
       const mine = existing.find((r: any) => r.UserId === request.user!.sub);
       if (mine) {
         return error(reply, 409, 'ALREADY_REVIEWED', 'You have already reviewed this course');

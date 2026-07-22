@@ -21,8 +21,9 @@ import type { UpdateProfileBody, UpdateAvatarBody, UpdateInterestsBody, UpdateEm
 export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.get('/search', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const { q, studentId } = request.query as { q?: string; studentId?: string };
-      const where: Record<string, any> = { role: 'learner' };
+      const { q, studentId, role } = request.query as { q?: string; studentId?: string; role?: string };
+      const where: Record<string, any> = {};
+      if (role) where.role = role;
 
       if (studentId) {
         where.studentId = studentId;
@@ -44,7 +45,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       });
 
       return ok(reply, users, 'Users found');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'SEARCH_FAILED');
       return error(reply, 500, 'SEARCH_FAILED', 'Failed to search users');
     }
   });
@@ -68,7 +70,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       const followingCount = await Follow.count({ where: { followerId: id } });
 
       return ok(reply, { ...user.toJSON(), followerCount, followingCount }, 'Profile loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'PROFILE_LOAD_FAILED');
       return error(reply, 500, 'PROFILE_LOAD_FAILED', 'Failed to load profile');
     }
   });
@@ -139,7 +142,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         interests: body.interests,
       });
       return ok(reply, result, 'Interests updated');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'INTERESTS_UPDATE_FAILED');
       return error(reply, 500, 'INTERESTS_UPDATE_FAILED', 'Failed to update interests');
     }
   });
@@ -180,7 +184,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         weeklyGoalProgressHours: body.weeklyGoalProgressHours,
       });
       return ok(reply, null, 'Weekly goal updated');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'WEEKLY_GOAL_UPDATE_FAILED');
       return error(reply, 500, 'WEEKLY_GOAL_UPDATE_FAILED', 'Failed to update weekly goal');
     }
   });
@@ -191,7 +196,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       if (!token) return error(reply, 400, 'VALIDATION_ERROR', 'Token is required');
       await User.update({ fcmToken: token }, { where: { id: request.user!.sub } });
       return ok(reply, null, 'FCM token saved');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'FCM_TOKEN_FAILED');
       return error(reply, 500, 'FCM_TOKEN_FAILED', 'Failed to save FCM token');
     }
   });

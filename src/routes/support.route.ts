@@ -30,7 +30,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       const ticket = await getTicketDetailQuery.execute((request.params as any).id);
       if (!ticket) return error(reply, 404, 'NOT_FOUND', 'Ticket not found');
-      if (request.user!.role !== 'admin' && ticket.UserId !== request.user!.sub) return error(reply, 403, 'FORBIDDEN', 'Forbidden');
+      if (request.user!.role !== UserRole.ADMIN && ticket.UserId !== request.user!.sub) return error(reply, 403, 'FORBIDDEN', 'Forbidden');
       return ok(reply, ticket, 'Support ticket loaded');
     } catch (err: any) {
       return error(reply, 500, 'SUPPORT_LOAD_FAILED', 'Failed to load support ticket');

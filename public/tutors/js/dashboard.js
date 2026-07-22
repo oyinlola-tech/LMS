@@ -104,7 +104,7 @@
         + '<div class="submission-info"><div class="si-name">' + escapeHtml(studentName) + '</div><div class="si-detail">' + escapeHtml(assignTitle) + '</div></div>'
         + '<div class="submission-meta"><span class="si-status pending">Pending</span></div>';
       item.style.cursor = 'pointer';
-      item.onclick = function () { window.location.href = '/tutor/submissions/' + s.submissionId; };
+      item.onclick = function () { window.location.href = '/tutor/assignments/' + (s.assignmentId || '') + '/submission'; };
       section.appendChild(item);
     });
   }
@@ -257,7 +257,7 @@
         + '<div class="di-meta">' + escapeHtml(d.user?.fullName || '') + ' \u00B7 ' + d.replyCount + ' repl' + (d.replyCount === 1 ? 'y' : 'ies') + ' \u00B7 ' + escapeHtml(d.course?.title || '') + '</div>'
         + '</div>';
       item.style.cursor = 'pointer';
-      item.onclick = function () { window.location.href = '/courses/' + d.course?.id + '/discussions/' + d.id; };
+      item.onclick = function () { window.location.href = '/discussions'; };
       section.appendChild(item);
     });
   }

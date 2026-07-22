@@ -17,7 +17,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         return ok(reply, null, 'No resume data');
       }
       return ok(reply, result, 'Resume data loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'RESUME_FAILED');
       return error(reply, 500, 'RESUME_FAILED', 'Failed to load resume data');
     }
   });
@@ -26,7 +27,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       const result = await listEnrollmentsQuery.execute(request.user!.sub);
       return ok(reply, result, 'Enrollments loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'ENROLLMENTS_FAILED');
       return error(reply, 500, 'ENROLLMENTS_FAILED', 'Failed to load enrollments');
     }
   });
@@ -79,10 +81,11 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         return error(reply, 404, 'NOT_FOUND', 'Enrollment not found');
       }
       enrollment.set('status', 'completed');
-      enrollment.set('completedAt', new Date().toISOString());
+      enrollment.set('completedAt', new Date());
       await enrollment.save();
       return ok(reply, { enrollmentId: id }, 'Course completed');
     } catch (err: unknown) {
+      request.log.error(err, 'COMPLETE_FAILED');
       return error(reply, 500, 'COMPLETE_FAILED', 'Failed to complete course');
     }
   });

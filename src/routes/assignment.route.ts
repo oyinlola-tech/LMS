@@ -91,7 +91,7 @@ const handleFileUpload = async (request: FastifyRequest, reply: FastifyReply): P
   }
 
   fs.mkdirSync(uploadDir, { recursive: true });
-  const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+  const unique = Date.now() + '-' + crypto.randomUUID();
   const safe = originalname.replace(/[^a-zA-Z0-9._-]/g, '');
   const filename = unique + '-' + safe;
   const filePath = path.join(uploadDir, filename);

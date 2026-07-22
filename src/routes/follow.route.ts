@@ -12,7 +12,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         limit: 50,
       });
       return ok(reply, followers, 'Followers loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'FOLLOWERS_LIST_FAILED');
       return error(reply, 500, 'FOLLOWERS_LIST_FAILED', 'Failed to load followers');
     }
   });
@@ -26,7 +27,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         limit: 50,
       });
       return ok(reply, following, 'Following loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'FOLLOWING_LIST_FAILED');
       return error(reply, 500, 'FOLLOWING_LIST_FAILED', 'Failed to load following');
     }
   });
@@ -41,7 +43,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       if (existing) return error(reply, 409, 'ALREADY_FOLLOWING', 'You are already following this user');
       await Follow.create({ followerId: request.user!.sub, followingId: userId });
       return created(reply, null, 'Now following ' + target.fullName);
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'FOLLOW_FAILED');
       return error(reply, 500, 'FOLLOW_FAILED', 'Failed to follow user');
     }
   });
@@ -52,7 +55,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       const deleted = await Follow.destroy({ where: { followerId: request.user!.sub, followingId: userId } });
       if (!deleted) return error(reply, 404, 'NOT_FOLLOWING', 'You are not following this user');
       return ok(reply, null, 'Unfollowed');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'UNFOLLOW_FAILED');
       return error(reply, 500, 'UNFOLLOW_FAILED', 'Failed to unfollow user');
     }
   });
@@ -63,7 +67,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       const follow = await Follow.findOne({ where: { followerId: request.user!.sub, followingId: userId } });
       const count = await Follow.count({ where: { followerId: userId } });
       return ok(reply, { isFollowing: !!follow, followingCount: count }, 'Follow status');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'FOLLOW_STATUS_FAILED');
       return error(reply, 500, 'FOLLOW_STATUS_FAILED', 'Failed to get follow status');
     }
   });

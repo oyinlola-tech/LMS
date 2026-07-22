@@ -21,7 +21,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         limit: 20,
       });
       return ok(reply, posts, 'Blog posts loaded');
-    } catch {
+    } catch (err) {
+      _request.log.error(err, 'BLOG_LIST_FAILED');
       return error(reply, 500, 'BLOG_LIST_FAILED', 'Failed to load blog posts');
     }
   });
@@ -33,7 +34,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         order: [['createdAt', 'DESC']],
       });
       return ok(reply, posts, 'All blog posts loaded');
-    } catch {
+    } catch (err) {
+      _request.log.error(err, 'BLOG_ALL_FAILED');
       return error(reply, 500, 'BLOG_ALL_FAILED', 'Failed to load blog posts');
     }
   });
@@ -49,7 +51,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         return error(reply, 404, 'NOT_FOUND', 'Blog post not found');
       }
       return ok(reply, post, 'Blog post loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'BLOG_GET_FAILED');
       return error(reply, 500, 'BLOG_GET_FAILED', 'Failed to load blog post');
     }
   });
@@ -65,7 +68,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         order: [['createdAt', 'ASC']],
       });
       return ok(reply, comments, 'Comments loaded');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'COMMENT_LIST_FAILED');
       return error(reply, 500, 'COMMENT_LIST_FAILED', 'Failed to load comments');
     }
   });
@@ -83,7 +87,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         content: content.trim(),
       });
       return created(reply, comment, 'Comment added');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'COMMENT_CREATE_FAILED');
       return error(reply, 500, 'COMMENT_CREATE_FAILED', 'Failed to add comment');
     }
   });
@@ -99,7 +104,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       }
       await comment.destroy();
       return ok(reply, null, 'Comment deleted');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'COMMENT_DELETE_FAILED');
       return error(reply, 500, 'COMMENT_DELETE_FAILED', 'Failed to delete comment');
     }
   });
@@ -123,7 +129,7 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         title: body.title,
         slug: finalSlug,
         content: body.content,
-        excerpt: body.excerpt || body.content.slice(0, 200),
+        excerpt: body.excerpt || (body.content ? body.content.slice(0, 200) : ''),
         featuredImage: body.featuredImage || null,
         authorId: request.user!.sub,
         isPublished: body.isPublished !== undefined ? body.isPublished : true,
@@ -154,6 +160,7 @@ export default async function (fastify: FastifyInstance): Promise<void> {
 
       return created(reply, post, 'Blog post created');
     } catch (err: unknown) {
+      request.log.error(err, 'BLOG_CREATE_FAILED');
       return error(reply, 500, 'BLOG_CREATE_FAILED', 'Failed to create blog post');
     }
   });
@@ -184,7 +191,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       }
       await post.update(updates);
       return ok(reply, post, 'Blog post updated');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'BLOG_UPDATE_FAILED');
       return error(reply, 500, 'BLOG_UPDATE_FAILED', 'Failed to update blog post');
     }
   });
@@ -198,7 +206,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       }
       await post.destroy();
       return ok(reply, null, 'Blog post deleted');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'BLOG_DELETE_FAILED');
       return error(reply, 500, 'BLOG_DELETE_FAILED', 'Failed to delete blog post');
     }
   });

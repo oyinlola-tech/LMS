@@ -22,10 +22,18 @@ import { initFirebase } from './utils/firebase.util';
 import { startEmailJob } from './jobs/email.job';
 import { initRedisSubscriber } from './utils/notificationStream.util';
 
-const { PORT, SUPER_ADMIN_EMAIL, SUPER_ADMIN_PASSWORD, APP_NAME, DB_SYNC_ALTER } = process.env;
+const { PORT, SUPER_ADMIN_EMAIL, SUPER_ADMIN_PASSWORD, APP_NAME, DB_SYNC_ALTER, JWT_SECRET } = process.env;
+
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  logger.error('[Server] JWT_SECRET must be set to a string of at least 32 characters');
+  process.exit(1);
+}
 
 const ensureSuperAdmin = async () => {
-  if (!SUPER_ADMIN_EMAIL || !SUPER_ADMIN_PASSWORD) return;
+  if (!SUPER_ADMIN_EMAIL || !SUPER_ADMIN_PASSWORD) {
+    logger.warn('[Server] SUPER_ADMIN_EMAIL or SUPER_ADMIN_PASSWORD not set — no super admin will be created');
+    return;
+  }
   const normalizedEmail = String(SUPER_ADMIN_EMAIL).trim().toLowerCase();
   const existing = await User.findOne({ where: { email: normalizedEmail } });
   if (existing) {
@@ -63,6 +71,9 @@ const start = async () => {
       process.exit(1);
     }
 
+    if (String(DB_SYNC_ALTER) === 'true') {
+      logger.warn('[Server] DB_SYNC_ALTER=true — schema will be altered. This is NOT recommended for production.');
+    }
     await sequelize.sync({ alter: String(DB_SYNC_ALTER) === 'true' });
     await ensureSuperAdmin();
 

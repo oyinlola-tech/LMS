@@ -6,8 +6,8 @@ function formatTime(iso) {
   var now = new Date();
   var opts = { hour: 'numeric', minute: '2-digit' };
   if (d.toDateString() !== now.toDateString()) {
-    (opts as any).month = 'short';
-    (opts as any).day = 'numeric';
+    opts.month = 'short';
+    opts.day = 'numeric';
   }
   return d.toLocaleTimeString('en-US', opts);
 }

@@ -17,8 +17,8 @@
       <tr>
         <td>${u.fullName || '—'}</td>
         <td>${u.email}</td>
-        <td><span class="badge ${u.role === 'admin' ? 'active' : ''}">${u.role || 'student'}</span></td>
-        <td><span class="badge ${u.isActive ? 'active' : 'inactive'}">${u.isActive ? 'Active' : 'Inactive'}</span></td>
+        <td><span class="badge ${u.role === 'admin' ? 'active' : ''}">${u.role || 'learner'}</span></td>
+        <td><span class="badge ${u.status === 'active' ? 'active' : 'inactive'}">${u.status === 'active' ? 'Active' : 'Inactive'}</span></td>
         <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
         <td><button class="btn-icon" data-email="${u.email}" type="button">✕</button></td>
       </tr>
@@ -27,15 +27,24 @@
 
   async function loadDashboard () {
     try {
-      const data = await AdminAPI.getDashboard(token)
-      $('stat-users').textContent = data.totalUsers ?? '—'
-      $('stat-courses').textContent = data.totalCourses ?? '—'
-      $('stat-enrollments').textContent = data.totalEnrollments ?? '—'
-      $('stat-revenue').textContent = data.revenue != null ? `$${data.revenue.toLocaleString()}` : '—'
-      if (data.adminEmail) $('admin-email').textContent = data.adminEmail
-      renderUsers(data.recentUsers)
+      const res = await AdminAPI.getDashboard('7d')
+      const data = res.data || {}
+      const totals = data.totals || {}
+
+      $('stat-users').textContent = totals.users ?? totals.totalUsers ?? '—'
+      $('stat-courses').textContent = totals.activeCourses ?? totals.totalCourses ?? '—'
+      $('stat-enrollments').textContent = totals.pendingAllocations ?? '—'
+      $('stat-revenue').textContent = '—'
     } catch (err) {
       console.error('Dashboard load error:', err)
+    }
+
+    try {
+      const usersRes = await AdminAPI.listUsers({ limit: '10' })
+      const usersData = usersRes.data || {}
+      renderUsers(usersData.items || [])
+    } catch (err) {
+      console.error('Users load error:', err)
     }
   }
 

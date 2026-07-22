@@ -94,7 +94,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.delete('/:id', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.delete('/:id', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request: FastifyRequest, reply: FastifyReply) => {
     if (!hasPermission(request.user?.role, 'delete_user')) {
       return error(reply, 403, 'FORBIDDEN', 'Only super admin can delete users');
     }

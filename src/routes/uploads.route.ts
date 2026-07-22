@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import path from 'path';
 import fs from 'fs';
@@ -7,7 +8,7 @@ const publicBaseUrl = process.env.PUBLIC_BASE_URL;
 const uploadDir = process.env.UPLOAD_DIR || 'uploads';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
-  fastify.post('/avatar', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/avatar', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = await request.file();
       if (!data) {
@@ -23,7 +24,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       const uploadPath = path.resolve(uploadDir, 'avatars');
       fs.mkdirSync(uploadPath, { recursive: true });
 
-      const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      const unique = Date.now() + '-' + crypto.randomUUID();
       const safe = originalname.replace(/[^a-zA-Z0-9._-]/g, '');
       const filename = unique + '-' + safe;
       const filePath = path.join(uploadPath, filename);

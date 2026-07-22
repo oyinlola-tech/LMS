@@ -132,6 +132,7 @@ export async function buildApp() {
     ['/about', 'pages/about.html'],
     ['/careers', 'pages/careers.html'],
     ['/blog', 'pages/blog.html'],
+    ['/courses/recommendations', 'pages/course-recommendations.html'],
     ['/contact', 'pages/contact.html'],
     ['/privacy', 'pages/privacy.html'],
     ['/terms', 'pages/terms.html'],

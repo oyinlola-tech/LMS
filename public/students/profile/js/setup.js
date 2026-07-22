@@ -153,13 +153,13 @@
           try {
             var payload = JSON.parse(atob(token.split('.')[1]));
             var role = payload.role || '';
-            var urls = { learner: '/dashboard', tutor: '/tutor', admin: '/admin', super_admin: '/superadmin' };
-            window.location.href = urls[role] || '/dashboard';
+            var urls = { learner: '/courses/recommendations', tutor: '/tutor', admin: '/admin', super_admin: '/superadmin' };
+            window.location.href = urls[role] || '/courses/recommendations';
           } catch (_) {
-            window.location.href = '/dashboard';
+            window.location.href = '/courses/recommendations';
           }
         } else {
-          window.location.href = '/dashboard';
+          window.location.href = '/courses/recommendations';
         }
       }, 800);
     }).catch(function () {
@@ -176,13 +176,13 @@
       try {
         var payload = JSON.parse(atob(token.split('.')[1]));
         var role = payload.role || '';
-        var urls = { learner: '/dashboard', tutor: '/tutor', admin: '/admin', super_admin: '/superadmin' };
-        window.location.href = urls[role] || '/dashboard';
+        var urls = { learner: '/courses/recommendations', tutor: '/tutor', admin: '/admin', super_admin: '/superadmin' };
+        window.location.href = urls[role] || '/courses/recommendations';
       } catch (_) {
-        window.location.href = '/dashboard';
+        window.location.href = '/courses/recommendations';
       }
     } else {
-      window.location.href = '/dashboard';
+      window.location.href = '/courses/recommendations';
     }
   }
 

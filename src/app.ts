@@ -146,6 +146,8 @@ export async function buildApp() {
     app.get(route, async (_req, reply) => reply.sendFile(file));
   }
 
+  app.get('/blog/:slug', async (_req, reply) => reply.sendFile('pages/blog-details.html'));
+
   app.get('/assignments/:id/student', async (_req, reply) => reply.sendFile('students/assignment.html'));
   app.get('/tutor/assignments', async (_req, reply) => reply.sendFile('tutors/assignments/index.html'));
   app.get('/tutor/assignments/:id/details', async (_req, reply) => reply.sendFile('tutors/assignments/details.html'));
@@ -224,7 +226,7 @@ export async function buildApp() {
     reply.redirect('/favicon.svg');
   });
 
-  app.get('/api/health', async (_request, reply) => {
+  app.get('/api/health', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (_request, reply) => {
     const dbOk = await sequelize.authenticate().then(() => true).catch(() => false);
     return reply.status(dbOk ? 200 : 503).send({
       message: dbOk ? 'Service healthy' : 'Service degraded',

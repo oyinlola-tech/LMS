@@ -51,36 +51,134 @@
     var empty = document.getElementById('empty-state');
 
     if (!assignments.length) {
-      grid.innerHTML = '';
+      while (grid.firstChild) grid.removeChild(grid.firstChild);
       empty.style.display = '';
       return;
     }
     empty.style.display = 'none';
+    while (grid.firstChild) grid.removeChild(grid.firstChild);
 
-    grid.innerHTML = assignments.map(function (a) {
-      return renderCard(a);
-    }).join('');
+    var fragment = document.createDocumentFragment();
+    assignments.forEach(function (a) {
+      var card = buildCardElement(a);
+      fragment.appendChild(card);
+    });
+    grid.appendChild(fragment);
 
-    grid.querySelectorAll('.assignment-card').forEach(function (card) {
+    Array.from(grid.children).forEach(function (card) {
       card.onclick = function (e) {
         if (e.target.closest('.card-action-btn') || e.target.closest('.menu-btn')) return;
         window.location.href = '/tutor/assignments/' + card.dataset.id + '/details';
       };
     });
 
-    grid.querySelectorAll('[data-action="edit"]').forEach(function (btn) {
+    Array.from(grid.querySelectorAll('[data-action="edit"]')).forEach(function (btn) {
       btn.onclick = function (e) {
         e.stopPropagation();
         window.location.href = '/tutor/assignments/builder/' + btn.dataset.id;
       };
     });
 
-    grid.querySelectorAll('[data-action="preview"]').forEach(function (btn) {
+    Array.from(grid.querySelectorAll('[data-action="preview"]')).forEach(function (btn) {
       btn.onclick = function (e) {
         e.stopPropagation();
         window.open('/assignments/' + btn.dataset.id + '/student', '_blank');
       };
     });
+  }
+
+  function buildCardElement(a) {
+    var now = new Date();
+    var due = a.dueDate ? new Date(a.dueDate) : null;
+    var daysLeft = due ? Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null;
+    var dueClass = daysLeft != null ? (daysLeft <= 0 ? 'due-overdue' : daysLeft <= 3 ? 'due-warning' : 'due-safe') : '';
+    var dueText = daysLeft != null ? (daysLeft <= 0 ? 'Overdue' : daysLeft + ' day' + (daysLeft > 1 ? 's' : '') + ' left') : 'No due date';
+
+    var card = document.createElement('div');
+    card.className = 'assignment-card';
+    card.setAttribute('data-id', String(a.id));
+
+    var top = document.createElement('div');
+    top.className = 'assignment-card-top';
+    var badges = document.createElement('div');
+    badges.className = 'assignment-card-badges';
+
+    var typeBadge = document.createElement('span');
+    typeBadge.className = 'badge badge-type';
+    typeBadge.textContent = capitalize(a.type || 'essay');
+    badges.appendChild(typeBadge);
+
+    var diffBadge = document.createElement('span');
+    diffBadge.className = 'badge badge-difficulty ' + escHtml(a.difficulty || 'intermediate');
+    diffBadge.textContent = capitalize(a.difficulty || 'intermediate');
+    badges.appendChild(diffBadge);
+
+    var statusBadge = document.createElement('span');
+    statusBadge.className = 'badge badge-status ' + escHtml(a.status || 'draft');
+    statusBadge.textContent = a.status || 'draft';
+    badges.appendChild(statusBadge);
+    top.appendChild(badges);
+    card.appendChild(top);
+
+    var title = document.createElement('h3');
+    title.className = 'assignment-card-title';
+    title.textContent = a.title || '';
+    card.appendChild(title);
+
+    if (a.course) {
+      var courseDiv = document.createElement('div');
+      courseDiv.className = 'assignment-card-course';
+      courseDiv.textContent = a.course.title || '';
+      card.appendChild(courseDiv);
+    }
+
+    var meta = document.createElement('div');
+    meta.className = 'assignment-card-meta';
+    if (a.totalPoints != null) {
+      var pts = document.createElement('span');
+      pts.innerHTML = '<span class="material-symbols-outlined">fact_check</span> ' + escHtml(String(a.totalPoints)) + ' pts';
+      meta.appendChild(pts);
+    }
+    if (a.module) {
+      var mod = document.createElement('span');
+      mod.innerHTML = '<span class="material-symbols-outlined">folder</span> ' + escHtml(a.module.title);
+      meta.appendChild(mod);
+    }
+    var dueSpan = document.createElement('span');
+    dueSpan.className = dueClass;
+    dueSpan.innerHTML = '<span class="material-symbols-outlined">event</span> ' + dueText;
+    meta.appendChild(dueSpan);
+    card.appendChild(meta);
+
+    var footer = document.createElement('div');
+    footer.className = 'assignment-card-footer';
+    var footerLeft = document.createElement('div');
+    footerLeft.className = 'card-footer-left';
+    var subCount = document.createElement('span');
+    subCount.className = 'submission-count';
+    subCount.textContent = (a.submissionCount || 0) + ' submission' + ((a.submissionCount || 0) !== 1 ? 's' : '');
+    footerLeft.appendChild(subCount);
+    footer.appendChild(footerLeft);
+
+    var footerRight = document.createElement('div');
+    footerRight.className = 'card-footer-right';
+    var editBtn = document.createElement('button');
+    editBtn.className = 'card-action-btn';
+    editBtn.setAttribute('data-action', 'edit');
+    editBtn.setAttribute('data-id', String(a.id));
+    editBtn.innerHTML = '<span class="material-symbols-outlined">edit</span> Edit';
+    footerRight.appendChild(editBtn);
+
+    var previewBtn = document.createElement('button');
+    previewBtn.className = 'card-action-btn primary';
+    previewBtn.setAttribute('data-action', 'preview');
+    previewBtn.setAttribute('data-id', String(a.id));
+    previewBtn.innerHTML = '<span class="material-symbols-outlined">visibility</span> Preview';
+    footerRight.appendChild(previewBtn);
+    footer.appendChild(footerRight);
+    card.appendChild(footer);
+
+    return card;
   }
 
   function renderCard(a) {

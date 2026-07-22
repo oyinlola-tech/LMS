@@ -23,7 +23,10 @@
         }
       })
       .catch(function () {
-        el.outerHTML = '<!-- failed to load component: ' + name.replace(/-->/g, '') + ' -->';
+        var errEl = document.createElement('div');
+        errEl.textContent = '[failed to load component: ' + name + ']';
+        errEl.style.display = 'none';
+        el.parentNode.replaceChild(errEl, el);
         loaded++;
         if (loaded === total) {
           document.dispatchEvent(new CustomEvent('components-loaded'));

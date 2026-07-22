@@ -44,19 +44,24 @@ function formatMessage(level: LogLevel, message: string, meta?: unknown): string
 
 function log(level: LogLevel, message: string, meta?: unknown): void {
   if (!shouldLog(level)) return;
-  const formatted = formatMessage(level, message, meta);
+  const safeMeta = meta !== undefined ? redactSensitive(meta) : undefined;
+  const formatted = formatMessage(level, message, safeMeta);
+  writeLog(level, formatted);
+}
+
+function writeLog(level: LogLevel, message: string): void {
   switch (level) {
     case LogLevel.ERROR:
-      console.error(formatted);
+      console.error(message);
       break;
     case LogLevel.WARN:
-      console.warn(formatted);
+      console.warn(message);
       break;
     case LogLevel.INFO:
-      console.info(formatted);
+      console.info(message);
       break;
     case LogLevel.DEBUG:
-      console.debug(formatted);
+      console.debug(message);
       break;
   }
 }

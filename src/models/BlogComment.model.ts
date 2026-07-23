@@ -7,6 +7,7 @@ class BlogComment extends Model<InferAttributes<BlogComment>, InferCreationAttri
   declare blogPostId: string;
   declare authorId: string;
   declare content: string;
+  declare flagged: CreationOptional<boolean>;
 }
 
 BlogComment.init({
@@ -14,6 +15,7 @@ BlogComment.init({
   blogPostId: { type: DataTypes.UUID, allowNull: false, references: { model: 'BlogPosts', key: 'id' }, onDelete: 'CASCADE' },
   authorId: { type: DataTypes.UUID, allowNull: false, references: { model: 'Users', key: 'id' }, onDelete: 'CASCADE' },
   content: { type: DataTypes.TEXT, allowNull: false },
+  flagged: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, {
   sequelize,
   modelName: 'BlogComment',

@@ -7,6 +7,7 @@ import { AppError } from '../errors';
 import { broadcastNotification } from '../utils/wsHub.util';
 import { sendPushNotification } from '../utils/firebase.util';
 import { sanitizeHtml, sanitizeRichText } from '../utils/sanitize.util';
+import { containsFlaggedWords } from '../utils/profanity.util';
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'post';
@@ -86,6 +87,7 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         blogPostId: post.id,
         authorId: request.user!.sub,
         content: sanitizeRichText(content.trim()),
+        flagged: containsFlaggedWords(content),
       });
       return created(reply, comment, 'Comment added');
     } catch (err) {

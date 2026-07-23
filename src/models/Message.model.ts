@@ -9,6 +9,10 @@ class Message extends Model<InferAttributes<Message>, InferCreationAttributes<Me
   declare readAt: string | null;
   declare MessageThreadId: string;
   declare senderId: string;
+  declare attachmentUrl: string | null;
+  declare attachmentType: string | null;
+  declare attachmentName: string | null;
+  declare flagged: CreationOptional<boolean>;
 }
 
 Message.init({
@@ -19,6 +23,10 @@ Message.init({
 
   MessageThreadId: { type: DataTypes.UUID, allowNull: false },
   senderId: { type: DataTypes.UUID, allowNull: false },
+  attachmentUrl: { type: DataTypes.STRING(500), allowNull: true },
+  attachmentType: { type: DataTypes.STRING(50), allowNull: true },
+  attachmentName: { type: DataTypes.STRING(255), allowNull: true },
+  flagged: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, { sequelize, modelName: 'Message', indexes: [{ fields: ['MessageThreadId'] }, { fields: ['ThreadId'] }, { fields: ['senderId'] }, { fields: ['createdAt'] }] });
 
 MessageThread.hasMany(Message, { foreignKey: { name: 'MessageThreadId', allowNull: false }, onDelete: 'CASCADE' });

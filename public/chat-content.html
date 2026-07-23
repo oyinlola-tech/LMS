@@ -1,0 +1,45 @@
+<div class="container" style="padding-top: 1rem; padding-bottom: 1rem">
+  <div class="chat-layout" id="chat-layout">
+    <div class="side-panel" id="side-panel">
+      <div class="tab-bar" id="tab-bar">
+        <button class="tab-btn active" data-tab="messages">Messages</button>
+        <button class="tab-btn" data-tab="discussions">Discussions</button>
+      </div>
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search conversations or threads..."/>
+      </div>
+      <div class="tab-content active" id="tab-messages"><div id="threads-container"></div></div>
+      <div class="tab-content" id="tab-discussions"><div id="discussions-container"></div></div>
+    </div>
+    <div class="chat-area" id="chat-area">
+      <div class="empty-state" id="empty-state">
+        <span class="material-symbols-outlined icon">chat</span>
+        <p>Select a conversation or discussion</p>
+      </div>
+      <div id="chat-view" style="display:none;flex-direction:column;height:100%">
+        <div class="chat-header" id="chat-header">
+          <button class="back-btn material-symbols-outlined" id="back-btn" onclick="ChatApp.closeChatView()">arrow_back</button>
+          <div class="avatar" id="chat-avatar"><span id="chat-avatar-initials">?</span></div>
+          <div>
+            <p class="font-bold text-sm" id="chat-name"></p>
+            <p class="text-xs" style="color:var(--on-surface-variant)" id="chat-subtitle"></p>
+          </div>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-area" id="chat-input-area">
+          <div id="file-preview" style="display:none" class="file-preview-bar">
+            <span class="material-symbols-outlined" style="font-size:1.25rem">attach_file</span>
+            <span id="file-name" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+            <span class="remove-file material-symbols-outlined" onclick="ChatApp.clearFileAttachment()">close</span>
+          </div>
+          <div class="chat-input-row">
+            <button class="attach-btn material-symbols-outlined" onclick="document.getElementById('file-input').click()">attach_file</button>
+            <input type="file" id="file-input" style="display:none" onchange="ChatApp.onFileSelected(this)"/>
+            <textarea id="message-input" class="chat-input" placeholder="Type a message..." rows="1" oninput="ChatApp.autoResize(this)"></textarea>
+            <button class="send-btn material-symbols-outlined" id="send-btn" onclick="ChatApp.sendChatMessage()">send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

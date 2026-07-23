@@ -157,6 +157,10 @@ export async function buildApp() {
     ['/community', 'pages/community.html'],
     ['/discussions', 'pages/discussions.html'],
     ['/messages', 'pages/messages.html'],
+    ['/chat', 'pages/chat.html'],
+    ['/students/chat', 'students/chat.html'],
+    ['/tutor/chat', 'tutors/chat.html'],
+    ['/admin/chat', 'admin/chat.html'],
   ] as const;
 
   for (const [route, file] of pages) {

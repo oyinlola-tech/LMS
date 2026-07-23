@@ -7,14 +7,12 @@ var escapeHtml = (function () {
 })();
 
 var sanitizeHtml = (function () {
-  var tagBody = '(?:[^\"\\'\\s][^\"\\']*|\"[^\"]*\"|\\'[^\\']*\\')';
-  var tagOrComment = new RegExp('<(/?)([a-zA-Z][a-zA-Z0-9]*)(\\s(?:[^>]|' + tagBody + ')*)\\s*(/?)>', 'g');
+  var allowed = new RegExp('^(br|hr|img|input|b|i|u|em|strong|p|div|span|ul|ol|li|h[1-6]|pre|code|blockquote|a|table|tr|td|th|thead|tbody|section|article|header|footer|main|aside|nav|figure|figcaption|mark|small|sub|sup|ins|del|s|q|cite|abbr|time|dl|dt|dd)$', 'i');
   return function (html) {
     if (!html) return '';
-    return String(html).replace(tagOrComment, function (match, close, tag, rest, selfClosing) {
-      if (/^(br|hr|img|input|b|i|u|em|strong|p|div|span|ul|ol|li|h[1-6]|pre|code|blockquote|a|table|tr|td|th|thead|tbody|section|article|header|footer|main|aside|nav|figure|figcaption|mark|small|sub|sup|ins|del|s|q|cite|abbr|time|dl|dt|dd)$/i.test(tag)) {
-        return match;
-      }
+    return String(html).replace(/<[^>]*>/g, function (match) {
+      var m = match.match(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b/);
+      if (m && allowed.test(m[1])) return match;
       return '';
     });
   };

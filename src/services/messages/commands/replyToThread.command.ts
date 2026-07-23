@@ -1,10 +1,17 @@
 import { MessageThread, Message } from '../../../models';
 import { sendChatMessageToRecipients } from '../../../utils/wsHub.util';
+import { containsFlaggedWords, MAX_MESSAGE_LENGTH } from '../../../utils/profanity.util';
 
 export class ReplyToThreadCommand {
-  async execute(userId: string, threadId: string, body: string): Promise<Message> {
-    if (!body) {
-      const err: any = new Error('body is required');
+  async execute(userId: string, threadId: string, body: string, attachment?: { url?: string; type?: string; name?: string }): Promise<Message> {
+    if (!body && !attachment?.url) {
+      const err: any = new Error('body or attachment is required');
+      err.code = 'VALIDATION_ERROR';
+      err.statusCode = 400;
+      throw err;
+    }
+    if (body && body.length > MAX_MESSAGE_LENGTH) {
+      const err: any = new Error(`Message too long (max ${MAX_MESSAGE_LENGTH} characters)`);
       err.code = 'VALIDATION_ERROR';
       err.statusCode = 400;
       throw err;
@@ -23,10 +30,15 @@ export class ReplyToThreadCommand {
       throw err;
     }
 
+    const flagged = body ? containsFlaggedWords(body) : false;
     const message = await Message.create({
       MessageThreadId: thread.id,
       senderId: userId,
-      body,
+      body: body || '',
+      attachmentUrl: attachment?.url || null,
+      attachmentType: attachment?.type || null,
+      attachmentName: attachment?.name || null,
+      flagged,
     });
     thread.lastMessageAt = message.createdAt.toISOString();
     await thread.save();
@@ -35,7 +47,7 @@ export class ReplyToThreadCommand {
       threadId: thread.id,
       senderId: userId,
       recipientIds: [thread.userAId, thread.userBId],
-      body,
+      body: body || '',
       createdAt: message.createdAt,
     });
 

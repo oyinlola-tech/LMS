@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Support Tickets</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .admin-sidebar { width: 240px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .admin-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500; }
+    .admin-nav a:hover, .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--outline-variant); }
+    th { font-weight: 600; color: var(--on-surface-variant); font-size: 0.75rem; text-transform: uppercase; }
+    .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.6875rem; font-weight: 600; }
+    .badge.open { background: #dbeafe; color: #1e40af; }
+    .badge.closed { background: #d1fae5; color: #065f46; }
+    .ticket-item { cursor: pointer; }
+    .ticket-item:hover { background: var(--surface-variant); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--surface-container); border-radius: 1rem; padding: 2rem; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+    .modal-box h2 { margin: 0 0 1rem; }
+    .msg-item { padding: 0.75rem; border-radius: 0.5rem; background: var(--surface); margin-bottom: 0.5rem; }
+    .msg-item .meta { font-size: 0.75rem; color: var(--on-surface-variant); }
+    .msg-item p { margin: 0.25rem 0 0; font-size: 0.875rem; }
+    .status-select { padding: 0.25rem 0.5rem; border-radius: 0.375rem; border: 1px solid var(--outline); font-size: 0.8125rem; }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/admin/components/admin-sidebar"></div>
+    <main class="admin-main">
+      <h1 style="font-size:1.5rem;margin:0 0 1.5rem">Support Tickets</h1>
+      <table><thead><tr><th>Subject</th><th>User</th><th>Status</th><th>Updated</th></tr></thead>
+        <tbody id="tickets-body"><tr><td colspan="4" style="text-align:center;padding:3rem;color:var(--on-surface-variant)">Loading...</td></tr></tbody>
+      </table>
+    </main>
+  </div>
+  <div class="modal-overlay" id="ticket-modal">
+    <div class="modal-box">
+      <h2 id="ticket-subject"></h2>
+      <div id="ticket-messages"></div>
+      <div style="margin-top:1rem;display:flex;gap:0.75rem;align-items:center">
+        <select id="status-select" class="status-select"><option value="open">Open</option><option value="closed">Closed</option></select>
+        <button onclick="updateStatus()" class="btn-sm primary" style="padding:0.375rem 0.75rem;border-radius:0.375rem;border:none;background:var(--primary);color:#fff;cursor:pointer">Update Status</button>
+        <button onclick="closeTicketModal()" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:1.25rem">✕</button>
+      </div>
+    </div>
+  </div>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    if (!Shared.auth.requireAuth()) {}
+    var currentTicketId = null;
+    document.addEventListener('DOMContentLoaded', loadTickets);
+
+    function loadTickets() {
+      api.get('/admin/support/tickets').then(function(res) {
+        var tbody = document.getElementById('tickets-body');
+        if (res.error || !res.data || !res.data.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:3rem;color:var(--on-surface-variant)">No tickets</td></tr>'; return; }
+        tbody.innerHTML = res.data.map(function(t) {
+          return '<tr class="ticket-item" onclick="openTicket(\'' + t.id + '\',\'' + Shared.escapeHtml(t.subject || 'Ticket').replace(/'/g,"\\'") + '\')"><td>' + Shared.escapeHtml(t.subject || 'Untitled') + '</td>' +
+            '<td>' + Shared.escapeHtml(t.User ? t.User.name || t.User.email : '-') + '</td>' +
+            '<td><span class="badge ' + (t.status || 'open') + '">' + (t.status || 'open') + '</span></td>' +
+            '<td>' + Shared.formatTime(t.updatedAt || t.createdAt) + '</td></tr>';
+        }).join('');
+      });
+    }
+
+    function openTicket(id, subject) {
+      currentTicketId = id;
+      document.getElementById('ticket-subject').textContent = subject;
+      document.getElementById('ticket-modal').classList.add('open');
+      api.get('/admin/support/tickets/' + id).then(function(res) {
+        if (res.error) return;
+        var t = res.data;
+        document.getElementById('status-select').value = t.status || 'open';
+        var el = document.getElementById('ticket-messages');
+        el.innerHTML = (t.messages || t.Messages || []).map(function(m) {
+          return '<div class="msg-item"><div class="meta">' + Shared.escapeHtml(m.User ? m.User.name || m.User.email : 'User') + ' &middot; ' + Shared.formatTime(m.createdAt) + '</div>' +
+            '<p>' + Shared.escapeHtml(m.content || m.message || '') + '</p></div>';
+        }).join('') || '<p style="color:var(--on-surface-variant)">No messages</p>';
+      });
+    }
+
+    function updateStatus() {
+      if (!currentTicketId) return;
+      var status = document.getElementById('status-select').value;
+      api.put('/support/tickets/' + currentTicketId, { status: status }).then(function() { loadTickets(); closeTicketModal(); });
+    }
+
+    function closeTicketModal() { document.getElementById('ticket-modal').classList.remove('open'); currentTicketId = null; }
+  </script>
+</body>
+</html>

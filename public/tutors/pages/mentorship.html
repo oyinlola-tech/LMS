@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Mentorship</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .layout { display: flex; min-height: 100vh; }
+    .main { flex: 1; padding: 2rem; max-width: 900px; margin: 0 auto; width: 100%; }
+    .tutor-sidebar { width: 240px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .tutor-sidebar .brand { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+    .tutor-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500; }
+    .tutor-nav a:hover, .tutor-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    h1 { font-size: 1.5rem; margin: 0 0 1.5rem; }
+    .app-card { padding: 1.25rem; border-radius: 1rem; background: var(--surface-container); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+    .app-card .info h3 { margin: 0 0 0.25rem; font-size: 1rem; }
+    .app-card .info p { margin: 0; font-size: 0.8125rem; color: var(--on-surface-variant); }
+    .app-card .actions { display: flex; gap: 0.5rem; }
+    .btn-sm { padding: 0.375rem 0.75rem; border-radius: 0.5rem; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .btn-sm.success { background: #059669; color: #fff; }
+    .btn-sm.danger { background: var(--error); color: #fff; }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--on-surface-variant); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    @media (max-width: 768px) { .tutor-sidebar { display: none; } .main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div data-include="/tutors/components/tutor-sidebar"></div>
+    <main class="main">
+      <h1>Mentorship Applications</h1>
+      <div id="applications-list"><p style="color:var(--on-surface-variant)">Loading...</p></div>
+    </main>
+  </div>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    if (!Shared.auth.requireAuth()) {}
+    document.addEventListener('DOMContentLoaded', function() { loadCourses(); });
+
+    function loadCourses() {
+      api.get('/builder/courses').then(function(res) {
+        var el = document.getElementById('applications-list');
+        if (res.error || !res.data || !res.data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">🎓</div><p>You have no courses. Create a course first to manage mentorship.</p></div>'; return; }
+        el.innerHTML = '<p style="margin-bottom:1rem;color:var(--on-surface-variant);font-size:0.875rem">Select a course to manage mentorship applications:</p>';
+        res.data.forEach(function(c) {
+          el.innerHTML += '<div class="app-card" style="cursor:pointer" onclick="loadApplications(\'' + c.id + '\',\'' + Shared.escapeHtml(c.title).replace(/'/g,"\\'") + '\')"><div class="info"><h3>' + Shared.escapeHtml(c.title) + '</h3></div><div class="actions"><span style="font-size:0.75rem;color:var(--on-surface-variant)">View Applications →</span></div></div>';
+        });
+      });
+    }
+
+    function loadApplications(courseId, courseTitle) {
+      api.get('/mentorship/applications/' + courseId).then(function(res) {
+        var el = document.getElementById('applications-list');
+        if (res.error || !res.data || !res.data.length) {
+          el.innerHTML = '<div class="empty-state"><div class="icon">🎓</div><p>No mentorship applications for ' + Shared.escapeHtml(courseTitle) + '</p>' +
+            '<button onclick="loadCourses()" style="margin-top:1rem;padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid var(--outline);background:none;cursor:pointer">Back to Courses</button></div>';
+          return;
+        }
+        var html = '<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem"><button onclick="loadCourses()" style="background:none;border:none;font-size:1.25rem;cursor:pointer">←</button><h2 style="margin:0;font-size:1.25rem">' + Shared.escapeHtml(courseTitle) + '</h2></div>';
+        (res.data.applications || res.data).forEach(function(a) {
+          html += '<div class="app-card"><div class="info"><h3>' + Shared.escapeHtml(a.User ? a.User.name || a.User.email : 'Student') + '</h3>' +
+            '<p>Applied ' + Shared.formatTime(a.createdAt) + '</p></div>' +
+            '<div class="actions">' +
+            (a.status === 'pending' ? '<button class="btn-sm success" onclick="approve(\'' + a.id + '\')">Approve</button><button class="btn-sm danger" onclick="reject(\'' + a.id + '\')">Reject</button>' : '<span style="padding:0.25rem 0.75rem;border-radius:999px;background:var(--surface-variant);font-size:0.75rem">' + (a.status || 'pending') + '</span>') +
+            '</div></div>';
+        });
+        el.innerHTML = html;
+        window._currentCourse = courseId;
+      });
+    }
+
+    function approve(id) { api.post('/mentorship/' + id + '/approve').then(function() { loadApplications(window._currentCourse, ''); }); }
+    function reject(id) { api.post('/mentorship/' + id + '/reject').then(function() { loadApplications(window._currentCourse, ''); }); }
+  </script>
+</body>
+</html>

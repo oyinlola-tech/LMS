@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Search</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .layout { display: flex; min-height: 100vh; }
+    .main { flex: 1; padding: 2rem; max-width: 900px; margin: 0 auto; width: 100%; }
+    .search-box { display: flex; gap: 0.75rem; margin-bottom: 2rem; }
+    .search-box input { flex: 1; padding: 0.75rem 1rem; border-radius: 0.75rem; border: 1px solid var(--outline); background: var(--surface-container); font-size: 1rem; }
+    .search-box button { padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; background: var(--primary); color: var(--on-primary); font-weight: 600; cursor: pointer; }
+    .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--outline-variant); }
+    .tabs button { padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 600; border: none; background: none; color: var(--on-surface-variant); cursor: pointer; border-bottom: 2px solid transparent; }
+    .tabs button.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .result-item { padding: 1rem; border-radius: 0.75rem; background: var(--surface-container); margin-bottom: 0.75rem; text-decoration: none; display: block; color: inherit; transition: var(--transition); }
+    .result-item:hover { background: var(--surface-variant); }
+    .result-item h3 { margin: 0 0 0.25rem; font-size: 1rem; }
+    .result-item p { margin: 0; font-size: 0.8125rem; color: var(--on-surface-variant); }
+    .result-item .meta { font-size: 0.75rem; color: var(--on-surface-variant); margin-top: 0.5rem; display: flex; gap: 1rem; }
+    .skeleton { height: 80px; border-radius: 0.75rem; margin-bottom: 0.75rem; background: linear-gradient(90deg, var(--surface-variant) 25%, var(--surface-container) 50%, var(--surface-variant) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--on-surface-variant); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    @media (max-width: 768px) { .main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div data-include="/components/header"></div>
+  <div class="layout">
+    <main class="main">
+      <div class="search-box">
+        <input id="search-input" placeholder="Search courses, users, discussions..." onkeydown="if(event.key==='Enter') doSearch()" autofocus/>
+        <button onclick="doSearch()">Search</button>
+      </div>
+      <div class="tabs">
+        <button class="active" onclick="switchTab('courses',this)">Courses</button>
+        <button onclick="switchTab('users',this)">Users</button>
+        <button onclick="switchTab('discussions',this)">Discussions</button>
+      </div>
+      <div id="search-results"><div class="empty-state"><div class="icon">🔍</div><p>Search across the platform</p></div></div>
+    </main>
+  </div>
+  <div data-include="/components/footer"></div>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    var currentTab = 'courses';
+    var currentQuery = '';
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var params = new URLSearchParams(window.location.search);
+      var q = params.get('q');
+      if (q) {
+        document.getElementById('search-input').value = q;
+        currentQuery = q;
+        doSearch();
+      }
+    });
+
+    function doSearch() {
+      currentQuery = document.getElementById('search-input').value.trim();
+      if (!currentQuery) return;
+      history.replaceState(null, '', '/search?q=' + encodeURIComponent(currentQuery));
+      searchTab(currentTab);
+    }
+
+    function searchTab(tab) {
+      var el = document.getElementById('search-results');
+      el.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+      if (tab === 'courses') {
+        api.get('/courses/?q=' + encodeURIComponent(currentQuery) + '&limit=20').then(function(res) {
+          if (res.error || !res.data || !res.data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📚</div><p>No courses found</p></div>'; return; }
+          el.innerHTML = (res.data.courses || res.data).map(function(c) {
+            return '<a href="/course/' + c.id + '" class="result-item"><h3>' + Shared.escapeHtml(c.title) + '</h3>' +
+              (c.description ? '<p>' + Shared.escapeHtml(c.description).slice(0, 150) + '</p>' : '') +
+              '<div class="meta"><span>' + Shared.escapeHtml(c.category || '') + '</span>' +
+              (c.price != null && c.price > 0 ? '<span>$' + c.price.toFixed(2) + '</span>' : '<span>Free</span>') + '</div></a>';
+          }).join('');
+        });
+      } else if (tab === 'users') {
+        api.get('/users/search?q=' + encodeURIComponent(currentQuery)).then(function(res) {
+          if (res.error || !res.data || !res.data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">👤</div><p>No users found</p></div>'; return; }
+          el.innerHTML = res.data.map(function(u) {
+            return '<a href="/profile/' + u.id + '" class="result-item"><h3>' + Shared.escapeHtml(u.name || u.email) + '</h3>' +
+              '<p>' + Shared.escapeHtml(u.role || '') + '</p></a>';
+          }).join('');
+        });
+      } else if (tab === 'discussions') {
+        api.get('/discussions/threads?q=' + encodeURIComponent(currentQuery) + '&limit=20').then(function(res) {
+          if (res.error || !res.data || !res.data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">💬</div><p>No discussions found</p></div>'; return; }
+          el.innerHTML = (res.data.threads || res.data).map(function(t) {
+            return '<a href="/discussions" class="result-item"><h3>' + Shared.escapeHtml(t.title) + '</h3>' +
+              (t.content ? '<p>' + Shared.escapeHtml(t.content).slice(0, 150) + '</p>' : '') +
+              '<div class="meta"><span>' + Shared.formatTime(t.createdAt) + '</span></div></a>';
+          }).join('');
+        });
+      }
+    }
+
+    function switchTab(tab, btn) {
+      currentTab = tab;
+      document.querySelectorAll('.tabs button').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      if (currentQuery) searchTab(tab);
+    }
+  </script>
+</body>
+</html>

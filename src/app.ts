@@ -161,6 +161,32 @@ export async function buildApp() {
     ['/students/chat', 'students/chat.html'],
     ['/tutor/chat', 'tutors/chat.html'],
     ['/admin/chat', 'admin/chat.html'],
+    ['/progress', 'students/pages/progress.html'],
+    ['/certificates', 'students/pages/certificates.html'],
+    ['/settings', 'students/pages/settings.html'],
+    ['/wishlist', 'students/pages/wishlist.html'],
+    ['/notes', 'students/pages/notes.html'],
+    ['/bookmarks', 'students/pages/bookmarks.html'],
+    ['/tutor/settings', 'tutors/pages/settings.html'],
+    ['/admin/users', 'admin/pages/users.html'],
+    ['/admin/courses', 'admin/pages/courses.html'],
+    ['/admin/enrollments', 'admin/pages/enrollments.html'],
+    ['/admin/settings', 'admin/pages/settings.html'],
+    ['/notifications', 'notifications.html'],
+    ['/groups', 'groups.html'],
+    ['/admin/audit', 'admin/pages/audit.html'],
+    ['/admin/financials', 'admin/pages/financials.html'],
+    ['/admin/support', 'admin/pages/support.html'],
+    ['/tutor/mentorship', 'tutors/pages/mentorship.html'],
+    ['/tutor/office-hours', 'tutors/pages/office-hours.html'],
+    ['/admin/profile', 'admin/profile.html'],
+    ['/superadmin', 'superadmin/index.html'],
+    ['/superadmin/users', 'superadmin/pages/users.html'],
+    ['/superadmin/courses', 'superadmin/pages/courses.html'],
+    ['/superadmin/enrollments', 'superadmin/pages/enrollments.html'],
+    ['/superadmin/settings', 'superadmin/pages/settings.html'],
+    ['/superadmin/profile', 'superadmin/profile.html'],
+    ['/search', 'search.html'],
   ] as const;
 
   for (const [route, file] of pages) {
@@ -168,6 +194,10 @@ export async function buildApp() {
   }
 
   app.get('/blog/:slug', async (_req, reply) => reply.sendFile('blog/details.html'));
+  app.get('/notes/:id', async (_req, reply) => reply.sendFile('students/pages/notes-details.html'));
+  app.get('/tutor/profile', async (_req, reply) => reply.sendFile('tutors/profile.html'));
+  app.get('/lessons/:id', async (_req, reply) => reply.sendFile('lessons/viewer.html'));
+  app.get('/tutor/courses/builder/:id', async (_req, reply) => reply.sendFile('tutors/courses/builder.html'));
 
   app.get('/assignments/:id/student', async (_req, reply) => reply.sendFile('students/assignment.html'));
   app.get('/tutor/assignments', async (_req, reply) => reply.sendFile('tutors/assignments/index.html'));

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Groups</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .layout { display: flex; min-height: 100vh; }
+    .main { flex: 1; padding: 2rem; max-width: 1100px; margin: 0 auto; width: 100%; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .header h1 { font-size: 1.5rem; margin: 0; }
+    .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+    .group-card { padding: 1.25rem; border-radius: 1rem; background: var(--surface-container); transition: var(--transition); }
+    .group-card:hover { background: var(--surface-variant); }
+    .group-card h3 { margin: 0 0 0.25rem; font-size: 1rem; }
+    .group-card p { margin: 0; font-size: 0.8125rem; color: var(--on-surface-variant); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .group-card .meta { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.75rem; color: var(--on-surface-variant); align-items: center; }
+    .group-card .badge { font-size: 0.6875rem; padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--primary-container); color: var(--on-primary-container); }
+    .group-card .join-btn { margin-left: auto; padding: 0.25rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .group-card .join-btn.joined { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--surface-container); border-radius: 1rem; padding: 2rem; width: 90%; max-width: 500px; }
+    .modal-box h2 { margin: 0 0 1rem; }
+    .modal-box label { display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--on-surface-variant); }
+    .modal-box input, .modal-box textarea { width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--outline); background: var(--surface); font-family: inherit; font-size: 0.875rem; margin-bottom: 1rem; box-sizing: border-box; }
+    .modal-box textarea { min-height: 80px; resize: vertical; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+    .skeleton-card { height: 120px; border-radius: 1rem; background: linear-gradient(90deg, var(--surface-variant) 25%, var(--surface-container) 50%, var(--surface-variant) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 1rem; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--on-surface-variant); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .tabs { display: flex; border-bottom: 1px solid var(--outline-variant); margin-bottom: 1.5rem; }
+    .tabs button { padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 600; border: none; background: none; color: var(--on-surface-variant); cursor: pointer; border-bottom: 2px solid transparent; }
+    .tabs button.active { color: var(--primary); border-bottom-color: var(--primary); }
+    @media (max-width: 768px) { .main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div data-include="/components/header"></div>
+  <div class="layout">
+    <main class="main">
+      <div class="header">
+        <h1>Discussion Groups</h1>
+        <button class="btn-primary" onclick="openCreateModal()" style="padding:0.5rem 1.25rem;border-radius:0.5rem;border:none;background:var(--primary);color:var(--on-primary);font-weight:600;cursor:pointer">+ New Group</button>
+      </div>
+      <div class="tabs">
+        <button class="active" onclick="switchTab('browse',this)">Browse</button>
+        <button onclick="switchTab('mine',this)">My Groups</button>
+      </div>
+      <div id="groups-browse"><div id="groups-list" class="groups-grid"></div></div>
+      <div id="groups-mine" style="display:none"><div id="my-groups-list" class="groups-grid"></div></div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="create-modal">
+    <div class="modal-box">
+      <h2>Create Group</h2>
+      <label>Group Name</label>
+      <input id="group-name" placeholder="Enter group name"/>
+      <label>Description</label>
+      <textarea id="group-desc" placeholder="What's this group about?"></textarea>
+      <div class="modal-actions">
+        <button onclick="closeCreateModal()" style="padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid var(--outline);background:none;cursor:pointer">Cancel</button>
+        <button onclick="createGroup()" class="btn-primary" style="padding:0.5rem 1.25rem;border-radius:0.5rem;border:none;background:var(--primary);color:var(--on-primary);font-weight:600;cursor:pointer">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <div data-include="/components/footer"></div>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    if (!Shared.auth.requireAuth()) {}
+    var myGroupIds = [];
+
+    document.addEventListener('DOMContentLoaded', function() { loadGroups(); loadMyGroups(); });
+
+    function loadGroups() {
+      var el = document.getElementById('groups-list');
+      el.innerHTML = '<div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>';
+      api.get('/api/groups/').then(function(res) {
+        if (res.error || !res.data || !res.data.length) {
+          el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">👥</div><p>No public groups yet</p></div>';
+          return;
+        }
+        el.innerHTML = res.data.map(function(g) {
+          var joined = myGroupIds.includes(g.id);
+          return '<div class="group-card"><h3>' + Shared.escapeHtml(g.name) + '</h3>' +
+            (g.description ? '<p>' + Shared.escapeHtml(g.description) + '</p>' : '') +
+            '<div class="meta"><span>' + (g.memberCount || 0) + ' members</span>' +
+            '<button class="join-btn' + (joined ? ' joined' : '') + '" onclick="toggleJoin(\'' + g.id + '\',this)">' + (joined ? 'Joined' : 'Join') + '</button></div></div>';
+        }).join('');
+      });
+    }
+
+    function loadMyGroups() {
+      api.get('/api/groups/mine').then(function(res) {
+        var el = document.getElementById('my-groups-list');
+        if (res.error || !res.data || !res.data.length) {
+          el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">👥</div><p>You haven\'t joined any groups. Browse and join one!</p></div>';
+          return;
+        }
+        myGroupIds = res.data.map(function(g) { return g.id; });
+        el.innerHTML = res.data.map(function(g) {
+          return '<div class="group-card"><h3>' + Shared.escapeHtml(g.name) + '</h3>' +
+            (g.description ? '<p>' + Shared.escapeHtml(g.description) + '</p>' : '') +
+            '<div class="meta"><span>' + (g.memberCount || 0) + ' members</span>' +
+            '<button class="join-btn joined" onclick="toggleJoin(\'' + g.id + '\',this)">Leave</button></div></div>';
+        }).join('');
+      });
+    }
+
+    function toggleJoin(id, btn) {
+      var isJoined = btn.classList.contains('joined');
+      var method = isJoined ? 'leave' : 'join';
+      api.post('/api/groups/' + id + '/' + method).then(function() {
+        loadGroups();
+        loadMyGroups();
+      });
+    }
+
+    function openCreateModal() { document.getElementById('create-modal').classList.add('open'); }
+    function closeCreateModal() {
+      document.getElementById('create-modal').classList.remove('open');
+      document.getElementById('group-name').value = '';
+      document.getElementById('group-desc').value = '';
+    }
+    function createGroup() {
+      var name = document.getElementById('group-name').value.trim();
+      var desc = document.getElementById('group-desc').value.trim();
+      if (!name) { alert('Group name is required'); return; }
+      api.post('/api/groups/', { name: name, description: desc }).then(function(res) {
+        if (res.error) { alert(res.error.message); return; }
+        closeCreateModal();
+        loadGroups(); loadMyGroups();
+      });
+    }
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.tabs button').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('groups-browse').style.display = tab === 'browse' ? 'block' : 'none';
+      document.getElementById('groups-mine').style.display = tab === 'mine' ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>

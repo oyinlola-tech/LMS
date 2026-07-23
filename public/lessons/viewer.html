@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Lesson</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .lesson-layout { display: flex; min-height: 100vh; }
+    .lesson-main { flex: 1; display: flex; flex-direction: column; }
+    .lesson-sidebar {
+      width: 320px; background: var(--surface-container);
+      border-left: 1px solid var(--outline-variant);
+      padding: 1.5rem; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    .lesson-sidebar .brand { font-size: 1.25rem; font-weight: 800; color: var(--on-surface); }
+    .lesson-content { flex: 1; padding: 2rem; overflow-y: auto; max-width: 900px; margin: 0 auto; width: 100%; }
+    .lesson-header { margin-bottom: 2rem; }
+    .lesson-header h1 { font-size: 1.75rem; font-weight: 700; margin: 0 0 0.5rem; }
+    .lesson-meta { display: flex; gap: 1rem; color: var(--on-surface-variant); font-size: 0.875rem; }
+    .content-block { margin-bottom: 2rem; }
+    .content-block h2 { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.25rem; }
+    .content-block h3 { font-size: 1rem; font-weight: 500; color: var(--on-surface-variant); margin: 0 0 0.75rem; }
+    .content-block .body { line-height: 1.7; color: var(--on-surface); }
+    .content-block .body p { margin: 0 0 1rem; }
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 1rem; margin-bottom: 1.5rem; background: #000; }
+    .video-container iframe, .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    .section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); margin: 1rem 0 0.5rem; }
+    .lesson-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .lesson-nav a {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem; color: var(--on-surface-variant); text-decoration: none;
+      font-size: 0.8125rem; font-weight: 500; transition: var(--transition);
+    }
+    .lesson-nav a:hover, .lesson-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .lesson-nav a .icon { font-size: 1rem; }
+    .lesson-nav a .badge { margin-left: auto; font-size: 0.6875rem; padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--surface-variant); }
+    .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .action-bar button, .action-bar a { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; border: none; cursor: pointer; transition: var(--transition); text-decoration: none; }
+    .btn-primary { background: var(--primary); color: var(--on-primary); }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-outline { background: transparent; border: 1px solid var(--outline); color: var(--on-surface); }
+    .btn-outline:hover { background: var(--surface-variant); }
+    .btn-success { background: #059669; color: #fff; }
+    .btn-success:hover { opacity: 0.9; }
+    .tab-bar { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--outline-variant); }
+    .tab-bar button {
+      padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 600; border: none;
+      background: none; color: var(--on-surface-variant); cursor: pointer;
+      border-bottom: 2px solid transparent; transition: var(--transition);
+    }
+    .tab-bar button.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .note-item, .bookmark-item { padding: 1rem; border-radius: 0.75rem; background: var(--surface-container); margin-bottom: 0.75rem; }
+    .note-item .meta, .bookmark-item .meta { font-size: 0.75rem; color: var(--on-surface-variant); margin-bottom: 0.25rem; }
+    .note-item p, .bookmark-item p { margin: 0; font-size: 0.875rem; }
+    .note-item button, .bookmark-item button { float: right; background: none; border: none; color: var(--error); cursor: pointer; font-size: 0.8125rem; }
+    .comment-item { padding: 1rem; border-radius: 0.75rem; background: var(--surface-container); margin-bottom: 0.75rem; }
+    .comment-item .author { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+    .comment-item .author .avatar { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--primary-container); }
+    .comment-item .author .name { font-weight: 600; font-size: 0.8125rem; }
+    .comment-item .author .time { font-size: 0.75rem; color: var(--on-surface-variant); }
+    .comment-item p { margin: 0; font-size: 0.875rem; }
+    .comment-form { display: flex; gap: 0.75rem; margin-top: 1rem; }
+    .comment-form textarea { flex: 1; padding: 0.75rem; border-radius: 0.75rem; border: 1px solid var(--outline); background: var(--surface-container); resize: vertical; min-height: 60px; font-family: inherit; font-size: 0.875rem; }
+    .comment-form button { padding: 0.5rem 1.25rem; border-radius: 0.5rem; border: none; background: var(--primary); color: var(--on-primary); font-weight: 600; cursor: pointer; align-self: flex-end; }
+    .resource-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .resource-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; background: var(--surface-container); text-decoration: none; color: var(--on-surface); }
+    .resource-item:hover { background: var(--surface-variant); }
+    .resource-item .icon { font-size: 1.25rem; }
+    .resource-item .name { font-weight: 500; font-size: 0.875rem; }
+    .resource-item .size { font-size: 0.75rem; color: var(--on-surface-variant); margin-left: auto; }
+    .quiz-question { margin-bottom: 1.5rem; }
+    .quiz-question .prompt { font-weight: 600; margin-bottom: 0.75rem; font-size: 0.9375rem; }
+    .quiz-question .points { font-size: 0.75rem; color: var(--on-surface-variant); }
+    .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .quiz-options label { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; background: var(--surface-container); cursor: pointer; transition: var(--transition); font-size: 0.875rem; }
+    .quiz-options label:hover { background: var(--surface-variant); }
+    .quiz-options input[type="radio"] { accent-color: var(--primary); }
+    .quiz-result { padding: 1.5rem; border-radius: 1rem; background: var(--surface-container); text-align: center; }
+    .quiz-result .score { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
+    .quiz-result .pass { color: #059669; font-weight: 600; }
+    .quiz-result .fail { color: var(--error); font-weight: 600; }
+    .progress-bar { height: 4px; background: var(--surface-variant); border-radius: 2px; margin: 1rem 0; overflow: hidden; }
+    .progress-bar .fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width 0.3s; }
+    .skeleton { background: linear-gradient(90deg, var(--surface-variant) 25%, var(--surface-container) 50%, var(--surface-variant) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--on-surface-variant); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .quiz-timer { position: sticky; top: 0; z-index: 10; background: var(--surface-container); padding: 0.75rem 1rem; border-radius: 0.75rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+    @media (max-width: 768px) { .lesson-sidebar { display: none; } .lesson-content { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="lesson-layout">
+    <main class="lesson-main">
+      <div class="lesson-content" id="lesson-content">
+        <div id="lesson-skeleton">
+          <div class="skeleton" style="height:32px;width:60%;margin-bottom:0.5rem;border-radius:0.5rem"></div>
+          <div class="skeleton" style="height:20px;width:30%;margin-bottom:2rem;border-radius:0.5rem"></div>
+          <div class="skeleton" style="height:400px;border-radius:1rem;margin-bottom:2rem"></div>
+          <div class="skeleton" style="height:20px;width:100%;margin-bottom:0.5rem;border-radius:0.25rem"></div>
+          <div class="skeleton" style="height:20px;width:90%;margin-bottom:0.5rem;border-radius:0.25rem"></div>
+          <div class="skeleton" style="height:20px;width:75%;margin-bottom:0.5rem;border-radius:0.25rem"></div>
+        </div>
+
+        <div id="lesson-view" style="display:none">
+          <div class="lesson-header">
+            <h1 id="lesson-title"></h1>
+            <div class="lesson-meta">
+              <span id="lesson-type"></span>
+              <span id="lesson-duration"></span>
+            </div>
+          </div>
+
+          <div class="progress-bar" id="progress-bar-wrapper">
+            <div class="fill" id="progress-fill" style="width:0%"></div>
+          </div>
+
+          <div class="action-bar" id="action-bar">
+            <button class="btn-primary" id="mark-complete-btn" onclick="markComplete()">Mark Complete</button>
+            <button class="btn-outline" onclick="showTab('notes')">Notes</button>
+            <button class="btn-outline" onclick="showTab('bookmarks')">Bookmarks</button>
+            <button class="btn-outline" onclick="showTab('comments')">Comments</button>
+            <button class="btn-outline" onclick="showTab('resources')">Resources</button>
+            <button class="btn-outline" id="quiz-btn" style="display:none" onclick="showTab('quiz')">Quiz</button>
+            <a class="btn-outline" id="assignment-link" style="display:none">Assignment</a>
+          </div>
+
+          <div id="video-container" class="video-container" style="display:none"></div>
+
+          <div id="content-blocks"></div>
+
+          <div style="margin-top:2rem">
+            <div class="tab-bar" id="tab-bar">
+              <button class="active" onclick="showTab('notes')">Notes</button>
+              <button onclick="showTab('bookmarks')">Bookmarks</button>
+              <button onclick="showTab('comments')">Comments</button>
+              <button onclick="showTab('resources')">Resources</button>
+              <button id="quiz-tab-btn" style="display:none" onclick="showTab('quiz')">Quiz</button>
+            </div>
+
+            <div class="tab-panel active" id="panel-notes">
+              <div id="notes-list"></div>
+              <div class="comment-form" style="margin-top:1rem">
+                <textarea id="note-input" placeholder="Write a note..." rows="3"></textarea>
+                <button onclick="addNote()">Add Note</button>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="panel-bookmarks">
+              <div id="bookmarks-list"></div>
+              <button class="btn-outline" onclick="addBookmark()" style="margin-top:1rem">+ Bookmark Current Position</button>
+            </div>
+
+            <div class="tab-panel" id="panel-comments">
+              <div id="comments-list"></div>
+              <div class="comment-form">
+                <textarea id="comment-input" placeholder="Write a comment..." rows="3"></textarea>
+                <button onclick="addComment()">Post</button>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="panel-resources">
+              <div id="resources-list"></div>
+            </div>
+
+            <div class="tab-panel" id="panel-quiz">
+              <div id="quiz-content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="lesson-sidebar" id="lesson-sidebar">
+      <div class="brand">LearnBridge</div>
+      <div id="curriculum-nav">
+        <div class="skeleton" style="height:40px;border-radius:0.5rem;margin-bottom:0.5rem"></div>
+        <div class="skeleton" style="height:40px;border-radius:0.5rem;margin-bottom:0.5rem"></div>
+        <div class="skeleton" style="height:40px;border-radius:0.5rem;margin-bottom:0.5rem"></div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    var lessonId = window.location.pathname.split('/').pop();
+    var lessonData = null;
+    var quizData = null;
+    var currentTab = 'notes';
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadLesson();
+    });
+
+    function loadLesson() {
+      api.get('/lessons/' + lessonId)
+        .then(function(res) {
+          if (res.error) { showError(res.error.message); return; }
+          lessonData = res.data;
+          renderLesson(lessonData);
+          loadCurriculum();
+          loadQuiz();
+          loadResources();
+          loadNotes();
+          loadBookmarks();
+          loadComments();
+          document.getElementById('lesson-skeleton').style.display = 'none';
+          document.getElementById('lesson-view').style.display = 'block';
+        })
+        .catch(function(err) {
+          showError('Failed to load lesson');
+        });
+    }
+
+    function renderLesson(lesson) {
+      document.getElementById('lesson-title').textContent = lesson.title;
+      document.getElementById('lesson-type').textContent = lesson.type.charAt(0).toUpperCase() + lesson.type.slice(1);
+      document.getElementById('lesson-duration').textContent = lesson.durationMinutes + ' min';
+
+      if (lesson.progressPercent > 0) {
+        document.getElementById('progress-fill').style.width = lesson.progressPercent + '%';
+      }
+
+      if (lesson.type === 'video' && lesson.videoUrl) {
+        var vc = document.getElementById('video-container');
+        vc.style.display = 'block';
+        if (lesson.videoUrl.includes('youtube') || lesson.videoUrl.includes('youtu.be')) {
+          var vid = lesson.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+          if (vid) vc.innerHTML = '<iframe src="https://www.youtube.com/embed/' + vid[1] + '" allowfullscreen></iframe>';
+        } else {
+          vc.innerHTML = '<video src="' + Shared.escapeHtml(lesson.videoUrl) + '" controls></video>';
+        }
+      }
+
+      if (lesson.assignmentId) {
+        var al = document.getElementById('assignment-link');
+        al.style.display = 'inline-flex';
+        al.href = '/assignments/' + lesson.assignmentId + '/student';
+      }
+
+      var cb = document.getElementById('content-blocks');
+      cb.innerHTML = '';
+      if (lesson.contents && lesson.contents.length) {
+        lesson.contents.forEach(function(block) {
+          var div = document.createElement('div');
+          div.className = 'content-block';
+          div.innerHTML = '<h2>' + Shared.escapeHtml(block.heading) + '</h2>' +
+            (block.subheading ? '<h3>' + Shared.escapeHtml(block.subheading) + '</h3>' : '') +
+            '<div class="body">' + Shared.sanitizeHtml(block.content) + '</div>';
+          cb.appendChild(div);
+        });
+      }
+    }
+
+    function loadCurriculum() {
+      if (!lessonData) return;
+      api.get('/courses/' + lessonData.courseId + '/curriculum')
+        .then(function(res) {
+          if (res.error) return;
+          var nav = document.getElementById('curriculum-nav');
+          nav.innerHTML = '<div class="section-title">Course Content</div><div class="lesson-nav">';
+          (res.data.sections || []).forEach(function(section) {
+            nav.innerHTML += '<div style="font-size:0.75rem;font-weight:600;padding:0.5rem 0.75rem;color:var(--on-surface-variant)">' +
+              Shared.escapeHtml(section.title) + '</div>';
+            (section.Lessons || []).forEach(function(ls) {
+              var active = ls.id === lessonId ? ' active' : '';
+              var icon = ls.type === 'video' ? '▶' : ls.type === 'quiz' ? '?' : ls.type === 'pdf' ? '📄' : '📝';
+              nav.innerHTML += '<a href="/lessons/' + ls.id + '" class="lesson-nav-item' + active + '"><span class="icon">' + icon + '</span>' +
+                Shared.escapeHtml(ls.title) + '</a>';
+            });
+          });
+          nav.innerHTML += '</div>';
+        });
+    }
+
+    var quizLoaded = false;
+
+    function loadQuiz() {
+      api.get('/lessons/' + lessonId + '/quiz')
+        .then(function(res) {
+          if (res.error) return;
+          quizData = res.data;
+          renderQuiz();
+          document.getElementById('quiz-btn').style.display = 'inline-flex';
+          document.getElementById('quiz-tab-btn').style.display = 'inline-block';
+        });
+    }
+
+    function renderQuiz() {
+      if (!quizData) return;
+      var c = document.getElementById('quiz-content');
+      var q = quizData.quiz;
+      var html = '<div class="quiz-timer" id="quiz-timer">Time: <span id="quiz-time-display">' + (q.timeLimitMinutes ? q.timeLimitMinutes + ':00' : 'No limit') + '</span></div>';
+      html += '<h3>' + Shared.escapeHtml(q.title) + '</h3>';
+      html += '<p style="color:var(--on-surface-variant);font-size:0.875rem">Passing score: ' + (q.passingScore || 0) + '%</p>';
+      html += '<form id="quiz-form">';
+      q.questions.forEach(function(question, idx) {
+        html += '<div class="quiz-question" data-q="' + question.id + '">';
+        html += '<div class="prompt">' + (idx + 1) + '. ' + Shared.escapeHtml(question.prompt) + ' <span class="points">(' + question.points + ' pt' + (question.points > 1 ? 's' : '') + ')</span></div>';
+        html += '<div class="quiz-options">';
+        question.options.forEach(function(opt) {
+          html += '<label><input type="radio" name="q_' + question.id + '" value="' + opt.id + '"> ' + Shared.escapeHtml(opt.text) + '</label>';
+        });
+        html += '</div></div>';
+      });
+      html += '<button type="button" class="btn-primary" onclick="submitQuiz()">Submit Quiz</button>';
+      html += '</form>';
+      html += '<div id="quiz-result" style="display:none"></div>';
+      c.innerHTML = html;
+
+      if (q.timeLimitMinutes) {
+        startQuizTimer(q.timeLimitMinutes * 60);
+      }
+    }
+
+    var timerInterval = null;
+
+    function startQuizTimer(seconds) {
+      var display = document.getElementById('quiz-time-display');
+      timerInterval = setInterval(function() {
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        display.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        if (seconds <= 0) { clearInterval(timerInterval); submitQuiz(); }
+        seconds--;
+      }, 1000);
+    }
+
+    function submitQuiz() {
+      if (!quizData) return;
+      var form = document.getElementById('quiz-form');
+      var answers = {};
+      quizData.quiz.questions.forEach(function(q) {
+        var sel = form.querySelector('input[name="q_' + q.id + '"]:checked');
+        if (sel) answers[q.id] = sel.value;
+      });
+      api.post('/lessons/' + lessonId + '/quiz/submit', { attemptId: quizData.attemptId, answers: answers })
+        .then(function(res) {
+          if (res.error) { alert(res.error.message); return; }
+          if (timerInterval) clearInterval(timerInterval);
+          form.style.display = 'none';
+          var r = document.getElementById('quiz-result');
+          r.style.display = 'block';
+          r.className = 'quiz-result';
+          var passed = res.data.score >= (quizData.quiz.passingScore || 0);
+          r.innerHTML = '<div class="score">' + res.data.score + '%</div>' +
+            '<div class="' + (passed ? 'pass' : 'fail') + '">' + (passed ? 'Passed!' : 'Not passed') + '</div>' +
+            '<p style="margin-top:0.5rem;font-size:0.875rem">' + res.data.correct + ' of ' + res.data.total + ' correct</p>';
+        })
+        .catch(function() { alert('Failed to submit quiz'); });
+    }
+
+    function loadResources() {
+      api.get('/lessons/' + lessonId + '/resources')
+        .then(function(res) {
+          if (res.error) return;
+          var list = document.getElementById('resources-list');
+          if (!res.data || !res.data.length) { list.innerHTML = '<div class="empty-state"><div class="icon">📁</div><p>No resources</p></div>'; return; }
+          list.innerHTML = '<div class="resource-list">' + res.data.map(function(r) {
+            return '<a href="' + r.url + '" class="resource-item" target="_blank">' +
+              '<span class="icon">📎</span><span class="name">' + Shared.escapeHtml(r.name || r.filename || 'Resource') + '</span>' +
+              (r.fileSize ? '<span class="size">' + Shared.formatFileSize(r.fileSize) + '</span>' : '') + '</a>';
+          }).join('') + '</div>';
+        });
+    }
+
+    function loadNotes() {
+      api.get('/lessons/' + lessonId + '/notes')
+        .then(function(res) {
+          if (res.error) return;
+          var list = document.getElementById('notes-list');
+          if (!res.data || !res.data.length) { list.innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No notes yet</p></div>'; return; }
+          list.innerHTML = res.data.map(function(n) {
+            return '<div class="note-item"><button onclick="deleteNote(\'' + n.id + '\')">✕</button>' +
+              (n.timestampSeconds != null ? '<div class="meta">@ ' + formatTime(n.timestampSeconds) + '</div>' : '') +
+              '<p>' + Shared.escapeHtml(n.content) + '</p></div>';
+          }).join('');
+        });
+    }
+
+    function addNote() {
+      var input = document.getElementById('note-input');
+      var content = input.value.trim();
+      if (!content) return;
+      api.post('/lessons/' + lessonId + '/notes', { content: content })
+        .then(function(res) {
+          if (res.error) { alert(res.error.message); return; }
+          input.value = '';
+          loadNotes();
+        });
+    }
+
+    function deleteNote(noteId) {
+      api.delete('/lessons/' + lessonId + '/notes/' + noteId)
+        .then(function() { loadNotes(); });
+    }
+
+    function loadBookmarks() {
+      api.get('/lessons/' + lessonId + '/bookmarks')
+        .then(function(res) {
+          if (res.error) return;
+          var list = document.getElementById('bookmarks-list');
+          if (!res.data || !res.data.length) { list.innerHTML = '<div class="empty-state"><div class="icon">🔖</div><p>No bookmarks yet</p></div>'; return; }
+          list.innerHTML = res.data.map(function(b) {
+            return '<div class="bookmark-item"><button onclick="removeBookmark(\'' + b.id + '\')">✕</button>' +
+              '<div class="meta">@ ' + formatTime(b.timestampSeconds) + '</div>' +
+              (b.note ? '<p>' + Shared.escapeHtml(b.note) + '</p>' : '') + '</div>';
+          }).join('');
+        });
+    }
+
+    function addBookmark() {
+      api.post('/lessons/' + lessonId + '/bookmarks', { note: '' })
+        .then(function(res) {
+          if (res.error) { alert(res.error.message); return; }
+          loadBookmarks();
+        });
+    }
+
+    function removeBookmark(bookmarkId) {
+      api.delete('/lessons/' + lessonId + '/bookmarks/' + bookmarkId)
+        .then(function() { loadBookmarks(); });
+    }
+
+    function loadComments() {
+      api.get('/lessons/' + lessonId + '/comments')
+        .then(function(res) {
+          if (res.error) return;
+          var list = document.getElementById('comments-list');
+          if (!res.data || !res.data.length) { list.innerHTML = '<div class="empty-state"><div class="icon">💬</div><p>No comments yet</p></div>'; return; }
+          list.innerHTML = res.data.map(function(c) {
+            return '<div class="comment-item"><div class="author">' +
+              '<div class="avatar"></div><span class="name">' + Shared.escapeHtml(c.User ? c.User.name || c.User.email : 'User') + '</span>' +
+              '<span class="time">' + Shared.formatTime(c.createdAt) + '</span></div>' +
+              '<p>' + Shared.escapeHtml(c.content) + '</p></div>';
+          }).join('');
+        });
+    }
+
+    function addComment() {
+      var input = document.getElementById('comment-input');
+      var content = input.value.trim();
+      if (!content) return;
+      api.post('/lessons/' + lessonId + '/comments', { content: content })
+        .then(function(res) {
+          if (res.error) { alert(res.error.message); return; }
+          input.value = '';
+          loadComments();
+        });
+    }
+
+    function markComplete() {
+      api.post('/lessons/' + lessonId + '/complete', {})
+        .then(function(res) {
+          if (res.error) { alert(res.error.message); return; }
+          document.getElementById('progress-fill').style.width = '100%';
+          document.getElementById('mark-complete-btn').textContent = 'Completed ✓';
+          document.getElementById('mark-complete-btn').disabled = true;
+          document.getElementById('mark-complete-btn').className = 'btn-success';
+        });
+    }
+
+    function showTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-bar button').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      var btn = document.querySelector('.tab-bar button[onclick*="' + tab + '"]');
+      if (btn) btn.classList.add('active');
+      document.getElementById('panel-' + tab).classList.add('active');
+    }
+
+    function formatTime(seconds) {
+      if (seconds == null) return '';
+      var m = Math.floor(seconds / 60);
+      var s = Math.floor(seconds % 60);
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function showError(msg) {
+      document.getElementById('lesson-skeleton').style.display = 'none';
+      document.getElementById('lesson-content').innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>' + msg + '</p></div>';
+    }
+  </script>
+</body>
+</html>

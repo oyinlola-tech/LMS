@@ -4,7 +4,10 @@ import { User, GroupMember, DiscussionMessage, DiscussionGroup } from '../models
 import { logger } from '../core/loggers';
 import { broadcastNotification } from './wsHub.util';
 
-const { JWT_SECRET } = process.env;
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  throw new Error('[wsDiscussions] JWT_SECRET must be set to a string of at least 32 characters');
+}
 
 const groupClients = new Map();
 
@@ -47,12 +50,8 @@ const attachDiscussionWebSocket = (server) => {
 
   wss.on('connection', async (socket, req) => {
     try {
-      const url = new URL(req.url, 'http://localhost');
-      const token = url.searchParams.get('token') || (() => {
-        const auth = req.headers.authorization;
-        if (auth && auth.startsWith('Bearer ')) return auth.slice(7);
-        return null;
-      })();
+      const auth = req.headers.authorization;
+      const token = auth && auth.startsWith('Bearer ') ? auth.slice(7) : null;
 
       if (!token) {
         socket.close(1008, 'Unauthorized');

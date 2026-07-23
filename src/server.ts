@@ -4,7 +4,8 @@ import { logger } from './core/loggers';
 dotenv.config();
 
 process.on('unhandledRejection', (reason) => {
-  logger.error('[Process] Unhandled promise rejection', reason);
+  logger.error('[Process] Unhandled promise rejection — shutting down', reason);
+  process.exit(1);
 });
 process.on('uncaughtException', (err) => {
   logger.error('[Process] Uncaught exception — shutting down', err);

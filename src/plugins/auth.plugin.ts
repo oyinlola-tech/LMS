@@ -101,9 +101,9 @@ async function authPlugin(fastify: FastifyInstance): Promise<void> {
         reply.status(401).send({ error: { code: 'UNAUTHORIZED', message: 'Authentication required', details: null } });
         return;
       }
-      const userLevel = ROLE_HIERARCHY[request.user.role] ?? -1;
-      const requiredLevel = ROLE_HIERARCHY[minRole] ?? -1;
-      if (userLevel < requiredLevel) {
+      const userLevel = ROLE_HIERARCHY[request.user.role];
+      const requiredLevel = ROLE_HIERARCHY[minRole];
+      if (userLevel === undefined || requiredLevel === undefined || userLevel < requiredLevel) {
         reply.status(403).send({ error: { code: 'FORBIDDEN', message: 'Insufficient permissions', details: null } });
         return;
       }

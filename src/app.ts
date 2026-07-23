@@ -9,7 +9,6 @@ import fastifyRateLimit from '@fastify/rate-limit';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import fastifyFormbody from '@fastify/formbody';
-import fastifyCookie from '@fastify/cookie';
 import authPlugin from './plugins/auth.plugin';
 import swaggerPlugin from './plugins/swagger.plugin';
 import authRoutes from './routes/auth.route';
@@ -75,12 +74,28 @@ export async function buildApp() {
     bodyLimit: 1048576,
   });
 
+  const cspEnabled = String(process.env.CSP_ENABLED || 'false') === 'true';
   await app.register(fastifyHelmet, {
     crossOriginResourcePolicy: { policy: (process.env.CROSS_ORIGIN_RESOURCE_POLICY || 'cross-origin') as 'cross-origin' },
     referrerPolicy: { policy: 'no-referrer' },
     frameguard: { action: 'deny' },
     hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    contentSecurityPolicy: cspEnabled ? {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'https://images.unsplash.com'],
+        connectSrc: ["'self'"],
+        frameAncestors: ["'none'"],
+      },
+    } : false,
   });
+
+  if (corsCredentials && corsOrigins.includes('*')) {
+    throw new Error('CORS_ORIGIN cannot be * when CORS_ALLOW_CREDENTIALS is true');
+  }
 
   await app.register(fastifyCors, {
     origin: corsOrigins,
@@ -88,8 +103,8 @@ export async function buildApp() {
   });
 
   await app.register(fastifyFormbody);
-  await app.register(fastifyCookie);
-  await app.register(fastifyMultipart);
+  const uploadMaxBytes = (Number(process.env.UPLOAD_MAX_MB) || 10) * 1024 * 1024;
+  await app.register(fastifyMultipart, { limits: { fileSize: uploadMaxBytes, files: 1 } });
 
   await app.register(fastifyRateLimit, {
     max: rateLimitMax,
@@ -131,6 +146,7 @@ export async function buildApp() {
     ['/corporate-training', 'pages/corporate-training.html'],
     ['/about', 'pages/about.html'],
     ['/careers', 'pages/careers.html'],
+    ['/mentors', 'mentors/index.html'],
     ['/blog', 'blog/index.html'],
     ['/courses/recommendations', 'pages/course-recommendations.html'],
     ['/contact', 'pages/contact.html'],
@@ -175,12 +191,13 @@ export async function buildApp() {
   app.get('/profile/:id', async (request, reply) => {
     try {
       const id = (request.params as { id: string }).id;
-      if (!UUID_REGEX.test(id)) return reply.sendFile('pages/profile.html');
+      if (!UUID_REGEX.test(id)) return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Profile not found', details: null } });
       const { User } = await import('./models');
       const user = await User.findByPk(id, { attributes: ['role'] });
-      return reply.sendFile(profilePageMap[user?.role || 'learner'] || 'pages/profile.html');
+      if (!user) return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'User not found', details: null } });
+      return reply.sendFile(profilePageMap[user.role] || 'pages/profile.html');
     } catch {
-      return reply.sendFile('pages/profile.html');
+      return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Profile not found', details: null } });
     }
   });
 

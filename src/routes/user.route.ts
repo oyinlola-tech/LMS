@@ -55,7 +55,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     try {
       const { id } = request.params as { id: string };
       const user = await User.findByPk(id, {
-        attributes: ['id', 'fullName', 'email', 'role', 'bio', 'avatarUrl', 'location', 'skills'],
+        attributes: ['id', 'fullName', 'role', 'bio', 'avatarUrl', 'location', 'skills'],
         include: [
           { model: TutorProfile, attributes: ['headline'] },
           { model: LearnerStats, attributes: ['coursesActive', 'coursesCompleted', 'hoursSpent', 'weeklyGoalHours', 'weeklyGoalProgressHours'] },

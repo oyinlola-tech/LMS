@@ -19,6 +19,7 @@ import { gradeSubmissionCommand } from '../services/assignment/commands/gradeSub
 import { Assignment } from '../models/Assignment.model';
 import { AssignmentRequirement } from '../models/AssignmentRequirement.model';
 import { AppError } from '../errors';
+import { UserRole } from '../enums';
 import {
   validateSubmitInput,
   validateGradeInput,
@@ -248,7 +249,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.post('/:id/grade', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/:id/grade', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.TUTOR)], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request: FastifyRequest, reply: FastifyReply) => {
     const body = (request.body || {}) as GradeSubmissionBody;
     const validation = validateGradeInput(body as Record<string, any>);
     if (!validation.valid) {

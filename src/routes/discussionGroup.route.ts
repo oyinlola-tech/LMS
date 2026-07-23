@@ -51,6 +51,7 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         ],
       });
       if (!group) return error(reply, 404, 'NOT_FOUND', 'Group not found');
+      if (!group.isPublic) return error(reply, 403, 'FORBIDDEN', 'This group is private');
       return ok(reply, group, 'Group loaded');
     } catch (err) {
       request.log.error(err, 'GROUP_GET_FAILED');
@@ -158,9 +159,15 @@ export default async function (fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.get('/:id/members', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/:id/members', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { id } = request.params as { id: string };
+      const group = await DiscussionGroup.findByPk(id, { attributes: ['isPublic'] });
+      if (!group) return error(reply, 404, 'NOT_FOUND', 'Group not found');
+      if (!group.isPublic) {
+        const membership = await GroupMember.findOne({ where: { groupId: id, userId: request.user!.sub } });
+        if (!membership) return error(reply, 403, 'FORBIDDEN', 'Private group');
+      }
       const members = await GroupMember.findAll({
         where: { groupId: id },
         include: [{ model: User, as: 'member', attributes: ['id', 'fullName', 'avatarUrl'] }],
@@ -196,9 +203,15 @@ export default async function (fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.get('/:id/subscribers', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/:id/subscribers', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { id } = request.params as { id: string };
+      const group = await DiscussionGroup.findByPk(id, { attributes: ['isPublic'] });
+      if (!group) return error(reply, 404, 'NOT_FOUND', 'Group not found');
+      if (!group.isPublic) {
+        const membership = await GroupMember.findOne({ where: { groupId: id, userId: request.user!.sub } });
+        if (!membership) return error(reply, 403, 'FORBIDDEN', 'Private group');
+      }
       const subs = await ThreadSubscription.findAll({
         where: { groupId: id },
         include: [{ model: User, attributes: ['id', 'fullName', 'avatarUrl'] }],

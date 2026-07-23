@@ -49,19 +49,26 @@ function log(level: LogLevel, message: string, meta?: unknown): void {
   writeLog(level, formatted);
 }
 
+const SENSITIVE_PATTERNS = /\b(password|secret|token|authorization|api[_-]?key|private_key|jwt|credential|refresh_token|access_token)\b[:\s]*['"]?[^\s'"]+/gi;
+
+function redactMessage(msg: string): string {
+  return msg.replace(SENSITIVE_PATTERNS, '$1=[REDACTED]');
+}
+
 function writeLog(level: LogLevel, message: string): void {
+  const safe = redactMessage(message);
   switch (level) {
     case LogLevel.ERROR:
-      console.error(message);
+      console.error(safe);
       break;
     case LogLevel.WARN:
-      console.warn(message);
+      console.warn(safe);
       break;
     case LogLevel.INFO:
-      console.info(message);
+      console.info(safe);
       break;
     case LogLevel.DEBUG:
-      console.debug(message);
+      console.debug(safe);
       break;
   }
 }

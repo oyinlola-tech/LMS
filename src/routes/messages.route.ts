@@ -78,7 +78,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.post('/upload', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/upload', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const data = await request.file();
       if (!data) return error(reply, 400, 'VALIDATION_ERROR', 'file is required');
@@ -130,7 +130,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     }
   });
 
-  fastify.post('/threads/:threadId/messages', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.post('/threads/:threadId/messages', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const { body, attachmentUrl, attachmentType, attachmentName } = (request.body as Record<string, any>) || {};
       const message = await replyToThreadCommand.execute(request.user!.sub, (request.params as any).threadId, body, { url: attachmentUrl, type: attachmentType, name: attachmentName });

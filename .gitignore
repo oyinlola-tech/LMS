@@ -18,5 +18,5 @@ uploads
 *.log
 .kilo
 dist
-src/credentials/firebase.json
+src/credentials/
 src/generated/prisma

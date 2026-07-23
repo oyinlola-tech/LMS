@@ -6,12 +6,20 @@ import { UserRole } from '../enums';
 import { applyMentorshipCommand } from '../services/mentorship/commands/applyMentorship.command';
 import { getMentorshipApplicationQuery } from '../services/mentorship/queries/getMentorshipApplication.query';
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/apply', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       if (request.user!.role !== UserRole.LEARNER) return error(reply, 403, 'FORBIDDEN', 'Only learners can apply');
       const { courseId, message } = (request.body as Record<string, any>) || {};
-      const application = await applyMentorshipCommand.execute(request.user!.sub, courseId, message);
+      if (!courseId || typeof courseId !== 'string' || !UUID_REGEX.test(courseId)) {
+        return error(reply, 400, 'VALIDATION_ERROR', 'courseId must be a valid UUID');
+      }
+      if (message && (typeof message !== 'string' || message.length > 2000)) {
+        return error(reply, 400, 'VALIDATION_ERROR', 'message must be a string with at most 2000 characters');
+      }
+      const application = await applyMentorshipCommand.execute(request.user!.sub, courseId, message || '');
       return created(reply, application, 'Mentorship application submitted');
     } catch (err: any) {
       return error(reply, err.statusCode || 500, err.code || 'MENTORSHIP_APPLY_FAILED', err.message || 'Failed to submit application');

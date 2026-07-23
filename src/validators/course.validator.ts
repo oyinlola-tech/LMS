@@ -5,6 +5,9 @@ export interface ValidationResult {
 
 export function validateEnroll(body: Record<string, unknown>): ValidationResult {
   const errors: string[] = [];
+  if (!body.courseId || typeof body.courseId !== 'string' || !(body.courseId as string).trim()) {
+    errors.push('courseId is required');
+  }
   return { valid: errors.length === 0, errors };
 }
 

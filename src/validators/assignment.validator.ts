@@ -32,5 +32,17 @@ export function validateGradeInput(body: Record<string, unknown>): ValidationRes
 
 export function validateUpdateSubmissionInput(body: Record<string, unknown>): ValidationResult {
   const errors: string[] = [];
+  if (body.submissionNotes !== undefined && (typeof body.submissionNotes !== 'string' || (body.submissionNotes as string).length > 2000)) {
+    errors.push('submissionNotes must be a string with at most 2000 characters');
+  }
+  if (body.fileUrl !== undefined && (typeof body.fileUrl !== 'string' || !(body.fileUrl as string).trim())) {
+    errors.push('fileUrl must be a non-empty string');
+  }
+  if (body.fileType !== undefined && (typeof body.fileType !== 'string' || !(body.fileType as string).trim())) {
+    errors.push('fileType must be a non-empty string');
+  }
+  if (body.fileSizeMb !== undefined && (typeof body.fileSizeMb !== 'number' || (body.fileSizeMb as number) < 0 || (body.fileSizeMb as number) > 100)) {
+    errors.push('fileSizeMb must be a number between 0 and 100');
+  }
   return { valid: errors.length === 0, errors };
 }

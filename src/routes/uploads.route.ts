@@ -6,6 +6,7 @@ import { ok, error } from '../utils/response.util';
 
 const publicBaseUrl = process.env.PUBLIC_BASE_URL;
 const uploadDir = process.env.UPLOAD_DIR || 'uploads';
+const uploadMaxMb = Number(process.env.UPLOAD_MAX_MB) || 5;
 
 export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/avatar', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -21,6 +22,18 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         return error(reply, 400, 'VALIDATION_ERROR', 'Only image files are allowed');
       }
 
+      const maxBytes = uploadMaxMb * 1024 * 1024;
+      let fileSize = 0;
+      const checkStream = require('stream').PassThrough();
+      stream.on('data', (chunk: Buffer) => {
+        fileSize += chunk.length;
+        if (fileSize > maxBytes) {
+          stream.destroy();
+          checkStream.destroy();
+        }
+      });
+      stream.pipe(checkStream);
+
       const uploadPath = path.resolve(uploadDir, 'avatars');
       fs.mkdirSync(uploadPath, { recursive: true });
 
@@ -31,11 +44,17 @@ export default async function(fastify: FastifyInstance): Promise<void> {
 
       const writeStream = fs.createWriteStream(filePath);
       await new Promise<void>((resolve, reject) => {
-        stream.pipe(writeStream);
-        stream.on('end', resolve);
-        stream.on('error', reject);
+        checkStream.pipe(writeStream);
+        checkStream.on('end', resolve);
+        checkStream.on('error', reject);
         writeStream.on('error', reject);
       });
+
+      const stats = fs.statSync(filePath);
+      if (stats.size > maxBytes) {
+        fs.unlinkSync(filePath);
+        return error(reply, 400, 'VALIDATION_ERROR', 'File size exceeds limit');
+      }
 
       const avatarUrl = publicBaseUrl
         ? `${publicBaseUrl}/uploads/avatars/${filename}`

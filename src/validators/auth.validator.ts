@@ -22,7 +22,8 @@ export const isStrongPassword = (pw: string): boolean => {
   return (
     typeof pw === 'string' &&
     pw.length >= PASSWORD_MIN_LENGTH &&
-    /[A-Za-z]/.test(pw) &&
+    /[A-Z]/.test(pw) &&
+    /[a-z]/.test(pw) &&
     /[0-9]/.test(pw)
   );
 };

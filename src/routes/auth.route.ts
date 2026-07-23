@@ -57,7 +57,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       return error(reply, 400, validation.errorCode!, validation.errorMessage!);
     }
     try {
-      const ip = (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || request.ip || '';
+      const ip = request.ip || '';
       const result = await loginCommand.execute({
         identifier: body.identifier,
         password: body.password,
@@ -90,7 +90,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       return error(reply, 400, validation.errorCode!, validation.errorMessage!);
     }
     try {
-      const ip = (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || request.ip || '';
+      const ip = request.ip || '';
       const result = await verifyOtpCommand.execute({
         identifier: body.identifier,
         code: body.code,

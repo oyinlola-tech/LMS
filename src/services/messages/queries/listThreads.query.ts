@@ -19,7 +19,7 @@ export class ListThreadsQuery {
           const date = new Date(iso);
           if (!Number.isNaN(date.getTime())) decodedCursor = { date, id };
         }
-      } catch (_) {}
+      } catch { /* invalid cursor, ignore */ }
     }
 
     const where: any = { [Op.or]: [{ userAId: userId }, { userBId: userId }] };

@@ -88,6 +88,53 @@ export function validateParams(rules: ValidationRule[]) {
         });
         return;
       }
+      if (value === undefined || value === null) continue;
+      if (rule.type === 'array' && !Array.isArray(value)) {
+        reply.status(400).send({
+          error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be an array`, details: null },
+        });
+        return;
+      }
+      if (rule.type !== 'array' && typeof value !== rule.type) {
+        reply.status(400).send({
+          error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be of type ${rule.type}`, details: null },
+        });
+        return;
+      }
+      if (rule.type === 'string' && typeof value === 'string') {
+        if (rule.min !== undefined && value.length < rule.min) {
+          reply.status(400).send({
+            error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be at least ${rule.min} characters`, details: null },
+          });
+          return;
+        }
+        if (rule.max !== undefined && value.length > rule.max) {
+          reply.status(400).send({
+            error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be at most ${rule.max} characters`, details: null },
+          });
+          return;
+        }
+        if (rule.pattern && !rule.pattern.test(value)) {
+          reply.status(400).send({
+            error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} format is invalid`, details: null },
+          });
+          return;
+        }
+      }
+      if (rule.type === 'number' && typeof value === 'number') {
+        if (rule.min !== undefined && value < rule.min) {
+          reply.status(400).send({
+            error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be at least ${rule.min}`, details: null },
+          });
+          return;
+        }
+        if (rule.max !== undefined && value > rule.max) {
+          reply.status(400).send({
+            error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be at most ${rule.max}`, details: null },
+          });
+          return;
+        }
+      }
     }
   };
 }
@@ -102,6 +149,53 @@ export function validateQuery(rules: ValidationRule[]) {
           error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} is required`, details: null },
         });
         return;
+      }
+      if (value === undefined || value === null) continue;
+      if (rule.type === 'array' && !Array.isArray(value)) {
+        reply.status(400).send({
+          error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be an array`, details: null },
+        });
+        return;
+      }
+      if (rule.type !== 'array' && typeof value !== rule.type) {
+        reply.status(400).send({
+          error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be of type ${rule.type}`, details: null },
+        });
+        return;
+      }
+      if (rule.type === 'string' && typeof value === 'string') {
+        if (rule.min !== undefined && value.length < rule.min) {
+          reply.status(400).send({
+            error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be at least ${rule.min} characters`, details: null },
+          });
+          return;
+        }
+        if (rule.max !== undefined && value.length > rule.max) {
+          reply.status(400).send({
+            error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be at most ${rule.max} characters`, details: null },
+          });
+          return;
+        }
+        if (rule.pattern && !rule.pattern.test(value)) {
+          reply.status(400).send({
+            error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} format is invalid`, details: null },
+          });
+          return;
+        }
+      }
+      if (rule.type === 'number' && typeof value === 'number') {
+        if (rule.min !== undefined && value < rule.min) {
+          reply.status(400).send({
+            error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be at least ${rule.min}`, details: null },
+          });
+          return;
+        }
+        if (rule.max !== undefined && value > rule.max) {
+          reply.status(400).send({
+            error: { code: 'VALIDATION_ERROR', message: rule.message || `${rule.field} must be at most ${rule.max}`, details: null },
+          });
+          return;
+        }
       }
     }
   };

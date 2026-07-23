@@ -21,7 +21,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         : 0;
 
       return ok(reply, { count: unread }, 'Unread count');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'UNREAD_FAILED');
       return error(reply, 500, 'UNREAD_FAILED', 'Failed to get unread count');
     }
   });
@@ -35,7 +36,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         { where: { MessageThreadId: threadId, senderId: { [Op.ne]: userId }, readAt: null } }
       );
       return ok(reply, null, 'Marked as read');
-    } catch {
+    } catch (err) {
+      request.log.error(err, 'READ_FAILED');
       return error(reply, 500, 'READ_FAILED', 'Failed to mark as read');
     }
   });

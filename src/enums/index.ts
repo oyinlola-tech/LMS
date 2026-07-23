@@ -8,3 +8,4 @@ export { AuditLogStatus, QuizAttemptStatus, OtpPurpose, SkillLevel, WsMessageTyp
 export { ErrorCode, ErrorCategory } from './error.enum';
 export { EmailTemplate } from './email.enum';
 export { PaymentStatus, PaymentProvider } from './payment.enum';
+export { ReportStatus } from './report.enum';

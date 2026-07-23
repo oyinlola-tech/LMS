@@ -4,7 +4,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import { Op } from 'sequelize';
 import { ok, created, error } from '../utils/response.util';
-import { Message, MessageThread, User } from '../models';
+import { Message, MessageThread, User, UserBlock, Report } from '../models';
 import { listThreadsQuery } from '../services/messages/queries/listThreads.query';
 import { getThreadMessagesQuery } from '../services/messages/queries/getThreadMessages.query';
 import { sendMessageCommand } from '../services/messages/commands/createMessage.command';
@@ -137,6 +137,82 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       return created(reply, message, 'Message sent');
     } catch (err: any) {
       return error(reply, err.statusCode || 500, err.code || 'MESSAGE_SEND_FAILED', err.message || 'Failed to send message');
+    }
+  });
+
+  fastify.post('/block/:userId', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const blockedId = (request.params as any).userId;
+      if (blockedId === request.user!.sub) return error(reply, 400, 'VALIDATION_ERROR', 'Cannot block yourself');
+      await UserBlock.findOrCreate({ where: { blockerId: request.user!.sub, blockedId } });
+      return created(reply, null, 'User blocked');
+    } catch (err: any) {
+      return error(reply, 500, 'BLOCK_FAILED', 'Failed to block user');
+    }
+  });
+
+  fastify.delete('/block/:userId', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await UserBlock.destroy({ where: { blockerId: request.user!.sub, blockedId: (request.params as any).userId } });
+      return ok(reply, null, 'User unblocked');
+    } catch (err: any) {
+      return error(reply, 500, 'UNBLOCK_FAILED', 'Failed to unblock user');
+    }
+  });
+
+  fastify.get('/blocked', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const blocks = await UserBlock.findAll({
+        where: { blockerId: request.user!.sub },
+        include: [{ model: User, as: 'blocked', attributes: ['id', 'fullName', 'avatarUrl', 'email'] }],
+      });
+      return ok(reply, blocks, 'Blocked users loaded');
+    } catch (err: any) {
+      return error(reply, 500, 'BLOCKED_LOAD_FAILED', 'Failed to load blocked users');
+    }
+  });
+
+  fastify.get('/blocked/:userId', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const block = await UserBlock.findOne({ where: { blockerId: request.user!.sub, blockedId: (request.params as any).userId } });
+      return ok(reply, { blocked: !!block }, 'Block status');
+    } catch (err: any) {
+      return error(reply, 500, 'BLOCK_STATUS_FAILED', 'Failed to check block status');
+    }
+  });
+
+  fastify.post('/report/:userId', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const reportedId = (request.params as any).userId;
+      const { reason } = (request.body as Record<string, any>) || {};
+      if (!reason) return error(reply, 400, 'VALIDATION_ERROR', 'Reason is required');
+      if (reportedId === request.user!.sub) return error(reply, 400, 'VALIDATION_ERROR', 'Cannot report yourself');
+
+      const threads = await MessageThread.findAll({
+        where: { [Op.or]: [{ userAId: request.user!.sub, userBId: reportedId }, { userAId: reportedId, userBId: request.user!.sub }] },
+        attributes: ['id'],
+      });
+      const threadIds = threads.map(t => t.id);
+      let lastMessages: any[] = [];
+      if (threadIds.length) {
+        lastMessages = await Message.findAll({
+          where: { MessageThreadId: { [Op.in]: threadIds }, senderId: request.user!.sub },
+          order: [['createdAt', 'DESC']],
+          limit: 10,
+          attributes: ['body', 'createdAt'],
+        });
+      }
+
+      const report = await Report.create({
+        reporterId: request.user!.sub,
+        reportedId,
+        reason,
+        lastMessages: lastMessages.map(m => ({ body: m.body, createdAt: m.createdAt })),
+        status: 'open',
+      });
+      return created(reply, report, 'User reported');
+    } catch (err: any) {
+      return error(reply, 500, 'REPORT_FAILED', 'Failed to report user');
     }
   });
 }

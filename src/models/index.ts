@@ -65,6 +65,10 @@ import { BlogPost } from './BlogPost.model';
 import { BlogComment } from './BlogComment.model';
 import { Career } from './Career.model';
 import { Payment } from './Payment.model';
+import { UserBlock } from './UserBlock.model';
+import { Report } from './Report.model';
+import { UserWarning } from './UserWarning.model';
+import { WishlistItem } from './Wishlist.model';
 
 
 userAssociate({ MessageThread, Message });
@@ -137,4 +141,8 @@ export {
   PlatformSetting,
   PayoutRequest,
   Payment,
+  UserBlock,
+  Report,
+  UserWarning,
+  WishlistItem,
 };

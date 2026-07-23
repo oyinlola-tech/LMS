@@ -64,6 +64,7 @@ import { PayoutRequest } from './PayoutRequest.model';
 import { BlogPost } from './BlogPost.model';
 import { BlogComment } from './BlogComment.model';
 import { Career } from './Career.model';
+import { Payment } from './Payment.model';
 
 
 userAssociate({ MessageThread, Message });
@@ -135,4 +136,5 @@ export {
   Career,
   PlatformSetting,
   PayoutRequest,
+  Payment,
 };

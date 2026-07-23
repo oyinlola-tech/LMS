@@ -38,6 +38,7 @@ import messageRoutes from './routes/messages.route';
 import supportRoutes from './routes/support.route';
 import mentorshipRoutes from './routes/mentorship.route';
 import billingRoutes from './routes/billing.route';
+import paymentRoutes from './routes/payment.route';
 import instructorRoutes from './routes/instructor.route';
 import instructorsPublicRoutes from './routes/instructors.route';
 import gradebookRoutes from './routes/gradebook.route';
@@ -198,6 +199,9 @@ export async function buildApp() {
   app.get('/tutor/profile', async (_req, reply) => reply.sendFile('tutors/profile.html'));
   app.get('/lessons/:id', async (_req, reply) => reply.sendFile('lessons/viewer.html'));
   app.get('/tutor/courses/builder/:id', async (_req, reply) => reply.sendFile('tutors/courses/builder.html'));
+  app.get('/checkout', async (_req, reply) => reply.sendFile('checkout.html'));
+  app.get('/checkout/success', async (_req, reply) => reply.sendFile('checkout-success.html'));
+  app.get('/checkout/cancel', async (_req, reply) => reply.sendFile('checkout-cancel.html'));
 
   app.get('/assignments/:id/student', async (_req, reply) => reply.sendFile('students/assignment.html'));
   app.get('/tutor/assignments', async (_req, reply) => reply.sendFile('tutors/assignments/index.html'));
@@ -262,6 +266,7 @@ export async function buildApp() {
   await app.register(supportRoutes, { prefix: '/support' });
   await app.register(mentorshipRoutes, { prefix: '/mentorship' });
   await app.register(billingRoutes, { prefix: '/billing' });
+  await app.register(paymentRoutes, { prefix: '/payments' });
   await app.register(instructorRoutes, { prefix: '/instructor' });
   await app.register(instructorsPublicRoutes, { prefix: '/instructors' });
   await app.register(gradebookRoutes, { prefix: '/gradebook' });

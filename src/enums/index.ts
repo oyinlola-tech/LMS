@@ -7,3 +7,4 @@ export { NotificationType } from './notification.enum';
 export { AuditLogStatus, QuizAttemptStatus, OtpPurpose, SkillLevel, WsMessageType, TimeUnit } from './system.enum';
 export { ErrorCode, ErrorCategory } from './error.enum';
 export { EmailTemplate } from './email.enum';
+export { PaymentStatus, PaymentProvider } from './payment.enum';

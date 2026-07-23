@@ -18,7 +18,7 @@ export function error(
   details?: unknown,
 ): void {
   if (!reply) return;
-  reply.status(status).send({
-    error: { code, message, details },
-  });
+  const body: Record<string, any> = { error: { code, message } };
+  if (details != null) body.error.details = details;
+  reply.status(status).send(body);
 }

@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import { DiscussionGroup, GroupMember, DiscussionMessage, ThreadSubscription, User } from '../models';
 import { UserRole } from '../enums';
 import { ok, created, error } from '../utils/response.util';
+import { sanitizeHtml, sanitizeRichText } from '../utils/sanitize.util';
 
 export default async function (fastify: FastifyInstance): Promise<void> {
   fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
@@ -66,8 +67,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
         return error(reply, 400, 'VALIDATION_ERROR', 'Group name is required');
       }
       const group = await DiscussionGroup.create({
-        name: body.name.trim(),
-        description: body.description || null,
+        name: sanitizeHtml(body.name.trim()),
+        description: body.description ? sanitizeRichText(body.description) : null,
         createdById: request.user!.sub,
         courseId: body.courseId || null,
         isPublic: body.isPublic !== undefined ? body.isPublic : true,
@@ -87,8 +88,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       if (!membership) return error(reply, 403, 'FORBIDDEN', 'Only admins can edit this group');
       const body = (request.body || {}) as any;
       const updates: any = {};
-      if (body.name !== undefined) updates.name = body.name;
-      if (body.description !== undefined) updates.description = body.description;
+      if (body.name !== undefined) updates.name = sanitizeHtml(body.name);
+      if (body.description !== undefined) updates.description = sanitizeRichText(body.description);
       if (body.isPublic !== undefined) updates.isPublic = body.isPublic;
       await DiscussionGroup.update(updates, { where: { id } });
       const group = await DiscussionGroup.findByPk(id);

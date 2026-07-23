@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { ok, created, error } from '../utils/response.util';
+import { sanitizeHtml } from '../utils/sanitize.util';
 
 export default async function (fastify: FastifyInstance): Promise<void> {
   fastify.post('/', { config: { rateLimit: { max: 3, timeWindow: '1 minute' } } }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -9,10 +10,12 @@ export default async function (fastify: FastifyInstance): Promise<void> {
     }
     try {
       const { sendEmail } = await import('../services/mail');
+      const safeName = sanitizeHtml(body.name);
+      const safeMessage = sanitizeHtml(body.message);
       await sendEmail({
         to: process.env.CONTACT_EMAIL || 'hello@learnbridge.com',
-        subject: 'New Contact Form Message from ' + body.name,
-        html: '<p><strong>Name:</strong> ' + body.name + '</p><p><strong>Email:</strong> ' + body.email + '</p><p><strong>Message:</strong></p><p>' + body.message + '</p>',
+        subject: 'New Contact Form Message from ' + safeName,
+        html: '<p><strong>Name:</strong> ' + safeName + '</p><p><strong>Email:</strong> ' + sanitizeHtml(body.email) + '</p><p><strong>Message:</strong></p><p>' + safeMessage + '</p>',
         text: 'Name: ' + body.name + '\nEmail: ' + body.email + '\nMessage:\n' + body.message,
       });
       return created(reply, null, 'Message sent. We will get back to you soon.');

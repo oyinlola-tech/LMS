@@ -203,8 +203,10 @@ export default async function(fastify: FastifyInstance): Promise<void> {
     return reply.status(503).send({ error: 'OAUTH_UNAVAILABLE', message: 'OAuth is handled by the frontend' });
   });
 
-  fastify.post('/logout', async (_request: FastifyRequest, reply: FastifyReply) => {
-    await logoutCommand.execute();
+  fastify.post('/logout', async (request: FastifyRequest, reply: FastifyReply) => {
+    const authHeader = request.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
+    await logoutCommand.execute(token);
     return ok(reply, null, 'Logged out');
   });
 }

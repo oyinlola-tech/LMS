@@ -2,6 +2,7 @@ import { courseRepository } from '../../../repositories/course.repository';
 import { enrollmentRepository } from '../../../repositories/enrollment.repository';
 import { courseCommentRepository } from '../../../repositories/courseComment.repository';
 import { UserRole } from '../../../enums';
+import { sanitizeRichText } from '../../../utils/sanitize.util';
 
 export interface CreateCourseCommentInput {
   courseId: string;
@@ -52,7 +53,7 @@ export class CreateCourseCommentCommand {
     return courseCommentRepository.create({
       CourseId: courseId,
       UserId: userId,
-      content,
+      content: sanitizeRichText(content),
       parentId: parentId || null,
     });
   }

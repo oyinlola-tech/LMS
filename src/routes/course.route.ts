@@ -26,6 +26,7 @@ import {
   validateCourseEvent,
   validateCourseComment,
 } from '../validators/course.validator';
+import { sanitizeRichText } from '../utils/sanitize.util';
 import type { IdParams, ListCoursesQuery, CreateAnnouncementBody, CreateEventBody, CreateCommentBody } from '../types';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
@@ -144,7 +145,7 @@ export default async function(fastify: FastifyInstance): Promise<void> {
         CourseId: id,
         UserId: request.user!.sub,
         rating: body.rating,
-        comment: body.comment || null,
+        comment: body.comment ? sanitizeRichText(body.comment) : null,
         consentToFeature: body.consentToFeature || false,
       });
       return created(reply, result, 'Review submitted');

@@ -1,4 +1,5 @@
 import { DiscussionThread, Course } from '../../../models';
+import { sanitizeHtml, sanitizeRichText } from '../../../utils/sanitize.util';
 
 export class CreateThreadCommand {
   async execute(userId: string, body: { title: string; body: string; courseId?: string }): Promise<DiscussionThread> {
@@ -15,8 +16,8 @@ export class CreateThreadCommand {
       }
     }
     return DiscussionThread.create({
-      title: String(title).trim(),
-      body: String(threadBody).trim(),
+      title: sanitizeHtml(String(title).trim()),
+      body: sanitizeRichText(String(threadBody).trim()),
       CourseId: courseId || null,
       UserId: userId,
     });

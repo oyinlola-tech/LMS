@@ -28,6 +28,9 @@ export default async function(fastify: FastifyInstance): Promise<void> {
       if (studentId) {
         where.studentId = studentId;
       } else if (q) {
+        if (String(q).length > 100) {
+          return error(reply, 400, 'VALIDATION_ERROR', 'Search query too long');
+        }
         const escaped = String(q).replace(/[\\%_]/g, '\\$&');
         where[Op.or as any] = [
           { fullName: { [Op.like]: `%${escaped}%` } },

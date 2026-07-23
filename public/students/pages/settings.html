@@ -53,7 +53,12 @@
         </div>
         <div class="form-row">
           <div class="form-group"><label>Full Name</label><input type="text" id="full-name" placeholder="Your name"/></div>
-          <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="you@example.com" disabled style="opacity:0.6"/></div>
+          <div class="form-group"><label>Email</label>
+            <div style="display:flex;gap:0.5rem;align-items:center">
+              <input type="email" id="email" placeholder="you@example.com" disabled style="opacity:0.6;flex:1"/>
+              <button class="btn-secondary" onclick="enableEmailEdit()" id="edit-email-btn" style="font-size:0.75rem;padding:0.5rem 0.75rem;white-space:nowrap">Change</button>
+            </div>
+          </div>
         </div>
         <button class="btn-primary" onclick="saveProfile()" style="padding:0.625rem 1.25rem;font-size:0.8125rem">Save Changes</button>
       </div>
@@ -108,6 +113,29 @@
         var name = $('full-name').value.trim();
         if (!name) return;
         api.put('/user/profile', {fullName: name}).then(function() { alert('Profile updated'); }).catch(function(e) { console.error(e); });
+      };
+      window.enableEmailEdit = function() {
+        var emailInput = $('email');
+        emailInput.disabled = false;
+        emailInput.style.opacity = '1';
+        emailInput.focus();
+        document.getElementById('edit-email-btn').style.display = 'none';
+        var saveBtn = document.createElement('button');
+        saveBtn.className = 'btn-primary';
+        saveBtn.textContent = 'Save Email';
+        saveBtn.style.cssText = 'font-size:0.75rem;padding:0.5rem 0.75rem;white-space:nowrap';
+        saveBtn.onclick = function() {
+          var newEmail = emailInput.value.trim();
+          if (!newEmail) { alert('Email is required'); return; }
+          api.put('/user/me/email', {email: newEmail}).then(function(r) {
+            alert('Email updated. Verification required.');
+            emailInput.disabled = true;
+            emailInput.style.opacity = '0.6';
+            saveBtn.remove();
+            document.getElementById('edit-email-btn').style.display = '';
+          }).catch(function(e) { console.error(e); });
+        };
+        emailInput.parentNode.appendChild(saveBtn);
       };
       window.changePassword = function() {
         var current = $('current-pw').value;

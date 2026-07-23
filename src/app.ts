@@ -191,13 +191,13 @@ export async function buildApp() {
   app.get('/profile/:id', async (request, reply) => {
     try {
       const id = (request.params as { id: string }).id;
-      if (!UUID_REGEX.test(id)) return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Profile not found', details: null } });
+      if (!UUID_REGEX.test(id)) return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Profile not found' } });
       const { User } = await import('./models');
       const user = await User.findByPk(id, { attributes: ['role'] });
-      if (!user) return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'User not found', details: null } });
+      if (!user) return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'User not found' } });
       return reply.sendFile(profilePageMap[user.role] || 'pages/profile.html');
     } catch {
-      return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Profile not found', details: null } });
+      return reply.code(404).send({ error: { code: 'NOT_FOUND', message: 'Profile not found' } });
     }
   });
 
@@ -266,7 +266,7 @@ export async function buildApp() {
   });
 
   app.setNotFoundHandler((_req, reply) => {
-    reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Route not found', details: null } });
+    reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Route not found' } });
   });
 
   app.setErrorHandler((err, _req, reply) => {
@@ -279,7 +279,6 @@ export async function buildApp() {
       error: {
         code: err instanceof AppError ? err.code : 'INTERNAL_ERROR',
         message: 'An unexpected error occurred',
-        details: null,
       },
     });
   });

@@ -1,4 +1,5 @@
 import { DiscussionThread, DiscussionReply } from '../../../models';
+import { sanitizeRichText } from '../../../utils/sanitize.util';
 
 export class CreateReplyCommand {
   async execute(userId: string, threadId: string, body: string): Promise<DiscussionReply> {
@@ -14,7 +15,7 @@ export class CreateReplyCommand {
     return DiscussionReply.create({
       DiscussionThreadId: thread.id,
       UserId: userId,
-      body: String(body).trim(),
+      body: sanitizeRichText(String(body).trim()),
     });
   }
 }

@@ -27,7 +27,7 @@
     "@prisma/client": "^7.9.0",
     "@sendbyte/node": "^0.2.1",
     "argon2": "^0.45.1",
-    "bullmq": "^5.80.10",
+    "bullmq": "^5.80.11",
     "dotenv": "^17.4.2",
     "fastify": "^5.10.0",
     "fastify-plugin": "^6.0.0",

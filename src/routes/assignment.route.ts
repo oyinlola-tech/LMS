@@ -42,14 +42,12 @@ const mimeByExtension: Record<string, string[]> = {
 
 const handleFileUpload = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
   if (!uploadDir) {
-    error(reply, 500, 'CONFIG_ERROR', 'UPLOAD_DIR not configured');
-    return;
+    return error(reply, 500, 'CONFIG_ERROR', 'UPLOAD_DIR not configured');
   }
 
   const data = await request.file();
   if (!data) {
-    error(reply, 400, 'VALIDATION_ERROR', 'file is required');
-    return;
+    return error(reply, 400, 'VALIDATION_ERROR', 'file is required');
   }
 
   const { file: stream, filename: originalname, mimetype, fields } = data;
@@ -57,14 +55,12 @@ const handleFileUpload = async (request: FastifyRequest, reply: FastifyReply): P
   if (uploadMaxMb) {
     const maxBytes = uploadMaxMb * 1024 * 1024;
     if (stream.truncated) {
-      error(reply, 400, 'VALIDATION_ERROR', 'File size exceeds limit');
-      return;
+      return error(reply, 400, 'VALIDATION_ERROR', 'File size exceeds limit');
     }
   }
 
   if (uploadAllowedMime.length > 0 && !uploadAllowedMime.includes(mimetype)) {
-    error(reply, 400, 'VALIDATION_ERROR', 'File MIME type not allowed');
-    return;
+    return error(reply, 400, 'VALIDATION_ERROR', 'File MIME type not allowed');
   }
 
   const assignmentId = (request.params as Record<string, string>).id;
@@ -72,8 +68,7 @@ const handleFileUpload = async (request: FastifyRequest, reply: FastifyReply): P
     include: [{ model: AssignmentRequirement }],
   });
   if (!assignment) {
-    error(reply, 404, 'NOT_FOUND', 'Assignment not found');
-    return;
+    return error(reply, 404, 'NOT_FOUND', 'Assignment not found');
   }
 
   const reqs = (assignment as any).AssignmentRequirement;
@@ -82,12 +77,10 @@ const handleFileUpload = async (request: FastifyRequest, reply: FastifyReply): P
   if (reqs && reqs.fileTypes && reqs.fileTypes.length > 0) {
     const allowed = reqs.fileTypes.map((t: string) => String(t).toLowerCase());
     if (!allowed.includes(ext)) {
-      error(reply, 400, 'VALIDATION_ERROR', 'File type not allowed');
-      return;
+      return error(reply, 400, 'VALIDATION_ERROR', 'File type not allowed');
     }
     if (mimeByExtension[ext] && !mimeByExtension[ext].includes(mimetype)) {
-      error(reply, 400, 'VALIDATION_ERROR', 'File MIME type not allowed');
-      return;
+      return error(reply, 400, 'VALIDATION_ERROR', 'File MIME type not allowed');
     }
   }
 

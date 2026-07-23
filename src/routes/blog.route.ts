@@ -6,6 +6,7 @@ import { ok, created, error } from '../utils/response.util';
 import { AppError } from '../errors';
 import { broadcastNotification } from '../utils/wsHub.util';
 import { sendPushNotification } from '../utils/firebase.util';
+import { sanitizeHtml, sanitizeRichText } from '../utils/sanitize.util';
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'post';
@@ -84,7 +85,7 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       const comment = await BlogComment.create({
         blogPostId: post.id,
         authorId: request.user!.sub,
-        content: content.trim(),
+        content: sanitizeRichText(content.trim()),
       });
       return created(reply, comment, 'Comment added');
     } catch (err) {
@@ -126,10 +127,10 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       const existing = await BlogPost.findOne({ where: { slug } });
       const finalSlug = existing ? slug + '-' + Date.now() : slug;
       const post = await BlogPost.create({
-        title: body.title,
+        title: sanitizeHtml(body.title),
         slug: finalSlug,
-        content: body.content,
-        excerpt: body.excerpt || (body.content ? body.content.slice(0, 200) : ''),
+        content: sanitizeRichText(body.content),
+        excerpt: body.excerpt ? sanitizeRichText(body.excerpt) : sanitizeRichText(body.content.slice(0, 200)),
         featuredImage: body.featuredImage || null,
         authorId: request.user!.sub,
         isPublished: body.isPublished !== undefined ? body.isPublished : true,
@@ -181,9 +182,9 @@ export default async function (fastify: FastifyInstance): Promise<void> {
       }
       const body = (request.body || {}) as any;
       const updates: any = {};
-      if (body.title !== undefined) { updates.title = body.title; updates.slug = slugify(body.title); }
-      if (body.content !== undefined) updates.content = body.content;
-      if (body.excerpt !== undefined) updates.excerpt = body.excerpt;
+      if (body.title !== undefined) { updates.title = sanitizeHtml(body.title); updates.slug = slugify(body.title); }
+      if (body.content !== undefined) updates.content = sanitizeRichText(body.content);
+      if (body.excerpt !== undefined) updates.excerpt = sanitizeRichText(body.excerpt);
       if (body.featuredImage !== undefined) updates.featuredImage = body.featuredImage;
       if (body.isPublished !== undefined) {
         updates.isPublished = body.isPublished;

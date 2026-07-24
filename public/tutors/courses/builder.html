@@ -227,7 +227,7 @@
         '<p><strong>Title:</strong> ' + Shared.escapeHtml(courseData.title || 'Untitled') + '</p>' +
         '<p><strong>Modules:</strong> ' + modules.length + '</p>' +
         '<p><strong>Lessons:</strong> ' + lessons + '</p>' +
-        '<p><strong>Price:</strong> ' + (courseData.price > 0 ? '$' + courseData.price.toFixed(2) : 'Free') + '</p></div>';
+        '<p><strong>Price:</strong> ' + (courseData.price > 0 ? Shared.formatCurrency(courseData.price, courseData.currency) : 'Free') + '</p></div>';
     }
 
     /* Module */

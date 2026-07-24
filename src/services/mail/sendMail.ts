@@ -1,10 +1,11 @@
 import { logger } from '../../core/loggers';
 import { queueEnabled, getEmailQueue } from '../../core/queue';
 import { transporter, SMTP_FROM_ADDRESS } from './transporter';
+import { EmailLog } from '../../models';
 
 const RETRYABLE_CODES = new Set(['ECONNRESET', 'ECONNREFUSED', 'ETIMEDOUT', 'ENOTFOUND', 'ENETUNREACH', 'EHOSTUNREACH']);
 
-export const sendEmailNow = async ({ to, subject, html, text }: { to: string; subject: string; html: string; text: string }): Promise<void> => {
+export const sendEmailNow = async ({ to, subject, html, text, tags }: { to: string; subject: string; html: string; text: string; tags?: string[] }): Promise<void> => {
   if (!to) {
     logger.warn('[Email] Missing recipient address.');
     return;
@@ -22,6 +23,15 @@ export const sendEmailNow = async ({ to, subject, html, text }: { to: string; su
       logger.info(`[Email] Sending to ${to} (attempt ${attempt}/${MAX_ATTEMPTS}) subject: "${subject}"`);
       const info = await transporter.sendMail({ from: SMTP_FROM_ADDRESS, to, subject, html, text });
       logger.info(`[Email] Sent successfully to ${to} — messageId: ${info.messageId}`);
+
+      EmailLog.create({
+        sendbyteId: info.messageId || null,
+        to,
+        subject,
+        status: 'sent',
+        tags: tags ? JSON.stringify(tags) : null,
+      }).catch((err) => logger.warn('[Email] Failed to create email log', err));
+
       return;
     } catch (error: any) {
       lastError = error;
@@ -41,18 +51,25 @@ export const sendEmailNow = async ({ to, subject, html, text }: { to: string; su
     }
   }
 
+  EmailLog.create({
+    to,
+    subject,
+    status: 'failed',
+    error: lastError?.message || 'Unknown error',
+  }).catch((err) => logger.warn('[Email] Failed to create error email log', err));
+
   throw lastError;
 };
 
-export const sendEmail = async ({ to, subject, html, text }: { to: string; subject: string; html: string; text: string }): Promise<void> => {
+export const sendEmail = async ({ to, subject, html, text, tags }: { to: string; subject: string; html: string; text: string; tags?: string[] }): Promise<void> => {
   if (queueEnabled) {
     const queue = getEmailQueue();
     if (queue) {
-      await queue.add('send-email', { to, subject, html, text });
+      await queue.add('send-email', { to, subject, html, text, tags });
       return;
     }
   }
-  await sendEmailNow({ to, subject, html, text });
+  await sendEmailNow({ to, subject, html, text, tags });
 };
 
 export const renderTemplate = (templateName: string, templates: Record<string, Function>, params: Record<string, any>) => {

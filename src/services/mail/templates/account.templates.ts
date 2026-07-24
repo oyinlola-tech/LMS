@@ -128,3 +128,24 @@ export const roleChanged = ({ fullName, newRole }: any) => ({
   }),
   text: `Your role has been updated to ${newRole}.`,
 });
+
+export const accountWarning = ({ fullName, reason }: any) => ({
+  subject: `Warning from ${APP_NAME}`,
+  html: baseTemplate({
+    title: 'Account warning',
+    icon: 'warning',
+    preheader: 'You have received a warning',
+    bodyHtml: `
+      <p style="margin:0 0 16px; font-size:16px; line-height:1.6; color:#334155;">
+        Hello ${escapeHtml(fullName || 'there')},
+      </p>
+      <p style="margin:0 0 16px; font-size:16px; line-height:1.6; color:#334155;">
+        You have received a warning from the moderation team.
+      </p>
+      ${reason ? `<p style="margin:0 0 0; font-size:16px; line-height:1.6; color:#334155;"><strong>Reason:</strong> ${escapeHtml(reason)}</p>` : ''}
+    `,
+    action: { label: 'Review our guidelines', url: BRAND_APP_URL },
+    highlight: 'Please review our community guidelines to avoid further action.',
+  }),
+  text: `You have received a warning. ${reason ? `Reason: ${reason}` : ''}`,
+});

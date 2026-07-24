@@ -2,7 +2,7 @@ import {
   otpVerify, otpResend, passwordReset, passwordChanged, loginAlert, emailVerified,
 } from './auth.templates';
 import {
-  socialWelcome, profileUpdated, accountSuspended, accountReactivated, accountDeactivated, roleChanged,
+  socialWelcome, profileUpdated, accountSuspended, accountReactivated, accountDeactivated, roleChanged, accountWarning,
 } from './account.templates';
 import {
   certificateIssued, courseAnnouncement, courseEvent, enrollmentConfirmation, courseCompleted,
@@ -16,7 +16,7 @@ import { welcome, notificationDetailed, mentorAssigned, weeklyDigest } from './m
 
 export const templates = {
   otpVerify, otpResend, passwordReset, passwordChanged, loginAlert, emailVerified,
-  socialWelcome, profileUpdated, accountSuspended, accountReactivated, accountDeactivated, roleChanged,
+  socialWelcome, profileUpdated, accountSuspended, accountReactivated, accountDeactivated, roleChanged, accountWarning,
   certificateIssued, courseAnnouncement, courseEvent, enrollmentConfirmation, courseCompleted,
   quizScoreHigh, quizScoreAverage, quizScoreLow, assignmentGraded,
   tutorCreated, adminCreated,

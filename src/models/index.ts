@@ -69,6 +69,8 @@ import { UserBlock } from './UserBlock.model';
 import { Report } from './Report.model';
 import { UserWarning } from './UserWarning.model';
 import { WishlistItem } from './Wishlist.model';
+import { EmailLog } from './EmailLog.model';
+import { UserMarketingPreference } from './UserMarketingPreference.model';
 
 
 userAssociate({ MessageThread, Message });
@@ -145,4 +147,6 @@ export {
   Report,
   UserWarning,
   WishlistItem,
+  EmailLog,
+  UserMarketingPreference,
 };

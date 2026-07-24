@@ -1,4 +1,8 @@
 document.addEventListener('components-loaded', function() {
+  if (typeof Shared !== 'undefined' && Shared.auth && Shared.auth.checkWarnings) {
+    Shared.auth.checkWarnings();
+  }
+
   var path = window.location.pathname;
   var page = 'dashboard';
   if (path.startsWith('/messages') || path.startsWith('/messaging')) page = 'messages';

@@ -165,7 +165,7 @@ var ChatApp = (function () {
 
     document.getElementById('chat-avatar').innerHTML = otherUser.avatarUrl ? '<img src="' + escapeHtml(otherUser.avatarUrl) + '" alt=""/>' : '<span>' + initial + '</span>';
     document.getElementById('chat-name').textContent = otherUser.fullName || 'Unknown';
-    document.getElementById('chat-subtitle').innerHTML = '<span class="chat-type-badge">Message</span>' + (thread.subject ? ' &middot; ' + escapeHtml(thread.subject) : '');
+    document.getElementById('chat-subtitle').innerHTML = '<span class="chat-type-badge">Message</span>' + (thread.subject ? ' &middot; ' + escapeHtml(thread.subject) : '') + '<span style="margin-left:auto;display:flex;gap:0.5rem"><button class="btn-icon" onclick="ChatApp.blockUser(\'' + otherUser.id + '\')" title="Block"><span class="material-symbols-outlined" style="font-size:1rem">block</span></button><button class="btn-icon" onclick="ChatApp.reportUser(\'' + otherUser.id + '\')" title="Report"><span class="material-symbols-outlined" style="font-size:1rem">report</span></button></span>';
 
     var container = document.getElementById('chat-messages');
     container.innerHTML = '';
@@ -344,7 +344,25 @@ var ChatApp = (function () {
     }, 5000);
   }
 
-  return { init: init, closeChatView: closeChatView, sendChatMessage: sendChatMessage, onFileSelected: onFileSelected, clearFileAttachment: clearFileAttachment, autoResize: autoResize };
+  function blockUser(userId) {
+    if (!confirm('Block this user? You will no longer receive messages from them.')) return;
+    api.post('/messages/block/' + userId).then(function() {
+      alert('User blocked');
+      closeChatView();
+      loadThreads(document.getElementById('search-input').value);
+    }).catch(function() { alert('Failed to block user'); });
+  }
+
+  function reportUser(userId) {
+    var reason = prompt('Why are you reporting this user?');
+    if (!reason) return;
+    api.post('/messages/report/' + userId, { reason: reason }).then(function(res) {
+      alert('User reported. Our team will review the last 10 messages.');
+      closeChatView();
+    }).catch(function() { alert('Failed to report user'); });
+  }
+
+  return { init: init, closeChatView: closeChatView, sendChatMessage: sendChatMessage, onFileSelected: onFileSelected, clearFileAttachment: clearFileAttachment, autoResize: autoResize, blockUser: blockUser, reportUser: reportUser };
 })();
 
 document.addEventListener('components-loaded', function() {

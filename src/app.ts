@@ -50,6 +50,10 @@ import followRoutes from './routes/follow.route';
 import blogRoutes from './routes/blog.route';
 import careerRoutes from './routes/career.route';
 import publicRoutes from './routes/public.route';
+import adminReportsRoutes from './routes/adminReports.route';
+import adminEmailRoutes from './routes/adminEmail.route';
+import webhookRoutes from './routes/webhook.route';
+import marketingRoutes from './routes/marketing.route';
 
 export async function buildApp() {
   const jsonLimit = process.env.JSON_BODY_LIMIT || '1mb';
@@ -177,7 +181,9 @@ export async function buildApp() {
     ['/groups', 'groups.html'],
     ['/admin/audit', 'admin/pages/audit.html'],
     ['/admin/financials', 'admin/pages/financials.html'],
+    ['/admin/reports', 'admin/pages/reports.html'],
     ['/admin/support', 'admin/pages/support.html'],
+    ['/admin/emails', 'admin/pages/emails.html'],
     ['/tutor/mentorship', 'tutors/pages/mentorship.html'],
     ['/tutor/office-hours', 'tutors/pages/office-hours.html'],
     ['/admin/profile', 'admin/profile.html'],
@@ -278,6 +284,10 @@ export async function buildApp() {
   await app.register(discussionGroupRoutes, { prefix: '/api/groups' });
   await app.register(followRoutes, { prefix: '/api/follow' });
   await app.register(publicRoutes, { prefix: '/public' });
+  await app.register(adminReportsRoutes, { prefix: '/admin/reports' });
+  await app.register(adminEmailRoutes, { prefix: '/admin/emails' });
+  await app.register(webhookRoutes, { prefix: '/webhook' });
+  await app.register(marketingRoutes, { prefix: '/marketing' });
 
   app.get('/favicon.ico', async (_req, reply) => {
     reply.redirect('/favicon.svg');

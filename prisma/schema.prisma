@@ -784,6 +784,28 @@ model DiscussionThread {
   @@index([userId])
 }
 
+model EmailLog {
+  id            String   @id @default(uuid())
+  sendbyteId    String?  @unique
+  to            String
+  subject       String
+  status        String?  @default("queued")
+  tags          Json?
+  meta          Json?
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  openedAt      DateTime?
+  clickedAt     DateTime?
+  bouncedAt     DateTime?
+  complainedAt  DateTime?
+  error         String?
+  createdAt     DateTime @default(now())
+
+  @@index([sendbyteId])
+  @@index([status])
+  @@index([to])
+}
+
 model DiscussionReply {
   id                String @id @default(uuid())
   body              String

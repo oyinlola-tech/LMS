@@ -24,6 +24,7 @@
     "@fastify/static": "^10.1.2",
     "@fastify/swagger": "^9.8.1",
     "@fastify/swagger-ui": "^6.1.0",
+    "@paystack/inline-js": "^2.24.0",
     "@prisma/client": "^7.9.0",
     "@sendbyte/node": "^0.2.1",
     "argon2": "^0.45.1",
@@ -45,6 +46,8 @@
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.1.1",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
     "eslint": "^10.7.0",
     "prisma": "^7.9.0",
     "supertest": "^7.2.2",

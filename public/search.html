@@ -81,7 +81,7 @@
             return '<a href="/course/' + c.id + '" class="result-item"><h3>' + Shared.escapeHtml(c.title) + '</h3>' +
               (c.description ? '<p>' + Shared.escapeHtml(c.description).slice(0, 150) + '</p>' : '') +
               '<div class="meta"><span>' + Shared.escapeHtml(c.category || '') + '</span>' +
-              (c.price != null && c.price > 0 ? '<span>$' + c.price.toFixed(2) + '</span>' : '<span>Free</span>') + '</div></a>';
+              (c.price != null && c.price > 0 ? Shared.formatCurrency(c.price, c.currency) : '<span>Free</span>') + '</div></a>';
           }).join('');
         });
       } else if (tab === 'users') {

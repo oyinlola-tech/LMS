@@ -242,10 +242,10 @@
 
     var priceHtml = isFree
       ? '<span class="current-price free">Free</span>'
-      : '<span class="current-price">' + formatPrice(price, course.currency) + '</span>';
+      : '<span class="current-price">' + Shared.formatCurrency(price, course.currency) + '</span>';
 
     if (prevPrice && prevPrice > 0) {
-      priceHtml += '<span class="old-price">' + formatPrice(prevPrice, course.currency) + '</span>';
+      priceHtml += '<span class="old-price">' + Shared.formatCurrency(prevPrice, course.currency) + '</span>';
       if (discount > 0) priceHtml += '<span class="discount-badge">' + discount + '% off</span>';
     }
 
@@ -424,10 +424,6 @@
     document.getElementById('error-state').style.display = '';
   }
 
-  function formatPrice(amount, currency) {
-    var sym = currency === 'USD' ? '$' : currency === 'EUR' ? '\u20AC' : currency === 'GBP' ? '\u00A3' : (currency || '$');
-    return sym + Number(amount).toFixed(2);
-  }
 
   function formatDuration(minutes) {
     if (!minutes) return '0 min';

@@ -1,6 +1,18 @@
 function escapeHtml(t) { var d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+
+function formatCurrency(amount, currency) {
+  if (amount == null || isNaN(amount)) return 'Free';
+  var c = (currency || 'USD').toUpperCase();
+  var decimals = 2;
+  if (c === 'XOF' || c === 'XAF' || c === 'BIF' || c === 'DJF' || c === 'GNF' || c === 'KMF' || c === 'MGA' || c === 'RWF' || c === 'VND' || c === 'JPY' || c === 'KRW') decimals = 0;
+  var fixed = Number(amount).toFixed(decimals);
+  var symbols = { USD: '$', NGN: '₦', GBP: '£', EUR: '€', KES: 'KSh', GHS: 'GH₵', ZAR: 'R', XOF: 'CFA', XAF: 'CFA', EGP: 'E£' };
+  var sym = symbols[c] || c + ' ';
+  return sym + fixed;
+}
 var DEFAULT_IMG = '/img/placeholder.svg';
 var profileId = window.location.pathname.split('/').pop();
+if (profileId === 'profile' || profileId === 'profile.html' || profileId === '') { profileId = null; }
 var currentUserId = null;
 
 function getUserId() {
@@ -16,9 +28,17 @@ function showContent() { document.getElementById('loading-profile').style.displa
 
 function loadProfile() {
   showLoading();
-  if (!profileId || profileId === 'profile.html' || profileId === '') { showError(); return; }
+  var targetId = profileId;
+  if (!targetId || targetId === 'profile.html' || targetId === '') {
+    if (currentUserId) {
+      targetId = currentUserId;
+    } else {
+      showError();
+      return;
+    }
+  }
 
-  api.get('/users/' + profileId).then(function(res) {
+  api.get('/users/' + targetId).then(function(res) {
     if (!res || !res.data) { showError(); return; }
     var u = res.data;
     renderProfile(u);
@@ -26,8 +46,8 @@ function loadProfile() {
     showContent();
   }).catch(function() { showError(); });
 
-  if (localStorage.getItem('token') && currentUserId && currentUserId !== profileId) {
-    api.get('/api/follow/' + profileId + '/status').then(function(res) {
+  if (localStorage.getItem('token') && currentUserId && currentUserId !== targetId) {
+    api.get('/api/follow/' + targetId + '/status').then(function(res) {
       if (res && res.data) renderFollowBtn(res.data.isFollowing);
     }).catch(function() {});
   }
@@ -106,7 +126,7 @@ function startConversation(participantId, name) {
 
 function loadUserContent(u) {
   if (u.role === 'tutor') {
-    api.get('/instructors/' + profileId).then(function(res) {
+    api.get('/users/' + profileId).then(function(res) {
       if (res && res.data && res.data.courses) renderCourseGrid(res.data.courses);
     }).catch(function() {});
   } else {
@@ -118,7 +138,7 @@ function loadUserContent(u) {
     }).catch(function() {});
   }
 
-  api.get('/discussion-groups/mine').then(function(res) {
+  api.get('/api/groups/mine').then(function(res) {
     if (res && res.data) {
       var mine = res.data.filter(function(g) { return g.creator && g.creator.id === profileId; });
       renderCommunities(mine);
@@ -141,7 +161,7 @@ function renderCourseGrid(courses) {
       + '<div class="p-4"><h3 class="font-bold text-sm">' + escapeHtml(c.title || '') + '</h3>'
       + '<div class="flex items-center gap-2 mt-2">'
       + '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded" style="background:var(--primary-fixed);color:var(--on-primary-fixed)">' + (c.difficulty || '') + '</span>'
-      + (c.price != null ? '<span class="text-xs font-bold">$' + c.price.toFixed(2) + '</span>' : '<span class="text-xs font-bold" style="color:var(--primary)">Free</span>')
+      + (c.price != null ? '<span class="text-xs font-bold">' + formatCurrency(c.price, c.currency) + '</span>' : '<span class="text-xs font-bold" style="color:var(--primary)">Free</span>')
       + '</div></div></a>';
   }).join('');
 }

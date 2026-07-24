@@ -72,9 +72,3 @@ export const sendEmail = async ({ to, subject, html, text, tags }: { to: string;
   await sendEmailNow({ to, subject, html, text, tags });
 };
 
-export const renderTemplate = (templateName: string, templates: Record<string, Function>, params: Record<string, any>) => {
-  if (!Object.prototype.hasOwnProperty.call(templates, templateName) || typeof templates[templateName] !== 'function') {
-    throw new Error(`Template '${templateName}' not found`);
-  }
-  return templates[templateName](params);
-};

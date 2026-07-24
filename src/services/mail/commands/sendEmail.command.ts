@@ -1,5 +1,3 @@
-import { sendEmail, sendEmailNow } from '..';
-
 export interface SendEmailInput {
   to: string;
   subject: string;
@@ -9,6 +7,7 @@ export interface SendEmailInput {
 
 export class SendEmailCommand {
   async execute(input: SendEmailInput): Promise<void> {
+    const { sendEmail } = await import('../sendMail');
     await sendEmail(input);
   }
 }
@@ -16,6 +15,7 @@ export const sendEmailCommand = new SendEmailCommand();
 
 export class SendEmailNowCommand {
   async execute(input: SendEmailInput): Promise<void> {
+    const { sendEmailNow } = await import('../sendMail');
     await sendEmailNow(input);
   }
 }

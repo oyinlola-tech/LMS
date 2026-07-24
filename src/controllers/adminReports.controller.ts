@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { ok, error } from '../utils/response.util';
+import { ok, created, error } from '../utils/response.util';
 import { UserRole } from '../enums';
 import { Report, UserWarning, Notification, AdminAuditLog } from '../models';
 import { sendEmail, templates } from '../services/mail';
@@ -129,5 +129,76 @@ export async function listWarnings(request: FastifyRequest, reply: FastifyReply)
   } catch (err) {
     request.log.error(err, 'WARNINGS_LOAD_FAILED');
     return error(reply, 500, 'WARNINGS_FAILED', 'Failed to load warnings');
+  }
+}
+
+export async function listMyWarnings(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const warnings = await UserWarning.findAll({
+      where: { userId: request.user!.sub },
+      include: [{ model: require('../models').User, as: 'issuedBy', attributes: ['id', 'fullName', 'avatarUrl'] }],
+      order: [['createdAt', 'DESC']],
+    });
+    return ok(reply, warnings, 'Warnings loaded');
+  } catch (err) {
+    request.log.error(err, 'MY_WARNINGS_FAILED');
+    return error(reply, 500, 'MY_WARNINGS_FAILED', 'Failed to load warnings');
+  }
+}
+
+export async function markWarningRead(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const warning = await UserWarning.findByPk((request.params as any).id);
+    if (!warning) return error(reply, 404, 'NOT_FOUND', 'Warning not found');
+    if (warning.userId !== request.user!.sub) return error(reply, 403, 'FORBIDDEN', 'Not your warning');
+    warning.readAt = new Date().toISOString();
+    await warning.save();
+    return ok(reply, null, 'Warning marked as read');
+  } catch (err) {
+    request.log.error(err, 'WARNING_READ_FAILED');
+    return error(reply, 500, 'WARNING_READ_FAILED', 'Failed to mark warning');
+  }
+}
+
+export async function dismissReport(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const report = await Report.findByPk((request.params as any).id);
+    if (!report) return error(reply, 404, 'NOT_FOUND', 'Report not found');
+    if (report.status !== 'open') return error(reply, 400, 'INVALID_STATE', 'Report is not open');
+    report.status = 'dismissed';
+    report.resolvedById = request.user!.sub;
+    report.resolvedAt = new Date().toISOString();
+    await report.save();
+    return ok(reply, report, 'Report dismissed');
+  } catch (err) {
+    request.log.error(err, 'REPORT_DISMISS_FAILED');
+    return error(reply, 500, 'REPORT_DISMISS_FAILED', 'Failed to dismiss report');
+  }
+}
+
+export async function issueWarning(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { userId, reason } = (request.body as Record<string, any>) || {};
+    if (!userId) return error(reply, 400, 'VALIDATION_ERROR', 'userId is required');
+    if (!reason || !reason.trim()) return error(reply, 400, 'VALIDATION_ERROR', 'reason is required');
+
+    const warning = await UserWarning.create({
+      userId,
+      issuedById: request.user!.sub,
+      reason: reason.trim(),
+    });
+
+    await require('../models').Notification.create({
+      UserId: userId,
+      type: 'system',
+      title: 'You have received a warning',
+      message: reason.trim(),
+      data: { warningId: warning.id },
+    });
+
+    return created(reply, warning, 'Warning issued');
+  } catch (err) {
+    request.log.error(err, 'WARNING_ISSUE_FAILED');
+    return error(reply, 500, 'WARNING_ISSUE_FAILED', 'Failed to issue warning');
   }
 }

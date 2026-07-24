@@ -71,6 +71,7 @@ import { UserWarning } from './UserWarning.model';
 import { WishlistItem } from './Wishlist.model';
 import { EmailLog } from './EmailLog.model';
 import { UserMarketingPreference } from './UserMarketingPreference.model';
+import { Portfolio } from './Portfolio.model';
 
 
 userAssociate({ MessageThread, Message });
@@ -149,4 +150,5 @@ export {
   WishlistItem,
   EmailLog,
   UserMarketingPreference,
+  Portfolio,
 };

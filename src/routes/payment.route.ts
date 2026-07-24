@@ -3,7 +3,6 @@ import {
   initializePayment,
   verifyPayment,
   getPaymentHistory,
-  handleWebhook,
 } from '../controllers/payment.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
@@ -12,6 +11,4 @@ export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/verify', { preHandler: [fastify.authenticate] }, verifyPayment);
 
   fastify.get('/history', { preHandler: [fastify.authenticate] }, getPaymentHistory);
-
-  fastify.post('/webhook', handleWebhook);
 }

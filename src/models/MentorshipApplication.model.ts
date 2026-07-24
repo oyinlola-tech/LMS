@@ -9,12 +9,18 @@ class MentorshipApplication extends Model<InferAttributes<MentorshipApplication>
   declare status: CreationOptional<string>;
   declare UserId: string;
   declare CourseId: string;
+  declare certificationRequirements: string | null;
+  declare portfolioUrl: string | null;
+  declare category: string | null;
 }
 
 MentorshipApplication.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   message: { type: DataTypes.TEXT, allowNull: true },
   status: { type: DataTypes.ENUM('pending', 'approved', 'rejected'), allowNull: false, defaultValue: 'pending' },
+  certificationRequirements: { type: DataTypes.TEXT, allowNull: true },
+  portfolioUrl: { type: DataTypes.STRING(500), allowNull: true },
+  category: { type: DataTypes.STRING(100), allowNull: true },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
   CourseId: { type: DataTypes.UUID, allowNull: false },

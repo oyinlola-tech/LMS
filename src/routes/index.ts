@@ -36,3 +36,5 @@ export { default as blogRoutes } from './blog.route';
 export { default as careerRoutes } from './career.route';
 export { default as contactRoutes } from './contact.route';
 export { default as discussionGroupRoutes } from './discussionGroup.route';
+export { default as wishlistRoutes } from './wishlist.route';
+export { default as portfolioRoutes } from './portfolio.route';

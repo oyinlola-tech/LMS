@@ -222,3 +222,31 @@ export async function getGroupSubscribers(request: FastifyRequest, reply: Fastif
     return error(reply, 500, 'SUBSCRIBERS_LIST_FAILED', 'Failed to load subscribers');
   }
 }
+
+export async function sendGroupMessage(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { id } = request.params as { id: string };
+    const membership = await GroupMember.findOne({ where: { groupId: id, userId: request.user!.sub } });
+    if (!membership) return error(reply, 403, 'FORBIDDEN', 'You must be a member to send messages');
+
+    const { body } = (request.body || {}) as { body: string };
+    if (!body || !body.trim()) {
+      return error(reply, 400, 'VALIDATION_ERROR', 'Message body is required');
+    }
+
+    const message = await DiscussionMessage.create({
+      groupId: id,
+      authorId: request.user!.sub,
+      content: sanitizeHtml(body.trim()),
+    });
+
+    const full = await DiscussionMessage.findByPk(message.id, {
+      include: [{ model: require('../models').User, as: 'author', attributes: ['id', 'fullName', 'avatarUrl'] }],
+    });
+
+    return created(reply, full, 'Message sent');
+  } catch (err) {
+    request.log.error(err, 'MESSAGE_SEND_FAILED');
+    return error(reply, 500, 'MESSAGE_SEND_FAILED', 'Failed to send message');
+  }
+}

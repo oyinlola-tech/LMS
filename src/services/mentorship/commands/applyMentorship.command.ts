@@ -1,7 +1,14 @@
-import { MentorshipApplication, Course } from '../../../models';
+import { MentorshipApplication, Course, Enrollment } from '../../../models';
 
 export class ApplyMentorshipCommand {
-  async execute(userId: string, courseId: string, message?: string): Promise<MentorshipApplication> {
+  async execute(
+    userId: string,
+    courseId: string,
+    message?: string,
+    certificationRequirements?: string,
+    portfolioUrl?: string,
+    category?: string,
+  ): Promise<MentorshipApplication> {
     if (!courseId) {
       const err: any = new Error('courseId is required');
       err.code = 'VALIDATION_ERROR';
@@ -16,6 +23,16 @@ export class ApplyMentorshipCommand {
       throw err;
     }
 
+    const completed = await Enrollment.findOne({
+      where: { UserId: userId, CourseId: courseId, status: 'completed' },
+    });
+    if (!completed) {
+      const err: any = new Error('You must complete the course before applying for mentorship');
+      err.code = 'COURSE_NOT_COMPLETED';
+      err.statusCode = 400;
+      throw err;
+    }
+
     const existing = await MentorshipApplication.findOne({
       where: { UserId: userId, CourseId: courseId },
     });
@@ -25,6 +42,9 @@ export class ApplyMentorshipCommand {
       UserId: userId,
       CourseId: courseId,
       message: message || null,
+      certificationRequirements: certificationRequirements || null,
+      portfolioUrl: portfolioUrl || null,
+      category: category || null,
     });
   }
 }

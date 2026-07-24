@@ -3,6 +3,7 @@ import { PaymentStatus } from '../../../enums';
 import { AppError } from '../../../errors';
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY || '';
+const PAYSTACK_API_URL = process.env.PAYSTACK_API_URL || 'https://api.paystack.co';
 
 export class VerifyPaymentCommand {
   async execute(userId: string, reference: string): Promise<{ enrolled: boolean; payment: Payment }> {
@@ -17,7 +18,7 @@ export class VerifyPaymentCommand {
       return { enrolled: true, payment };
     }
 
-    const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
+    const response = await fetch(`${PAYSTACK_API_URL}/transaction/verify/${encodeURIComponent(reference)}`, {
       headers: { 'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}` },
     });
     const result = await response.json() as any;

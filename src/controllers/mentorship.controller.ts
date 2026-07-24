@@ -11,14 +11,14 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 export async function applyMentorship(request: FastifyRequest, reply: FastifyReply) {
   try {
     if (request.user!.role !== UserRole.LEARNER) return error(reply, 403, 'FORBIDDEN', 'Only learners can apply');
-    const { courseId, message } = (request.body as Record<string, any>) || {};
+    const { courseId, message, certificationRequirements, portfolioUrl, category } = (request.body as Record<string, any>) || {};
     if (!courseId || typeof courseId !== 'string' || !UUID_REGEX.test(courseId)) {
       return error(reply, 400, 'VALIDATION_ERROR', 'courseId must be a valid UUID');
     }
     if (message && (typeof message !== 'string' || message.length > 2000)) {
       return error(reply, 400, 'VALIDATION_ERROR', 'message must be a string with at most 2000 characters');
     }
-    const application = await applyMentorshipCommand.execute(request.user!.sub, courseId, message || '');
+    const application = await applyMentorshipCommand.execute(request.user!.sub, courseId, message || '', certificationRequirements, portfolioUrl, category);
     return created(reply, application, 'Mentorship application submitted');
   } catch (err: any) {
     return error(reply, err.statusCode || 500, err.code || 'MENTORSHIP_APPLY_FAILED', err.message || 'Failed to submit application');

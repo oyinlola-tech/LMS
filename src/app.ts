@@ -54,6 +54,8 @@ import adminReportsRoutes from './routes/adminReports.route';
 import adminEmailRoutes from './routes/adminEmail.route';
 import webhookRoutes from './routes/webhook.route';
 import marketingRoutes from './routes/marketing.route';
+import wishlistRoutes from './routes/wishlist.route';
+import portfolioRoutes from './routes/portfolio.route';
 
 export async function buildApp() {
   const jsonLimit = process.env.JSON_BODY_LIMIT || '1mb';
@@ -288,6 +290,8 @@ export async function buildApp() {
   await app.register(adminEmailRoutes, { prefix: '/admin/emails' });
   await app.register(webhookRoutes, { prefix: '/webhook' });
   await app.register(marketingRoutes, { prefix: '/marketing' });
+  await app.register(wishlistRoutes, { prefix: '/wishlist' });
+  await app.register(portfolioRoutes, { prefix: '/portfolio' });
 
   app.get('/favicon.ico', async (_req, reply) => {
     reply.redirect('/favicon.svg');

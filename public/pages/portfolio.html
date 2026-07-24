@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Portfolio</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); min-height: 100vh; }
+    .portfolio-header { background: linear-gradient(135deg, var(--primary), var(--tertiary)); padding: 4rem 0 3rem; color: #fff; }
+    .portfolio-header .container { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+    .portfolio-avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.3); background-size: cover; background-position: center; flex-shrink: 0; background-color: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 700; }
+    .portfolio-name { font-size: 2rem; font-weight: 800; }
+    .portfolio-headline { font-size: 1.125rem; opacity: 0.9; margin-top: 0.25rem; }
+    .portfolio-bio { max-width: 600px; margin-top: 0.75rem; opacity: 0.85; line-height: 1.6; }
+    .section { padding: 3rem 0; }
+    .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .skills-wrap { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .skill-badge { padding: 0.375rem 0.875rem; border-radius: 999px; background: var(--primary-fixed); color: var(--on-primary-fixed); font-size: 0.8125rem; font-weight: 600; }
+    .cert-card, .edu-card, .exp-card { padding: 1.25rem; border: 1px solid var(--outline-variant); border-radius: 1rem; background: var(--surface-container); margin-bottom: 0.75rem; }
+    .cert-card h4, .edu-card h4, .exp-card h4 { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .cert-card .meta, .edu-card .meta, .exp-card .meta { font-size: 0.8125rem; color: var(--on-surface-variant); }
+    .social-links { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .social-link { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.75rem; background: var(--surface-container); border: 1px solid var(--outline-variant); text-decoration: none; color: var(--on-surface); font-size: 0.8125rem; font-weight: 600; transition: var(--transition); }
+    .social-link:hover { background: var(--primary-container); border-color: var(--primary); }
+    .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .course-card { border: 1px solid var(--outline-variant); border-radius: 1rem; overflow: hidden; background: var(--surface-container); }
+    .course-card .thumb { height: 120px; background: var(--surface-container-high); background-size: cover; background-position: center; }
+    .course-card .body { padding: 1rem; }
+    .course-card .body h4 { font-size: 0.875rem; font-weight: 700; }
+    .course-card .body .meta { font-size: 0.75rem; color: var(--on-surface-variant); }
+    @media (max-width: 768px) { .portfolio-header .container { flex-direction: column; text-align: center; } }
+  </style>
+</head>
+<body>
+  <div data-include="/components/header"></div>
+  <div class="portfolio-header" id="portfolio-header" style="display:none">
+    <div class="container">
+      <div class="portfolio-avatar" id="portfolio-avatar">?</div>
+      <div>
+        <h1 class="portfolio-name" id="portfolio-name">-</h1>
+        <p class="portfolio-headline" id="portfolio-headline">-</p>
+        <p class="portfolio-bio" id="portfolio-bio"></p>
+      </div>
+    </div>
+  </div>
+  <div class="section" id="portfolio-body" style="display:none">
+    <div class="container" style="display:flex;flex-direction:column;gap:2rem">
+      <div id="skills-section" style="display:none">
+        <h2 class="section-title"><span class="material-symbols-outlined">psychology</span> Skills</h2>
+        <div class="skills-wrap" id="skills-wrap"></div>
+      </div>
+      <div id="cert-section" style="display:none">
+        <h2 class="section-title"><span class="material-symbols-outlined">verified</span> Certifications</h2>
+        <div id="cert-list"></div>
+      </div>
+      <div id="education-section" style="display:none">
+        <h2 class="section-title"><span class="material-symbols-outlined">school</span> Education</h2>
+        <div id="education-list"></div>
+      </div>
+      <div id="experience-section" style="display:none">
+        <h2 class="section-title"><span class="material-symbols-outlined">work</span> Experience</h2>
+        <div id="experience-list"></div>
+      </div>
+      <div id="courses-section" style="display:none">
+        <h2 class="section-title"><span class="material-symbols-outlined">menu_book</span> Completed Courses</h2>
+        <div class="course-grid" id="courses-grid"></div>
+      </div>
+      <div id="social-section" style="display:none">
+        <h2 class="section-title"><span class="material-symbols-outlined">link</span> Links</h2>
+        <div class="social-links" id="social-links"></div>
+      </div>
+    </div>
+  </div>
+  <div id="loading-state" style="text-align:center;padding:4rem 1rem;color:var(--on-surface-variant)">
+    <span class="material-symbols-outlined" style="font-size:3rem;display:block;margin-bottom:1rem">account_circle</span>
+    <p>Loading portfolio...</p>
+  </div>
+  <div id="error-state" style="display:none;text-align:center;padding:4rem 1rem;color:var(--error)">
+    <span class="material-symbols-outlined" style="font-size:3rem;display:block;margin-bottom:1rem">error</span>
+    <p>Failed to load portfolio</p>
+    <p style="font-size:0.875rem;color:var(--on-surface-variant);margin-top:0.5rem">The user may not have a public portfolio yet.</p>
+    <a href="/" class="btn-primary" style="display:inline-block;margin-top:1rem;padding:0.5rem 1.5rem;border-radius:0.75rem;text-decoration:none">Go Home</a>
+  </div>
+  <div data-include="/components/footer"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script>
+    (function() {
+      var userId = new URLSearchParams(window.location.search).get('userId');
+      if (!userId) { document.getElementById('error-state').style.display = ''; document.getElementById('error-state').querySelector('p:last-child').textContent = 'No user specified. Use ?userId=...'; return; }
+
+      function loadPortfolio() {
+        api.get('/portfolio/' + userId).then(function(r) {
+          document.getElementById('loading-state').style.display = 'none';
+          if (!r.data || !r.data.UserId) {
+            document.getElementById('error-state').style.display = '';
+            return;
+          }
+          var p = r.data;
+          var user = p.User || {};
+          document.getElementById('portfolio-header').style.display = '';
+          document.getElementById('portfolio-body').style.display = '';
+          var avatarEl = document.getElementById('portfolio-avatar');
+          if (user.avatarUrl) avatarEl.style.backgroundImage = 'url(' + user.avatarUrl + ')';
+          else avatarEl.textContent = (user.fullName || '?').charAt(0).toUpperCase();
+          document.getElementById('portfolio-name').textContent = user.fullName || 'Unknown';
+          document.getElementById('portfolio-headline').textContent = p.headline || 'Learner';
+          document.getElementById('portfolio-bio').textContent = p.bio || '';
+
+          if (p.skills) { var skills = typeof p.skills === 'string' ? JSON.parse(p.skills) : p.skills; if (skills.length) { document.getElementById('skills-section').style.display = ''; document.getElementById('skills-wrap').innerHTML = skills.map(function(s) { return '<span class="skill-badge">' + s + '</span>'; }).join(''); } }
+          if (p.certifications) { var certs = typeof p.certifications === 'string' ? JSON.parse(p.certifications) : p.certifications; if (certs.length) { document.getElementById('cert-section').style.display = ''; document.getElementById('cert-list').innerHTML = certs.map(function(c) { return '<div class="cert-card"><h4>' + (c.name || '') + '</h4><div class="meta">' + (c.issuer || '') + (c.year ? ' &middot; ' + c.year : '') + '</div></div>'; }).join(''); } }
+          if (p.education) { var edu = typeof p.education === 'string' ? JSON.parse(p.education) : p.education; if (edu.length) { document.getElementById('education-section').style.display = ''; document.getElementById('education-list').innerHTML = edu.map(function(e) { return '<div class="edu-card"><h4>' + (e.degree || '') + '</h4><div class="meta">' + (e.school || '') + (e.graduationYear ? ' &middot; ' + e.graduationYear : '') + '</div></div>'; }).join(''); } }
+          if (p.experience) { var exp = typeof p.experience === 'string' ? JSON.parse(p.experience) : p.experience; if (exp.length) { document.getElementById('experience-section').style.display = ''; document.getElementById('experience-list').innerHTML = exp.map(function(e) { return '<div class="exp-card"><h4>' + (e.role || '') + '</h4><div class="meta">' + (e.company || '') + (e.duration ? ' &middot; ' + e.duration : '') + '</div><p style="font-size:0.8125rem;color:var(--on-surface-variant);margin-top:0.5rem">' + (e.description || '') + '</p></div>'; }).join(''); } }
+          if (p.socialLinks) { var links = typeof p.socialLinks === 'string' ? JSON.parse(p.socialLinks) : p.socialLinks; if (Object.keys(links).length) { document.getElementById('social-section').style.display = ''; document.getElementById('social-links').innerHTML = Object.entries(links).map(function(e) { return '<a href="' + e[1] + '" target="_blank" rel="noopener" class="social-link"><span class="material-symbols-outlined" style="font-size:1rem">' + (e[0]==='github'?'code':e[0]==='linkedin'?'badge':e[0]==='twitter'?'alternate_email':'link') + '</span>' + e[0] + '</a>'; }).join(''); } }
+
+          loadCourses();
+        }).catch(function() {
+          document.getElementById('loading-state').style.display = 'none';
+          document.getElementById('error-state').style.display = '';
+        });
+      }
+
+      function loadCourses() {
+        api.get('/portfolio/' + userId + '/courses').then(function(r) {
+          var courses = r.data || [];
+          if (!courses.length) return;
+          document.getElementById('courses-section').style.display = '';
+          document.getElementById('courses-grid').innerHTML = courses.map(function(enr) {
+            var c = enr.Course || {};
+            return '<div class="course-card"><div class="thumb" style="background-image:url(' + (c.thumbnailUrl || '/img/placeholder.svg') + ')"></div><div class="body"><h4>' + c.title + '</h4><div class="meta">' + (c.category || '') + '</div></div></div>';
+          }).join('');
+        }).catch(function(){});
+      }
+
+      document.addEventListener('components-loaded', loadPortfolio);
+    })();
+  </script>
+</body>
+</html>

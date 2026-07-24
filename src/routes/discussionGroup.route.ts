@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { listGroups, listMyGroups, getGroup, createGroup, updateGroup, deleteGroup, joinGroup, leaveGroup, getGroupMessages, getGroupMembers, subscribeToGroup, unsubscribeFromGroup, getGroupSubscribers } from '../controllers/discussionGroup.controller';
+import { listGroups, listMyGroups, getGroup, createGroup, updateGroup, deleteGroup, joinGroup, leaveGroup, getGroupMessages, sendGroupMessage, getGroupMembers, subscribeToGroup, unsubscribeFromGroup, getGroupSubscribers } from '../controllers/discussionGroup.controller';
 
 export default async function (fastify: FastifyInstance): Promise<void> {
   fastify.get('/', listGroups);
@@ -19,6 +19,8 @@ export default async function (fastify: FastifyInstance): Promise<void> {
   fastify.post('/:id/leave', { preHandler: [fastify.authenticate] }, leaveGroup);
 
   fastify.get('/:id/messages', { preHandler: [fastify.authenticate] }, getGroupMessages);
+
+  fastify.post('/:id/messages', { preHandler: [fastify.authenticate] }, sendGroupMessage);
 
   fastify.get('/:id/members', { preHandler: [fastify.authenticate] }, getGroupMembers);
 

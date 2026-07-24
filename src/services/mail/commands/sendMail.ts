@@ -1,7 +1,7 @@
-import { logger } from '../../core/loggers';
-import { queueEnabled, getEmailQueue } from '../../core/queue';
-import { transporter, SMTP_FROM_ADDRESS } from './transporter';
-import { EmailLog } from '../../models';
+import { logger } from '../../../core/loggers';
+import { queueEnabled, getEmailQueue } from '../../../core/queue';
+import { transporter, SMTP_FROM_ADDRESS } from '../transporter';
+import { EmailLog } from '../../../models';
 
 const RETRYABLE_CODES = new Set(['ECONNRESET', 'ECONNREFUSED', 'ETIMEDOUT', 'ENOTFOUND', 'ENETUNREACH', 'EHOSTUNREACH']);
 

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Discussion Groups</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .layout { display: flex; min-height: 100vh; }
+    .main { flex: 1; padding: 2rem; max-width: 900px; margin: 0 auto; width: 100%; }
+    .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--outline-variant); }
+    .tabs button { padding: 0.75rem 1.5rem; border: none; background: none; font-size: 0.875rem; font-weight: 600; color: var(--on-surface-variant); cursor: pointer; border-bottom: 2px solid transparent; }
+    .tabs button.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .subtitle { font-size: 0.875rem; color: var(--on-surface-variant); margin: -1rem 0 1.5rem; }
+    .app-card { padding: 1.25rem; border-radius: 1rem; background: var(--surface-container); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+    .app-card .info h3 { margin: 0 0 0.25rem; font-size: 1rem; }
+    .app-card .info p { margin: 0; font-size: 0.8125rem; color: var(--on-surface-variant); }
+    .app-card .info .meta { font-size: 0.75rem; color: var(--on-surface-variant); margin-top: 0.25rem; }
+    .app-card .actions { display: flex; gap: 0.5rem; align-items: center; }
+    .btn-sm { padding: 0.375rem 0.75rem; border-radius: 0.5rem; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+    .btn-sm.primary { background: var(--primary); color: var(--on-primary); }
+    .btn-sm.secondary { background: var(--surface-variant); color: var(--on-surface-variant); }
+    .btn-sm.success { background: #059669; color: #fff; }
+    .btn-sm.danger { background: var(--error); color: #fff; }
+    .btn-sm.outline { background: none; border: 1px solid var(--outline); color: var(--on-surface-variant); }
+    .inline-form { background: var(--surface-container); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1rem; }
+    .inline-form h3 { margin: 0 0 1rem; font-size: 1rem; }
+    .inline-form label { display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--on-surface-variant); }
+    .inline-form input, .inline-form textarea { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--outline); border-radius: 0.5rem; font-size: 0.875rem; background: var(--surface); color: var(--on-surface); margin-bottom: 0.75rem; box-sizing: border-box; }
+    .inline-form textarea { resize: vertical; min-height: 60px; }
+    .inline-form .form-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--on-surface-variant); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+    @media (max-width: 768px) { .tutor-sidebar { display: none; } .main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div data-include="/tutors/components/tutor-sidebar"></div>
+    <main class="main">
+      <h1>Discussion Groups</h1>
+      <p class="subtitle">Manage your groups</p>
+
+      <div class="toolbar">
+        <div class="tabs">
+          <button class="active" onclick="switchTab('mine')">My Groups</button>
+          <button onclick="switchTab('all')">All Groups</button>
+        </div>
+        <button class="btn-sm primary" onclick="showCreateForm()">+ Create Group</button>
+      </div>
+
+      <div id="create-form" class="inline-form" style="display:none">
+        <h3>Create New Group</h3>
+        <label for="create-name">Group Name</label>
+        <input id="create-name" type="text" placeholder="Enter group name"/>
+        <label for="create-desc">Description</label>
+        <textarea id="create-desc" placeholder="Enter group description"></textarea>
+        <div class="form-actions">
+          <button class="btn-sm outline" onclick="hideCreateForm()">Cancel</button>
+          <button class="btn-sm success" onclick="createGroup()">Create</button>
+        </div>
+      </div>
+
+      <div id="edit-form" class="inline-form" style="display:none">
+        <h3>Edit Group</h3>
+        <label for="edit-name">Group Name</label>
+        <input id="edit-name" type="text"/>
+        <label for="edit-desc">Description</label>
+        <textarea id="edit-desc"></textarea>
+        <div class="form-actions">
+          <button class="btn-sm outline" onclick="hideEditForm()">Cancel</button>
+          <button class="btn-sm success" onclick="saveEdit()">Save</button>
+        </div>
+      </div>
+
+      <div id="groups-list"><p style="color:var(--on-surface-variant)">Loading...</p></div>
+    </main>
+  </div>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    if (!Shared.auth.requireAuth()) {}
+    var currentTab = 'mine';
+    var editGroupId = null;
+
+    document.addEventListener('DOMContentLoaded', function() { loadGroups(); });
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tabs button').forEach(function(b) { b.classList.toggle('active', b.textContent.trim().toLowerCase().includes(tab === 'mine' ? 'my' : 'all')); });
+      loadGroups();
+    }
+
+    function loadGroups() {
+      var endpoint = currentTab === 'mine' ? '/api/groups/mine' : '/api/groups/';
+      hideCreateForm();
+      hideEditForm();
+      api.get(endpoint).then(function(res) {
+        var el = document.getElementById('groups-list');
+        if (res.error) { el.innerHTML = '<div class="empty-state"><div class="icon">😕</div><p>Error loading groups.</p></div>'; return; }
+        var data = res.data || res;
+        if (!data.length) {
+          el.innerHTML = '<div class="empty-state"><div class="icon">💬</div><p>No groups found' + (currentTab === 'mine' ? '. Join some groups or create one!' : '.') + '</p></div>';
+          return;
+        }
+        var html = '';
+        data.forEach(function(g) {
+          var isCreator = g.creatorId === Shared.auth.userId();
+          var isMember = g.isMember;
+          html += '<div class="app-card">' +
+            '<div class="info"><h3>' + Shared.escapeHtml(g.name) + '</h3>' +
+            '<p>' + Shared.escapeHtml(g.description || 'No description') + '</p>' +
+            '<div class="meta">' + (g.memberCount || 0) + ' member' + ((g.memberCount || 0) !== 1 ? 's' : '') + ' · Created by ' + Shared.escapeHtml(g.creatorName || 'Unknown') + '</div></div>' +
+            '<div class="actions">' +
+            (isCreator ? '<button class="btn-sm outline" onclick="showEditForm(\'' + g.id + '\',\'' + Shared.escapeHtml(g.name).replace(/'/g,"\\'") + '\',\'' + Shared.escapeHtml(g.description || '').replace(/'/g,"\\'") + '\')">Edit</button><button class="btn-sm danger" onclick="deleteGroup(\'' + g.id + '\')">Delete</button>' : '') +
+            (!isCreator && isMember ? '<button class="btn-sm secondary" onclick="leaveGroup(\'' + g.id + '\')">Leave</button>' : '') +
+            (!isMember && !isCreator ? '<button class="btn-sm success" onclick="joinGroup(\'' + g.id + '\')">Join</button>' : '') +
+            '</div></div>';
+        });
+        el.innerHTML = html;
+      });
+    }
+
+    function showCreateForm() {
+      hideEditForm();
+      document.getElementById('create-form').style.display = 'block';
+      document.getElementById('create-name').value = '';
+      document.getElementById('create-desc').value = '';
+      document.getElementById('create-name').focus();
+    }
+
+    function hideCreateForm() {
+      document.getElementById('create-form').style.display = 'none';
+    }
+
+    function createGroup() {
+      var name = document.getElementById('create-name').value.trim();
+      var description = document.getElementById('create-desc').value.trim();
+      if (!name) { alert('Please enter a group name.'); return; }
+      api.post('/api/groups/', { name: name, description: description }).then(function(res) {
+        if (res.error) { alert(res.error); return; }
+        hideCreateForm();
+        loadGroups();
+      });
+    }
+
+    function showEditForm(id, name, description) {
+      hideCreateForm();
+      editGroupId = id;
+      document.getElementById('edit-form').style.display = 'block';
+      document.getElementById('edit-name').value = name;
+      document.getElementById('edit-desc').value = description;
+      document.getElementById('edit-name').focus();
+    }
+
+    function hideEditForm() {
+      document.getElementById('edit-form').style.display = 'none';
+      editGroupId = null;
+    }
+
+    function saveEdit() {
+      if (!editGroupId) return;
+      var name = document.getElementById('edit-name').value.trim();
+      var description = document.getElementById('edit-desc').value.trim();
+      if (!name) { alert('Please enter a group name.'); return; }
+      api.put('/api/groups/' + editGroupId, { name: name, description: description }).then(function(res) {
+        if (res.error) { alert(res.error); return; }
+        hideEditForm();
+        loadGroups();
+      });
+    }
+
+    function deleteGroup(id) {
+      if (!confirm('Are you sure you want to delete this group?')) return;
+      api.del('/api/groups/' + id).then(function(res) {
+        if (res.error) { alert(res.error); return; }
+        loadGroups();
+      });
+    }
+
+    function joinGroup(id) {
+      api.post('/api/groups/' + id + '/join').then(function(res) {
+        if (res.error) { alert(res.error); return; }
+        loadGroups();
+      });
+    }
+
+    function leaveGroup(id) {
+      api.post('/api/groups/' + id + '/leave').then(function(res) {
+        if (res.error) { alert(res.error); return; }
+        loadGroups();
+      });
+    }
+  </script>
+</body>
+</html>

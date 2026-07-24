@@ -118,7 +118,7 @@
           key: data.publicKey,
           email: data.email,
           amount: Shared.toLowestUnit(courseData.price || 0, courseData.currency || 'USD'),
-          currency: (courseData.currency || 'USD').toLowerCase(),
+          currency: (courseData.currency || 'USD').toUpperCase(),
           ref: data.reference,
           onClose: function() {
             window.location.href = '/checkout/cancel?courseId=' + courseId;

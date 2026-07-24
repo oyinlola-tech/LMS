@@ -40,3 +40,5 @@ export * as adminFinancialsController from './adminFinancials.controller';
 export * as adminEmailController from './adminEmail.controller';
 export * as webhookController from './webhook.controller';
 export * as marketingController from './marketing.controller';
+export * as wishlistController from './wishlist.controller';
+export * as portfolioController from './portfolio.controller';

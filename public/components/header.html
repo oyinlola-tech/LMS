@@ -21,7 +21,7 @@
         <span class="material-symbols-outlined" style="font-size: 1.35rem">notifications</span>
         <span id="notif-badge" class="absolute -top-0.5 -right-0.5 size-4 rounded-full flex items-center justify-center text-[9px] font-bold" style="background: var(--error); color: #fff; display: none"></span>
       </a>
-      <a href="/notifications" id="header-warnings" class="relative hidden sm:inline-flex items-center justify-center size-10 rounded-xl transition-colors" style="color: var(--error); display:none" title="Warnings">
+      <a href="#" id="header-warnings" class="relative hidden sm:inline-flex items-center justify-center size-10 rounded-xl transition-colors" style="color: var(--error); display:none" title="Warnings" onclick="event.preventDefault();var s=Shared&&Shared.auth;s&&s.fetchAndShowWarnings&&s.fetchAndShowWarnings()">
         <span class="material-symbols-outlined" style="font-size: 1.35rem">warning</span>
         <span id="warning-badge" class="absolute -top-0.5 -right-0.5 size-4 rounded-full flex items-center justify-center text-[9px] font-bold" style="background: var(--error); color: #fff; display: none"></span>
       </a>

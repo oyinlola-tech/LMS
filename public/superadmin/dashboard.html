@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Dashboard</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.25rem; }
+    .stat-card .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--on-surface-variant); }
+    .stat-card .value { font-size: 1.75rem; font-weight: 700; color: var(--primary); margin-top: 0.25rem; }
+    .stat-card .sub { font-size: 0.75rem; color: var(--on-surface-variant); margin-top: 0.125rem; }
+    .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .dash-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; overflow: hidden; }
+    .dash-card-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--outline-variant); }
+    .dash-card-header h3 { font-size: 0.9375rem; font-weight: 700; }
+    .dash-card-body { padding: 1rem 1.25rem; }
+    .activity-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0; border-bottom: 1px solid var(--outline-variant); }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; flex-shrink: 0; }
+    .activity-dot.green { background: #10b981; }
+    .activity-dot.blue { background: var(--primary); }
+    .activity-dot.orange { background: #f59e0b; }
+    .activity-text { flex: 1; font-size: 0.8125rem; }
+    .activity-text strong { font-weight: 600; }
+    .activity-time { font-size: 0.6875rem; color: var(--on-surface-variant); flex-shrink: 0; }
+    .quick-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 2rem; }
+    .qa-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1rem; background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 0.75rem; color: var(--on-surface); font-size: 0.8125rem; font-weight: 500; cursor: pointer; font-family: inherit; transition: var(--transition); }
+    .qa-btn:hover { background: var(--primary-container); color: var(--on-primary-container); border-color: var(--primary); }
+    .skeleton { background: linear-gradient(90deg, var(--surface-container) 25%, var(--surface-container-high) 50%, var(--surface-container) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0.5rem; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .user-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--outline-variant); }
+    .user-row:last-child { border-bottom: none; }
+    .user-avatar { width: 2rem; height: 2rem; border-radius: 50%; background: var(--primary-container); color: var(--on-primary-container); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+    .user-info { flex: 1; }
+    .user-info .name { font-size: 0.8125rem; font-weight: 600; }
+    .user-info .meta { font-size: 0.6875rem; color: var(--on-surface-variant); }
+    @media (max-width: 768px) { .admin-main { padding: 1rem; } .dash-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/superadmin/components/superadmin-sidebar"></div>
+    <main class="admin-main">
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p style="font-size:0.875rem;color:var(--on-surface-variant);margin-top:0.25rem">System-wide overview at a glance</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <span id="sa-user-name" style="font-weight:600;font-size:0.875rem">Admin</span>
+          <button id="sa-logout-btn" class="dash-icon-btn" title="Logout" style="background:none;border:none;color:var(--on-surface-variant);cursor:pointer;width:2rem;height:2rem;border-radius:0.5rem;display:flex;align-items:center;justify-content:center;transition:var(--transition)"><span class="material-symbols-outlined">logout</span></button>
+        </div>
+      </div>
+      <div class="quick-actions">
+        <button class="qa-btn" onclick="window.location.href='/admin/users'"><span class="material-symbols-outlined">group</span> Manage Users</button>
+        <button class="qa-btn" onclick="window.location.href='/admin/courses'"><span class="material-symbols-outlined">school</span> Manage Courses</button>
+        <button class="qa-btn" onclick="window.location.href='/admin/support'"><span class="material-symbols-outlined">support</span> Support Tickets</button>
+        <button class="qa-btn" onclick="window.location.href='/admin/financials'"><span class="material-symbols-outlined">payments</span> Financials</button>
+        <button class="qa-btn" onclick="window.location.href='/admin/settings'"><span class="material-symbols-outlined">settings</span> Settings</button>
+      </div>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="label">Total Users</div><div class="value" id="s-users"><div class="skeleton" style="height:1.75rem;width:4rem"></div></div></div>
+        <div class="stat-card"><div class="label">Total Courses</div><div class="value" id="s-courses"><div class="skeleton" style="height:1.75rem;width:3rem"></div></div></div>
+        <div class="stat-card"><div class="label">Total Revenue</div><div class="value" id="s-revenue"><div class="skeleton" style="height:1.75rem;width:5rem"></div></div></div>
+        <div class="stat-card"><div class="label">Total Enrollments</div><div class="value" id="s-enrollments"><div class="skeleton" style="height:1.75rem;width:4rem"></div></div></div>
+      </div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-card-header"><h3>Recent Activity</h3></div>
+          <div class="dash-card-body" id="activity-feed">
+            <div class="skeleton" style="height:160px;border-radius:0.5rem"></div>
+          </div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-header"><h3>Recent Users</h3></div>
+          <div class="dash-card-body" id="recent-users">
+            <div class="skeleton" style="height:160px;border-radius:0.5rem"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    (function() {
+      var token = localStorage.getItem('token');
+      if (!token) { window.location.href = '/login'; return; }
+      var $ = function(id) { return document.getElementById(id); };
+      async function loadDashboard() {
+        try {
+          var res = await api.get('/admin/dashboard/');
+          var data = res.data || {};
+          var totals = data.totals || data.stats || data;
+          $('s-users').textContent = totals.totalUsers ?? totals.users ?? '—';
+          $('s-courses').textContent = totals.totalCourses ?? totals.courses ?? '—';
+          $('s-revenue').textContent = totals.totalRevenue ?? totals.revenue != null ? '$' + Number(totals.totalRevenue ?? totals.revenue).toLocaleString() : '—';
+          $('s-enrollments').textContent = totals.totalEnrollments ?? totals.enrollments ?? '—';
+        } catch(e) { console.error('Dashboard load error:', e); }
+        try {
+          var actRes = await api.get('/admin/dashboard/activity?limit=8');
+          var activities = actRes.data?.activities || actRes.data?.items || [];
+          if (activities.length) {
+            $('activity-feed').innerHTML = activities.map(function(a) {
+              var dot = a.type === 'user' ? 'green' : a.type === 'course' ? 'blue' : a.type === 'payment' ? 'green' : a.type === 'ticket' ? 'orange' : 'blue';
+              return '<div class="activity-item"><div class="activity-dot ' + dot + '"></div><div class="activity-text">' + (a.text || a.description || '') + '</div><div class="activity-time">' + (a.time || a.createdAt ? timeAgo(a.createdAt) : '') + '</div></div>';
+            }).join('');
+          } else {
+            $('activity-feed').innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--on-surface-variant);font-size:0.8125rem">No recent activity</div>';
+          }
+        } catch(e) {
+          var fallback = [
+            { text: '<strong>System ready</strong> — Dashboard loaded successfully', time: 'now', color: 'green' },
+            { text: '<strong>Tip:</strong> Use the quick actions above to manage the platform', time: '', color: 'blue' }
+          ];
+          $('activity-feed').innerHTML = fallback.map(function(a) {
+            return '<div class="activity-item"><div class="activity-dot ' + a.color + '"></div><div class="activity-text">' + a.text + '</div><div class="activity-time">' + a.time + '</div></div>';
+          }).join('');
+        }
+        try {
+          var userRes = await api.get('/admin/users?limit=5&sort=createdAt&order=desc');
+          var users = userRes.data?.items || userRes.data?.users || [];
+          if (users.length) {
+            $('recent-users').innerHTML = users.map(function(u) {
+              var initial = (u.fullName || u.email || '?').charAt(0).toUpperCase();
+              var name = u.fullName || u.email || 'Unknown';
+              var meta = u.email || '';
+              var role = u.role || 'learner';
+              return '<div class="user-row"><div class="user-avatar">' + initial + '</div><div class="user-info"><div class="name">' + name + '</div><div class="meta">' + meta + (role ? ' &middot; ' + role : '') + '</div></div></div>';
+            }).join('');
+          } else {
+            $('recent-users').innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--on-surface-variant);font-size:0.8125rem">No users yet</div>';
+          }
+        } catch(e) {
+          $('recent-users').innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--on-surface-variant);font-size:0.8125rem">Could not load users</div>';
+        }
+      }
+      function timeAgo(dateStr) {
+        if (!dateStr) return '';
+        var diff = Date.now() - new Date(dateStr).getTime();
+        var mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return mins + 'm ago';
+        var hrs = Math.floor(mins / 60);
+        if (hrs < 24) return hrs + 'h ago';
+        var days = Math.floor(hrs / 24);
+        return days + 'd ago';
+      }
+      $('sa-logout-btn').addEventListener('click', function() { localStorage.removeItem('token'); window.location.href = '/'; });
+      document.addEventListener('components-loaded', loadDashboard);
+    })();
+  </script>
+</body>
+</html>

@@ -27,7 +27,7 @@ function renderCourseCard(c) {
   var img = c.thumbnailUrl || DEFAULT_IMG;
   var instructorName = c.tutor ? c.tutor.fullName : 'Instructor';
   var instructorAvatar = c.tutor && c.tutor.avatarUrl ? c.tutor.avatarUrl : DEFAULT_IMG;
-  var price = c.price != null ? '$' + c.price.toFixed(2) : 'Free';
+  var price = c.price != null ? Shared.formatCurrency(c.price, c.currency) : 'Free';
   return '<div class="rounded-2xl overflow-hidden border flex flex-col transition-all" style="background: #fff; border-color: var(--outline-variant); box-shadow: 0 1px 2px rgba(0,0,0,0.05)">'
     + '<div class="relative h-48" style="background-image: url(\'' + img + '\'); background-size: cover; background-position: center"></div>'
     + '<div class="p-6 flex flex-col grow">'

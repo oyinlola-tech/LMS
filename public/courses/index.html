@@ -114,7 +114,7 @@
           var grid = $('courses-grid');
           if (!items.length) { grid.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined" style="font-size:2.5rem;display:block;margin-bottom:0.5rem">search_off</span><p>No courses found</p></div>'; return; }
           grid.innerHTML = items.map(function(c) {
-            var price = c.price ? '$'+Number(c.price).toFixed(2) : 'Free';
+            var price = c.price ? Shared.formatCurrency(Number(c.price), c.currency) : 'Free';
             var priceClass = c.price ? '' : 'free';
             return '<div class="course-card" onclick="window.location.href=\'/courses/'+c.id+'\'"><div class="course-card-img"><span class="material-symbols-outlined">school</span></div><div class="course-card-body"><h3>'+(c.title||'Untitled')+'</h3><div class="instructor">'+(c.tutor?.fullName||c.instructorName||'LearnBridge')+'</div><p>'+(c.description||'')+'</p><div class="course-footer"><span class="price '+priceClass+'">'+price+'</span><div class="meta"><span><span class="material-symbols-outlined" style="font-size:1rem">schedule</span>'+(c.totalHours||'—')+'h</span><span><span class="material-symbols-outlined" style="font-size:1rem">group</span>'+(c.enrollmentCount||0)+'</span></div></div></div></div>';
           }).join('');

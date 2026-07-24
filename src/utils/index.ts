@@ -22,3 +22,6 @@ export {
 export {
   buildCertificateHtml, buildSignatureDataUrl, buildSignaturePngDataUrl,
 } from './certificateRenderer.util';
+export {
+  toLowestUnit, fromLowestUnit, getCurrencyDecimals, formatCurrency, CURRENCY_DECIMALS,
+} from './currency.util';

@@ -11,7 +11,7 @@
   }
 
   function loadDashboard() {
-    api.get('/tutor-dashboard').then(function (r) {
+    api.get('/tutor-dashboard/overview').then(function (r) {
       var data = r.data || {};
       var courses = document.getElementById('stat-courses');
       var students = document.getElementById('stat-students');

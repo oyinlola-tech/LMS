@@ -11,7 +11,7 @@
   }
 
   function loadDashboard() {
-    api.get('/dashboard').then(function (r) {
+    api.get('/dashboard/overview').then(function (r) {
       var data = r.data || {};
       var enrolled = document.getElementById('stat-enrolled');
       var completed = document.getElementById('stat-completed');

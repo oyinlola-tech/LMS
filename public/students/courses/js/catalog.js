@@ -154,9 +154,9 @@
 
     var priceHtml = isFree
       ? '<span class="course-card-price free">Free</span>'
-      : '<span class="course-card-price">' + formatPrice(price, course.currency) + '</span>';
+      : '<span class="course-card-price">' + Shared.formatCurrency(price, course.currency) + '</span>';
     if (hasDiscount) {
-      priceHtml += '<span class="price-old">' + formatPrice(course.previousPrice, course.currency) + '</span>';
+      priceHtml += '<span class="price-old">' + Shared.formatCurrency(course.previousPrice, course.currency) + '</span>';
       priceHtml = '<div>' + priceHtml + '</div>';
     }
 
@@ -335,10 +335,7 @@
     };
   }
 
-  function formatPrice(amount, currency) {
-    var sym = currency === 'USD' ? '$' : currency === 'EUR' ? '\u20AC' : currency === 'GBP' ? '\u00A3' : (currency || '$');
-    return sym + Number(amount).toFixed(2);
-  }
+  // Use shared currency utility for local currency support
 
   function escHtml(str) {
     if (str == null) return '';

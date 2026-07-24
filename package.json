@@ -6,12 +6,13 @@
   "author": "Oluwayemi Oyinlola Michael (https://oyinlola.site)",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "node dist/server.js",
+    "dev": "nodemon --watch dist --ext js --exec \"node dist/server.js\"",
     "build": "tsc",
     "swagger": "node scripts/generate-swagger.js",
     "seed:dev": "node scripts/seed-dev-db.js",
     "lint": "eslint \"src/**/*.ts\"",
-    "test": "node --test"
+    "test": "node --test",
+    "dev:build": "npm run build && nodemon --watch dist --ext js --exec \"node dist/server.js\""
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.2",
@@ -49,6 +50,7 @@
     "@typescript-eslint/eslint-plugin": "^8.65.0",
     "@typescript-eslint/parser": "^8.65.0",
     "eslint": "^10.7.0",
+    "nodemon": "^3.1.14",
     "prisma": "^7.8.0",
     "supertest": "^7.2.2",
     "typescript": "^7.0.2"

@@ -1,2 +1,2 @@
-// auto-generated barrel
 export * from './getConfig.query';
+export * from './renderTemplate.query';

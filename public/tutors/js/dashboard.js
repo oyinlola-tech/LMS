@@ -126,7 +126,7 @@
         + '<div class="course-item-info"><div class="ci-title">' + escapeHtml(c.title) + '</div><div class="ci-meta">' + c.learners + ' learner' + (c.learners !== 1 ? 's' : '') + (weekStr ? ' \u00B7 ' + weekStr : '') + '</div></div>'
         + '<div class="course-item-progress"><div class="ci-progress-bar"><div class="fill" style="width:' + c.completedPercent + '%"></div></div><div class="ci-progress-text">' + c.completedPercent + '%</div></div>';
       item.style.cursor = 'pointer';
-      item.onclick = function () { window.location.href = '/courses/' + c.id; };
+      item.onclick = function () { window.location.href = '/course/' + c.id; };
       section.appendChild(item);
     });
   }

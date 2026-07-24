@@ -275,9 +275,9 @@ function loadMentors() {
 function renderPricing(c) {
   var priceEl = id('current-price'), oldPriceEl = id('old-price'), discountEl = id('discount-badge');
   if (c.price != null && c.price > 0) {
-    priceEl.textContent = (c.currency === 'EUR' ? '\u20AC' : '$') + c.price.toFixed(2);
+    priceEl.textContent = Shared.formatCurrency(c.price, c.currency);
     if (c.previousPrice && c.previousPrice > c.price) {
-      oldPriceEl.textContent = (c.currency === 'EUR' ? '\u20AC' : '$') + c.previousPrice.toFixed(2);
+      oldPriceEl.textContent = Shared.formatCurrency(c.previousPrice, c.currency);
       oldPriceEl.style.display = 'inline';
       discountEl.textContent = c.discountPercent + '% OFF'; discountEl.style.display = 'inline';
     } else { oldPriceEl.style.display = 'none'; discountEl.style.display = 'none'; }

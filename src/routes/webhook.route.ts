@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { getInstructorPublicProfile } from '../controllers/instructors.controller';
+import { handleSendbyteWebhook } from '../controllers/webhook.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
-  fastify.get('/:id', getInstructorPublicProfile);
+  fastify.post('/sendbyte', handleSendbyteWebhook);
 }

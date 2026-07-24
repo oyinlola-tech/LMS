@@ -1,60 +1,14 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { ok, error } from '../utils/response.util';
-import { addClient } from '../utils/notificationStream.util';
-import { listNotificationsQuery } from '../services/notifications/queries/listNotifications.query';
-import { createNotificationCommand } from '../services/notifications/commands/createNotification.command';
-import { markNotificationReadCommand } from '../services/notifications/commands/markRead.command';
-import { markAllNotificationsReadCommand } from '../services/notifications/commands/markAllRead.command';
+import { listNotifications, streamNotifications, createNotification, markRead, markAllRead } from '../controllers/notifications.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
-  fastify.get('/', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      const { unread } = request.query as any;
-      const notifications = await listNotificationsQuery.execute(request.user!.sub, unread === 'true');
-      return ok(reply, notifications, 'Notifications loaded');
-    } catch (err: any) {
-      return error(reply, 500, 'NOTIFICATIONS_LOAD_FAILED', 'Failed to load notifications');
-    }
-  });
+  fastify.get('/', { preHandler: [fastify.authenticate] }, listNotifications);
 
-  fastify.get('/stream', { preHandler: [fastify.authenticate] }, (request: FastifyRequest, reply: FastifyReply) => {
-    if (reply.sent) return;
-    reply.header('Content-Type', 'text/event-stream');
-    reply.header('Cache-Control', 'no-cache');
-    reply.header('Connection', 'keep-alive');
-    reply.raw.write('event: ready\ndata: {"ok":true}\n\n');
-    const remove = addClient(request.user!.sub, reply.raw);
-    const keepAlive = setInterval(() => {
-      if (reply.raw.writableEnded) { clearInterval(keepAlive); return; }
-      reply.raw.write('event: ping\ndata: {"t":' + Date.now() + '}\n\n');
-    }, 25000);
-    request.raw.on('close', () => { clearInterval(keepAlive); remove(); });
-  });
+  fastify.get('/stream', { preHandler: [fastify.authenticate] }, streamNotifications);
 
-  fastify.post('/', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      const notification = await createNotificationCommand.execute(request.user!.sub, (request.body as any) || {});
-      return ok(reply, notification, 'Notification created');
-    } catch (err: any) {
-      return error(reply, err.statusCode || 500, err.code || 'NOTIFICATION_CREATE_FAILED', err.message || 'Failed to create notification');
-    }
-  });
+  fastify.post('/', { preHandler: [fastify.authenticate] }, createNotification);
 
-  fastify.put('/:id/read', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      await markNotificationReadCommand.execute(request.user!.sub, (request.params as any).id);
-      return ok(reply, null, 'Notification marked read');
-    } catch (err: any) {
-      return error(reply, err.statusCode || 500, err.code || 'NOTIFICATION_UPDATE_FAILED', err.message || 'Failed to update notification');
-    }
-  });
+  fastify.put('/:id/read', { preHandler: [fastify.authenticate] }, markRead);
 
-  fastify.post('/mark-all-read', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      await markAllNotificationsReadCommand.execute(request.user!.sub);
-      return ok(reply, null, 'All notifications marked read');
-    } catch (err: any) {
-      return error(reply, 500, 'NOTIFICATIONS_UPDATE_FAILED', 'Failed to update notifications');
-    }
-  });
+  fastify.post('/mark-all-read', { preHandler: [fastify.authenticate] }, markAllRead);
 }

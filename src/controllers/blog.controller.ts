@@ -1,0 +1,215 @@
+import { FastifyRequest, FastifyReply } from 'fastify';
+import { Op } from 'sequelize';
+import { BlogPost, BlogComment, User, Follow } from '../models';
+import { UserRole } from '../enums';
+import { ok, created, error } from '../utils/response.util';
+import { AppError } from '../errors';
+import { broadcastNotification } from '../utils/wsHub.util';
+import { sendPushNotification } from '../utils/firebase.util';
+import { sanitizeHtml, sanitizeRichText } from '../utils/sanitize.util';
+import { containsFlaggedWords } from '../utils/profanity.util';
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'post';
+}
+
+export async function listPublishedPosts(_request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const posts = await BlogPost.findAll({
+      where: { isPublished: true },
+      include: [{ model: User, as: 'author', attributes: ['id', 'fullName', 'avatarUrl'] }],
+      order: [['publishedAt', 'DESC']],
+      limit: 20,
+    });
+    return ok(reply, posts, 'Blog posts loaded');
+  } catch (err) {
+    _request.log.error(err, 'BLOG_LIST_FAILED');
+    return error(reply, 500, 'BLOG_LIST_FAILED', 'Failed to load blog posts');
+  }
+}
+
+export async function listAllPosts(_request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const posts = await BlogPost.findAll({
+      include: [{ model: User, as: 'author', attributes: ['id', 'fullName', 'avatarUrl'] }],
+      order: [['createdAt', 'DESC']],
+    });
+    return ok(reply, posts, 'All blog posts loaded');
+  } catch (err) {
+    _request.log.error(err, 'BLOG_ALL_FAILED');
+    return error(reply, 500, 'BLOG_ALL_FAILED', 'Failed to load blog posts');
+  }
+}
+
+export async function getPostBySlug(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { slug } = request.params as { slug: string };
+    const post = await BlogPost.findOne({
+      where: { slug, isPublished: true },
+      include: [{ model: User, as: 'author', attributes: ['id', 'fullName', 'avatarUrl', 'bio'] }],
+    });
+    if (!post) {
+      return error(reply, 404, 'NOT_FOUND', 'Blog post not found');
+    }
+    return ok(reply, post, 'Blog post loaded');
+  } catch (err) {
+    request.log.error(err, 'BLOG_GET_FAILED');
+    return error(reply, 500, 'BLOG_GET_FAILED', 'Failed to load blog post');
+  }
+}
+
+export async function getPostComments(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { slug } = request.params as { slug: string };
+    const post = await BlogPost.findOne({ where: { slug } });
+    if (!post) return error(reply, 404, 'NOT_FOUND', 'Blog post not found');
+    const comments = await BlogComment.findAll({
+      where: { blogPostId: post.id },
+      include: [{ model: User, as: 'author', attributes: ['id', 'fullName', 'avatarUrl'] }],
+      order: [['createdAt', 'ASC']],
+    });
+    return ok(reply, comments, 'Comments loaded');
+  } catch (err) {
+    request.log.error(err, 'COMMENT_LIST_FAILED');
+    return error(reply, 500, 'COMMENT_LIST_FAILED', 'Failed to load comments');
+  }
+}
+
+export async function addComment(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { slug } = request.params as { slug: string };
+    const post = await BlogPost.findOne({ where: { slug } });
+    if (!post) return error(reply, 404, 'NOT_FOUND', 'Blog post not found');
+    const { content } = (request.body || {}) as { content: string };
+    if (!content || !content.trim()) return error(reply, 400, 'VALIDATION_ERROR', 'Content is required');
+    const comment = await BlogComment.create({
+      blogPostId: post.id,
+      authorId: request.user!.sub,
+      content: sanitizeRichText(content.trim()),
+      flagged: containsFlaggedWords(content),
+    });
+    return created(reply, comment, 'Comment added');
+  } catch (err) {
+    request.log.error(err, 'COMMENT_CREATE_FAILED');
+    return error(reply, 500, 'COMMENT_CREATE_FAILED', 'Failed to add comment');
+  }
+}
+
+export async function deleteComment(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { id } = request.params as { id: string };
+    const comment = await BlogComment.findByPk(id);
+    if (!comment) return error(reply, 404, 'NOT_FOUND', 'Comment not found');
+    const role = request.user!.role;
+    if (comment.authorId !== request.user!.sub && role !== UserRole.ADMIN && role !== UserRole.TUTOR) {
+      return error(reply, 403, 'FORBIDDEN', 'You can only delete your own comments');
+    }
+    await comment.destroy();
+    return ok(reply, null, 'Comment deleted');
+  } catch (err) {
+    request.log.error(err, 'COMMENT_DELETE_FAILED');
+    return error(reply, 500, 'COMMENT_DELETE_FAILED', 'Failed to delete comment');
+  }
+}
+
+export async function createPost(request: FastifyRequest, reply: FastifyReply) {
+  const role = request.user!.role;
+  if (role !== UserRole.ADMIN && role !== UserRole.TUTOR) {
+    return error(reply, 403, 'FORBIDDEN', 'Only admins and tutors can create blog posts');
+  }
+  const body = (request.body || {}) as {
+    title: string; content: string; excerpt?: string; featuredImage?: string; isPublished?: boolean;
+  };
+  if (!body.title || !body.content) {
+    return error(reply, 400, 'VALIDATION_ERROR', 'Title and content are required');
+  }
+  try {
+    const slug = slugify(body.title);
+    const existing = await BlogPost.findOne({ where: { slug } });
+    const finalSlug = existing ? slug + '-' + Date.now() : slug;
+    const post = await BlogPost.create({
+      title: sanitizeHtml(body.title),
+      slug: finalSlug,
+      content: sanitizeRichText(body.content),
+      excerpt: body.excerpt ? sanitizeRichText(body.excerpt) : sanitizeRichText(body.content.slice(0, 200)),
+      featuredImage: body.featuredImage || null,
+      authorId: request.user!.sub,
+      isPublished: body.isPublished !== undefined ? body.isPublished : true,
+      publishedAt: body.isPublished !== false ? new Date() : undefined,
+    });
+
+    if (post.isPublished) {
+      try {
+        const author = await User.findByPk(request.user!.sub, { attributes: ['fullName'] });
+        const authorName = author?.fullName || 'A tutor';
+        const followers = await Follow.findAll({
+          where: { followingId: request.user!.sub },
+          attributes: ['followerId'],
+        });
+        for (const f of followers) {
+          broadcastNotification({
+            userId: f.followerId,
+            type: 'blog_post',
+            title: 'New Blog Post',
+            message: `${authorName} published "${body.title}"`,
+          });
+          sendPushNotification(f.followerId, 'New Blog Post', `${authorName} published "${body.title}"`, { postId: String(post.id), slug: finalSlug });
+        }
+      } catch (notifErr) {
+        request.log.warn('Failed to notify followers of blog post');
+      }
+    }
+
+    return created(reply, post, 'Blog post created');
+  } catch (err: unknown) {
+    request.log.error(err, 'BLOG_CREATE_FAILED');
+    return error(reply, 500, 'BLOG_CREATE_FAILED', 'Failed to create blog post');
+  }
+}
+
+export async function updatePost(request: FastifyRequest, reply: FastifyReply) {
+  const role = request.user!.role;
+  if (role !== UserRole.ADMIN && role !== UserRole.TUTOR) {
+    return error(reply, 403, 'FORBIDDEN', 'Only admins and tutors can edit blog posts');
+  }
+  try {
+    const { id } = request.params as { id: string };
+    const post = await BlogPost.findByPk(id);
+    if (!post) {
+      return error(reply, 404, 'NOT_FOUND', 'Blog post not found');
+    }
+    if (post.authorId !== request.user!.sub && role !== UserRole.ADMIN) {
+      return error(reply, 403, 'FORBIDDEN', 'You can only edit your own posts');
+    }
+    const body = (request.body || {}) as any;
+    const updates: any = {};
+    if (body.title !== undefined) { updates.title = sanitizeHtml(body.title); updates.slug = slugify(body.title); }
+    if (body.content !== undefined) updates.content = sanitizeRichText(body.content);
+    if (body.excerpt !== undefined) updates.excerpt = sanitizeRichText(body.excerpt);
+    if (body.featuredImage !== undefined) updates.featuredImage = body.featuredImage;
+    if (body.isPublished !== undefined) {
+      updates.isPublished = body.isPublished;
+      if (body.isPublished && !post.get('publishedAt')) updates.publishedAt = new Date();
+    }
+    await post.update(updates);
+    return ok(reply, post, 'Blog post updated');
+  } catch (err) {
+    request.log.error(err, 'BLOG_UPDATE_FAILED');
+    return error(reply, 500, 'BLOG_UPDATE_FAILED', 'Failed to update blog post');
+  }
+}
+
+export async function deletePost(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { id } = request.params as { id: string };
+    const post = await BlogPost.findByPk(id);
+    if (!post) {
+      return error(reply, 404, 'NOT_FOUND', 'Blog post not found');
+    }
+    await post.destroy();
+    return ok(reply, null, 'Blog post deleted');
+  } catch (err) {
+    request.log.error(err, 'BLOG_DELETE_FAILED');
+    return error(reply, 500, 'BLOG_DELETE_FAILED', 'Failed to delete blog post');
+  }
+}

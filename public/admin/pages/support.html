@@ -68,7 +68,7 @@
         var tbody = document.getElementById('tickets-body');
         if (res.error || !res.data || !res.data.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:3rem;color:var(--on-surface-variant)">No tickets</td></tr>'; return; }
         tbody.innerHTML = res.data.map(function(t) {
-          return '<tr class="ticket-item" onclick="openTicket(\'' + t.id + '\',\'' + Shared.escapeHtml(t.subject || 'Ticket').replace(/'/g,"\\'") + '\')"><td>' + Shared.escapeHtml(t.subject || 'Untitled') + '</td>' +
+          return '<tr class="ticket-item" onclick="openTicket(\'' + encodeURIComponent(t.id) + '\',\'' + Shared.escapeHtml(t.subject || 'Ticket').replace(/'/g,"\\'") + '\')"><td>' + Shared.escapeHtml(t.subject || 'Untitled') + '</td>' +
             '<td>' + Shared.escapeHtml(t.User ? t.User.name || t.User.email : '-') + '</td>' +
             '<td><span class="badge ' + (t.status || 'open') + '">' + (t.status || 'open') + '</span></td>' +
             '<td>' + Shared.formatTime(t.updatedAt || t.createdAt) + '</td></tr>';

@@ -128,7 +128,7 @@
           .catch(function(err) { console.error('Load courses error:', err); $('courses-grid').innerHTML = '<div class="empty-state" style="grid-column:1/-1;color:var(--error)">Failed to load courses</div>'; });
       };
       window.changePage = function(delta) { currentPage = Math.max(1, Math.min(currentPage + delta, totalPages)); loadCourses(); };
-      window.viewCourse = function(id) { window.location.href = '/courses/' + id; };
+      window.viewCourse = function(id) { window.location.href = '/course/' + id; };
       document.addEventListener('components-loaded', loadCourses);
     })();
   </script>

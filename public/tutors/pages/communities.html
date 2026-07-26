@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Communities - LearnBridge</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="/tutors/components/tutor-sidebar"></div>
+  <main class="admin-main">
+    <div data-include="/tutors/components/tutor-header"></div>
+    <div class="container" style="padding-top:1rem;padding-bottom:1rem">
+      <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem">Communities</h1>
+      <div id="communities-content">
+        <p style="color:var(--on-surface-variant)">Loading communities...</p>
+      </div>
+    </div>
+  </main>
+  <div data-include="/tutors/components/tutor-bottom-nav"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var container = document.getElementById('communities-content');
+      container.innerHTML = '<div class="card" style="padding:2rem;text-align:center;color:var(--on-surface-variant)"><span class="material-symbols-outlined icon" style="font-size:3rem;margin-bottom:1rem;display:block">groups</span><p>Communities you join will appear here.</p></div>';
+    });
+  </script>
+</body>
+</html>

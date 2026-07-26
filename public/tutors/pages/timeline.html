@@ -3,16 +3,25 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Timeline - Tutor | LearnBridge</title>
+  <title>Timeline - LearnBridge</title>
   <link href="/css/styles.css" rel="stylesheet"/>
   <link href="/css/modal.css" rel="stylesheet"/>
   <style>
     .post-card { background: var(--surface); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; border: 1px solid var(--outline-variant); }
-    .create-post-box { background: var(--surface); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; border: 1px solid var(--outline-variant); }
+    .post-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
     .post-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--primary-container); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--on-primary-container); background-size: cover; background-position: center; flex-shrink: 0; }
+    .post-body { font-size: 0.9375rem; line-height: 1.6; margin-bottom: 0.75rem; white-space: pre-wrap; }
+    .post-image { max-width: 100%; max-height: 400px; border-radius: 0.5rem; margin-bottom: 0.75rem; object-fit: cover; }
+    .post-actions { display: flex; gap: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--outline-variant); }
+    .post-action { display: flex; align-items: center; gap: 0.375rem; font-size: 0.8125rem; color: var(--on-surface-variant); cursor: pointer; padding: 0.375rem 0.625rem; border-radius: 0.375rem; transition: background 0.15s; }
+    .post-action:hover { background: var(--surface-container-high); }
+    .post-action.active { color: var(--primary); }
     .checkmark { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; font-weight: 700; margin-left: 4px; }
     .checkmark.blue { background: #1d9bf0; color: #fff; }
     .checkmark.black { background: #000; color: #fff; }
+    .create-post-box { background: var(--surface); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; border: 1px solid var(--outline-variant); }
+    .create-post-box textarea { width: 100%; min-height: 80px; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--outline-variant); background: var(--surface-container-low); color: var(--on-surface); font-size: 0.9375rem; resize: vertical; margin-bottom: 0.75rem; }
+    .recommended-user { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--outline-variant); margin-bottom: 0.5rem; }
   </style>
 </head>
 <body>
@@ -22,13 +31,22 @@
     <div class="container" style="padding-top:1rem;padding-bottom:1rem;max-width:720px">
       <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem">Timeline</h1>
       <div class="create-post-box">
-        <textarea id="post-body" placeholder="Share an update with your followers..." maxlength="5000" style="width:100%;min-height:80px;padding:0.75rem;border-radius:0.5rem;border:1px solid var(--outline-variant);background:var(--surface-container-low);color:var(--on-surface);font-size:0.9375rem;resize:vertical;margin-bottom:0.75rem"></textarea>
+        <textarea id="post-body" placeholder="Share an update with your followers..." maxlength="5000"></textarea>
         <div style="display:flex;align-items:center;gap:0.75rem">
+          <button class="btn-secondary text-sm" onclick="document.getElementById('post-image-input').click()">
+            <span class="material-symbols-outlined" style="font-size:1.1rem">image</span> Photo
+          </button>
+          <input type="file" id="post-image-input" accept="image/*" style="display:none" onchange="TimelineApp.handleImageSelect(this)"/>
           <span id="image-name" style="font-size:0.75rem;color:var(--on-surface-variant);flex:1"></span>
-          <button class="btn-primary text-sm" onclick="createPost()">Post</button>
+          <button class="btn-primary text-sm" onclick="TimelineApp.createPost()">Post</button>
         </div>
       </div>
+      <div id="recommended-users" style="margin-bottom:1.5rem"></div>
+      <div id="recommended-courses" style="margin-bottom:1.5rem"></div>
       <div id="timeline-posts"></div>
+      <div style="text-align:center;padding:2rem">
+        <button class="btn-secondary" id="load-more-btn" style="display:none">Load More</button>
+      </div>
     </div>
   </main>
   <div data-include="/tutors/components/tutor-bottom-nav"></div>
@@ -37,37 +55,6 @@
   <script src="/js/shared/api.js"></script>
   <script src="/js/shared/dom.js"></script>
   <script src="/js/shared/auth.js"></script>
-  <script>
-    async function loadTimeline() {
-      try {
-        const res = await Shared.api.get('/timeline?limit=20');
-        const posts = res.data?.items || [];
-        const container = document.getElementById('timeline-posts');
-        container.innerHTML = posts.map(post => {
-          const author = post.author || {};
-          const checkmark = author.isVerified ? `<span class="checkmark ${author.checkmarkType === 'blue' ? 'blue' : 'black'}">${author.checkmarkType === 'blue' ? '✓' : '✦'}</span>` : '';
-          return `
-            <div class="post-card">
-              <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem">
-                <div class="post-avatar" style="background-image:url(${author.avatarUrl || ''})">${author.avatarUrl ? '' : (author.fullName?.[0] || '?')}</div>
-                <div><p style="font-weight:600;font-size:0.875rem">${author.fullName || 'Unknown'}${checkmark}</p></div>
-              </div>
-              ${post.imageUrl ? `<img src="${post.imageUrl}" style="max-width:100%;max-height:400px;border-radius:0.5rem;margin-bottom:0.75rem"/>` : ''}
-              <div style="font-size:0.9375rem;line-height:1.6;white-space:pre-wrap">${post.body}</div>
-            </div>
-          `;
-        }).join('');
-      } catch(e) { console.error(e); }
-    }
-    window.createPost = async () => {
-      const body = document.getElementById('post-body').value.trim();
-      if (!body) { alert('Please write something'); return; }
-      try { await Shared.api.post('/timeline', { body }); document.getElementById('post-body').value = ''; loadTimeline(); } catch(e) { alert('Failed to post'); }
-    };
-    document.addEventListener('DOMContentLoaded', async () => {
-      await Shared.auth.requireAuth();
-      loadTimeline();
-    });
-  </script>
+  <script src="/js/shared/timeline.js"></script>
 </body>
 </html>

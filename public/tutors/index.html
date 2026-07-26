@@ -44,11 +44,11 @@
 
         <!-- Quick Actions -->
         <div class="dash-quick-actions">
-          <button class="qa-btn" onclick="window.location.href='/tutor/courses/create'"><span class="material-symbols-outlined">add_circle</span> Create Course</button>
-          <button class="qa-btn" onclick="window.location.href='/tutor/assignments/create'"><span class="material-symbols-outlined">assignment_add</span> New Assignment</button>
+          <button class="qa-btn" onclick="window.location.href='/tutor/courses/builder'"><span class="material-symbols-outlined">add_circle</span> Create Course</button>
+          <button class="qa-btn" onclick="window.location.href='/tutor/assignments'"><span class="material-symbols-outlined">assignment_add</span> New Assignment</button>
           <button class="qa-btn" onclick="window.location.href='/tutor/office-hours'"><span class="material-symbols-outlined">event</span> Office Hours</button>
           <button class="qa-btn" onclick="window.location.href='/tutor/earnings'"><span class="material-symbols-outlined">payments</span> View Earnings</button>
-          <button class="qa-btn" onclick="window.location.href='/tutor/blog'"><span class="material-symbols-outlined">article</span> Write Post</button>
+          <button class="qa-btn" onclick="window.location.href='/blog'"><span class="material-symbols-outlined">article</span> Write Post</button>
         </div>
 
         <div class="dash-grid">
@@ -70,7 +70,7 @@
             <div class="dash-card">
               <div class="dash-card-header">
                 <h3>Course Analytics</h3>
-                <a href="/tutor/courses" class="link">Manage courses</a>
+                <a href="/tutor/courses/builder" class="link">Manage courses</a>
               </div>
               <div class="course-analytics" id="course-analytics">
                 <div class="skeleton" style="height:100px;border-radius:0.75rem"></div>
@@ -92,7 +92,7 @@
             <div class="dash-card">
               <div class="dash-card-header">
                 <h3>Active Courses</h3>
-                <a href="/tutor/courses" class="link">Manage</a>
+                <a href="/tutor/courses/builder" class="link">Manage</a>
               </div>
               <div id="active-courses-section">
                 <div class="skeleton" style="height:120px;border-radius:0.75rem"></div>
@@ -160,7 +160,7 @@
             <div class="dash-card">
               <div class="dash-card-header">
                 <h3>Recent Discussions</h3>
-                <a href="/tutor/discussions" class="link">View all</a>
+                <a href="/discussions" class="link">View all</a>
               </div>
               <div id="discussions-section">
                 <div class="skeleton" style="height:100px;border-radius:0.75rem"></div>

@@ -203,18 +203,18 @@
       el.innerHTML = modules.map(function(m, mi) {
         var lessons = m.Lessons || [];
         return '<div class="module-item"><div class="header"><h3>' + (mi + 1) + '. ' + Shared.escapeHtml(m.title) + '</h3>' +
-          '<div><button class="btn-sm" onclick="openModuleModal(\'' + m.id + '\',\'' + Shared.escapeHtml(m.title).replace(/'/g,"\\'") + '\')">Edit</button>' +
-          ' <button class="btn-sm" onclick="deleteModule(\'' + m.id + '\')" style="color:var(--error)">Delete</button></div></div>' +
+          '<div><button class="btn-sm" onclick="openModuleModal(\'' + encodeURIComponent(m.id) + '\',\'' + Shared.escapeHtml(m.title).replace(/'/g,"\\'") + '\')">Edit</button>' +
+          ' <button class="btn-sm" onclick="deleteModule(\'' + encodeURIComponent(m.id) + '\')" style="color:var(--error)">Delete</button></div></div>' +
           '<div class="lessons">' +
           (lessons.length ? lessons.map(function(l, li) {
             return '<div class="lesson-item"><span class="icon">' + (l.type === 'video' ? '▶' : l.type === 'quiz' ? '?' : l.type === 'pdf' ? '📄' : '📝') + '</span>' +
               '<span class="name">' + Shared.escapeHtml(l.title) + '</span>' +
               '<span class="type">' + (l.type || 'video') + '</span>' +
-              '<button class="btn-sm" onclick="openLessonModal(\'' + m.id + '\',\'' + l.id + '\')">✎</button>' +
-              '<button class="btn-sm" onclick="openContentModal(\'' + l.id + '\')">Content</button>' +
-              '<button class="btn-sm" onclick="deleteLesson(\'' + m.id + '\',\'' + l.id + '\')" style="color:var(--error)">✕</button></div>';
+              '<button class="btn-sm" onclick="openLessonModal(\'' + encodeURIComponent(m.id) + '\',\'' + encodeURIComponent(l.id) + '\')">✎</button>' +
+              '<button class="btn-sm" onclick="openContentModal(\'' + encodeURIComponent(l.id) + '\')">Content</button>' +
+              '<button class="btn-sm" onclick="deleteLesson(\'' + encodeURIComponent(m.id) + '\',\'' + encodeURIComponent(l.id) + '\')" style="color:var(--error)">✕</button></div>';
           }).join('') : '<div style="font-size:0.8125rem;color:var(--on-surface-variant);padding:0.5rem 0">No lessons yet</div>') +
-          '<button class="btn-sm" onclick="openLessonModal(\'' + m.id + '\')" style="margin-top:0.25rem">+ Add Lesson</button></div></div>';
+          '<button class="btn-sm" onclick="openLessonModal(\'' + encodeURIComponent(m.id) + '\')" style="margin-top:0.25rem">+ Add Lesson</button></div></div>';
       }).join('');
     }
 

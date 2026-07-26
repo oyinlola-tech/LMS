@@ -61,9 +61,11 @@
         if (res.error || !res.data || !res.data.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📅</div><p>No office hours scheduled yet</p></div>'; return; }
         el.innerHTML = '<h2 style="font-size:1.125rem;margin:0 0 1rem">Upcoming Sessions</h2>';
         res.data.forEach(function(s) {
+          var dateStr = s.startsAt ? new Date(s.startsAt).toLocaleString() : 'TBD';
           el.innerHTML += '<div class="session-item"><div class="info"><h3>' + Shared.escapeHtml(s.title || 'Office Hours') + '</h3>' +
-            '<p>' + Shared.formatTime(s.startTime || s.dateTime) + ' &middot; ' + (s.durationMinutes || 30) + ' min' +
-            (s.description ? ' &middot; ' + Shared.escapeHtml(s.description) : '') + '</p></div></div>';
+            '<p>' + dateStr + ' &middot; ' + (s.durationMinutes || 30) + ' min' +
+            (s.Course ? ' &middot; ' + Shared.escapeHtml(s.Course.title || '') : '') +
+            (s.meetingUrl ? ' &middot; <a href="' + Shared.escapeHtml(s.meetingUrl) + '" target="_blank">Join</a>' : '') + '</p></div></div>';
         });
       });
     }
@@ -75,7 +77,7 @@
       var desc = document.getElementById('oh-desc').value.trim();
       if (!title) { alert('Title is required'); return; }
       if (!dateTime) { alert('Date & time is required'); return; }
-      api.post('/tutors/actions/schedule-office-hour', { title: title, dateTime: new Date(dateTime).toISOString(), durationMinutes: duration, description: desc }).then(function(res) {
+      api.post('/tutors/actions/schedule-office-hour', { title: title, startsAt: new Date(dateTime).toISOString(), durationMinutes: duration, meetingUrl: '', description: desc }).then(function(res) {
         if (res.error) { alert(res.error.message); return; }
         document.getElementById('oh-title').value = '';
         document.getElementById('oh-datetime').value = '';

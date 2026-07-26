@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Leaderboard - LearnBridge</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .page-header p { font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 0.125rem; }
+    .tab-bar { display: flex; border-bottom: 1px solid var(--outline-variant); margin-bottom: 1.5rem; }
+    .tab-btn { flex: 1; padding: 0.75rem 0.5rem; text-align: center; font-size: 0.8125rem; font-weight: 600; cursor: pointer; color: var(--on-surface-variant); border-bottom: 2px solid transparent; transition: var(--transition); background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
+    .tab-btn:hover { background: var(--surface); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .rank-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 1rem; }
+    .rank-card .rank { font-size: 1.25rem; font-weight: 800; color: var(--on-surface-variant); min-width: 2.5rem; text-align: center; }
+    .rank-card .rank.gold { color: #f59e0b; }
+    .rank-card .rank.silver { color: #9ca3af; }
+    .rank-card .rank.bronze { color: #d97706; }
+    .rank-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-container); display: flex; align-items: center; justify-content: center; color: var(--on-primary-fixed); font-weight: 700; font-size: 0.9375rem; flex-shrink: 0; }
+    .rank-info { flex: 1; }
+    .rank-info h4 { font-size: 0.875rem; font-weight: 700; }
+    .rank-info p { font-size: 0.75rem; color: var(--on-surface-variant); }
+    .rank-stats { text-align: right; }
+    .rank-stats .points { font-size: 1rem; font-weight: 700; color: var(--primary); }
+    .rank-stats .badge-count { font-size: 0.6875rem; color: var(--on-surface-variant); }
+    .challenge-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.5rem; text-align: center; }
+    .challenge-card h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .challenge-card p { font-size: 0.875rem; color: var(--on-surface-variant); margin-bottom: 1rem; }
+    .challenge-card .timer { font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 1rem; }
+    .challenge-card .progress-section { margin-bottom: 1rem; }
+    .challenge-card .progress-section .label { font-size: 0.75rem; color: var(--on-surface-variant); margin-bottom: 0.25rem; }
+    .progress-bar { height: 0.5rem; background: var(--surface-container-high); border-radius: 999px; overflow: hidden; }
+    .progress-bar .fill { height: 100%; background: var(--primary); border-radius: 999px; transition: width 0.5s; }
+    .badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; }
+    .badge-item { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.25rem; text-align: center; transition: all 0.2s; }
+    .badge-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .badge-item .badge-icon { font-size: 2.5rem; margin-bottom: 0.5rem; display: block; }
+    .badge-item h4 { font-size: 0.8125rem; font-weight: 700; }
+    .badge-item p { font-size: 0.6875rem; color: var(--on-surface-variant); margin-top: 0.125rem; }
+    .badge-item.locked { opacity: 0.45; filter: grayscale(0.8); }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--on-surface-variant); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+    .skeleton { background: linear-gradient(90deg, var(--surface-container) 25%, var(--surface-container-high) 50%, var(--surface-container) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0.75rem; height: 72px; margin-bottom: 0.5rem; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .badges-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/students/components/dashboard-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/students/components/dashboard-header"></div>
+      <div class="page-header">
+        <h1>Leaderboard</h1>
+        <p>Compete with peers, track weekly challenges, and earn badges</p>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="top-students">Top Students</button>
+        <button class="tab-btn" data-tab="weekly-challenge">Weekly Challenge</button>
+        <button class="tab-btn" data-tab="badges">Badges</button>
+      </div>
+      <div id="top-students" class="tab-content active">
+        <div id="students-list">
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+        </div>
+      </div>
+      <div id="weekly-challenge" class="tab-content">
+        <div id="challenge-content">
+          <div class="skeleton" style="height:200px"></div>
+        </div>
+      </div>
+      <div id="badges" class="tab-content">
+        <div id="badges-content">
+          <div class="skeleton" style="height:120px"></div>
+          <div class="skeleton" style="height:120px"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/students/components/dashboard-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    (function() {
+      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
+      function escapeHtml(t) { var d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+      function fmtCountdown(ms) {
+        if (ms <= 0) return 'Ended';
+        var totalSec = Math.floor(ms / 1000);
+        var d = Math.floor(totalSec / 86400);
+        var h = Math.floor((totalSec % 86400) / 3600);
+        var m = Math.floor((totalSec % 3600) / 60);
+        var s = totalSec % 60;
+        return d + 'd ' + h + 'h ' + m + 'm ' + s + 's';
+      }
+      document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+          document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+          btn.classList.add('active');
+          document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
+        });
+      });
+      async function loadLeaderboard() {
+        var studentsEl = document.getElementById('students-list');
+        try {
+          var topRes = await api.get('/leaderboard/top');
+          var students = topRes.data || [];
+          if (!students.length) {
+            studentsEl.innerHTML = '<div class="empty-state"><span class="icon material-symbols-outlined">leaderboard</span><p>No rankings yet</p><p style="font-size:0.8125rem;margin-top:0.25rem">Start learning to appear on the leaderboard</p></div>';
+          } else {
+            studentsEl.innerHTML = students.map(function(s, i) {
+              var rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+              var initials = (s.fullName || s.name || '?').split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
+              return '<div class="rank-card"><div class="rank ' + rankClass + '">#' + (i + 1) + '</div><div class="rank-avatar">' + escapeHtml(initials) + '</div><div class="rank-info"><h4>' + escapeHtml(s.fullName || s.name || 'Student') + '</h4><p>' + escapeHtml(s.courseName || '') + '</p></div><div class="rank-stats"><div class="points">' + (s.points || 0) + ' pts</div><div class="badge-count">' + (s.badgeCount || s.badges || 0) + ' badges</div></div></div>';
+            }).join('');
+          }
+        } catch(e) {
+          console.error('Leaderboard error:', e);
+          studentsEl.innerHTML = '<div class="empty-state" style="color:var(--error)"><span class="icon material-symbols-outlined">error</span><p>Failed to load leaderboard</p><p style="font-size:0.8125rem;margin-top:0.25rem">Please try refreshing the page</p></div>';
+        }
+        var challengeEl = document.getElementById('challenge-content');
+        try {
+          var weeklyRes = await api.get('/leaderboard/weekly');
+          var wc = weeklyRes.data || {};
+          if (!wc || !wc.title) {
+            challengeEl.innerHTML = '<div class="empty-state" style="padding:3rem 1rem"><span class="icon material-symbols-outlined">celebration</span><p>No weekly challenge active</p><p style="font-size:0.8125rem;margin-top:0.25rem">Check back when a new challenge is posted</p></div>';
+          } else {
+            var progress = wc.progress || wc.completionPercent || 0;
+            var endsAt = wc.endsAt ? new Date(wc.endsAt).getTime() : 0;
+            var now = Date.now();
+            var remaining = Math.max(0, endsAt - now);
+            challengeEl.innerHTML = '<div class="challenge-card"><h3>' + escapeHtml(wc.title) + '</h3><p>' + escapeHtml(wc.description || 'Complete the challenge to earn bonus points') + '</p><div class="timer" id="challenge-timer">' + fmtCountdown(remaining) + '</div><div class="progress-section"><div class="label">Progress: ' + progress + '%</div><div class="progress-bar"><div class="fill" style="width:' + progress + '%"></div></div></div></div>';
+            if (remaining > 0) {
+              window._challengeInterval = setInterval(function() {
+                var remain = Math.max(0, endsAt - Date.now());
+                var tEl = document.getElementById('challenge-timer');
+                if (tEl) tEl.textContent = fmtCountdown(remain);
+                if (remain <= 0 && window._challengeInterval) {
+                  clearInterval(window._challengeInterval);
+                  window._challengeInterval = null;
+                }
+              }, 1000);
+            }
+          }
+        } catch(e) {
+          console.error('Weekly challenge error:', e);
+          challengeEl.innerHTML = '<div class="empty-state" style="padding:3rem 1rem;color:var(--error)"><span class="icon material-symbols-outlined">error</span><p>Failed to load weekly challenge</p></div>';
+        }
+        var badgesEl = document.getElementById('badges-content');
+        try {
+          var badgesRes = await api.get('/badges');
+          var badges = badgesRes.data || [];
+          if (!badges.length) {
+            badgesEl.innerHTML = '<div class="empty-state"><span class="icon material-symbols-outlined">military_tech</span><p>No badges available</p><p style="font-size:0.8125rem;margin-top:0.25rem">Earn badges by completing courses and challenges</p></div>';
+          } else {
+            badgesEl.innerHTML = '<div class="badges-grid">' + badges.map(function(b) {
+              var earned = b.earned || b.unlocked || false;
+              return '<div class="badge-item' + (earned ? '' : ' locked') + '"><span class="badge-icon material-symbols-outlined">' + (b.icon || 'military_tech') + '</span><h4>' + escapeHtml(b.name || 'Badge') + '</h4><p>' + escapeHtml(b.description || '') + '</p></div>';
+            }).join('') + '</div>';
+          }
+        } catch(e) {
+          console.error('Badges error:', e);
+          badgesEl.innerHTML = '<div class="empty-state" style="color:var(--error)"><span class="icon material-symbols-outlined">error</span><p>Failed to load badges</p></div>';
+        }
+      }
+      document.addEventListener('components-loaded', loadLeaderboard);
+    })();
+  </script>
+</body>
+</html>

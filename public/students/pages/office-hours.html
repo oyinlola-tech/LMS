@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Office Hours - LearnBridge</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .layout { display: flex; min-height: 100vh; }
+    .main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .sidebar { width: 240px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .sidebar .brand { font-size: 1.25rem; font-weight: 800; }
+    .sidebar nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; }
+    .sidebar nav a:hover, .sidebar nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; }
+    .sub { color: var(--on-surface-variant); font-size: 0.875rem; margin-bottom: 1.5rem; }
+    .oh-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.25rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 1rem; }
+    .oh-card .avatar { width: 3rem; height: 3rem; border-radius: 50%; background: var(--primary-container); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 700; color: var(--on-primary-container); overflow: hidden; flex-shrink: 0; }
+    .oh-card .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .oh-card .info { flex: 1; }
+    .oh-card .info h3 { margin: 0; font-size: 0.9375rem; }
+    .oh-card .info p { margin: 0.25rem 0 0; font-size: 0.8125rem; color: var(--on-surface-variant); }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--on-surface-variant); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+    @media (max-width: 768px) { .sidebar { display: none; } .main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div data-include="/students/components/dashboard-sidebar"></div>
+    <main class="main">
+      <h1>Office Hours</h1>
+      <p class="sub">Upcoming sessions from your courses</p>
+      <div id="office-hours-list">
+        <div class="empty-state"><span class="material-symbols-outlined icon">event</span><p>Loading office hours...</p></div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/students/components/dashboard-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var container = document.getElementById('office-hours-list');
+      api.get('/tutors/office-hours').then(function(res) {
+        var items = res.data || [];
+        if (!items.length) {
+          container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined icon">event_available</span><p>No upcoming office hours for your courses</p></div>';
+          return;
+        }
+        container.innerHTML = items.map(function(s) {
+          var dateStr = s.startsAt ? new Date(s.startsAt).toLocaleString() : 'TBD';
+          var avatarHtml = '';
+          if (s.tutor && s.tutor.avatarUrl) {
+            avatarHtml = '<img src="' + Shared.escapeHtml(s.tutor.avatarUrl) + '" alt=""/>';
+          } else if (s.tutor && s.tutor.fullName) {
+            avatarHtml = '<span>' + Shared.escapeHtml(s.tutor.fullName.charAt(0).toUpperCase()) + '</span>';
+          } else {
+            avatarHtml = '<span>?</span>';
+          }
+          return '<div class="oh-card"><div class="avatar">' + avatarHtml + '</div><div class="info"><h3>' + Shared.escapeHtml(s.title || 'Office Hours') + '</h3><p>' + dateStr + ' &middot; ' + (s.durationMinutes || 30) + ' min &middot; by ' + (s.tutor ? Shared.escapeHtml(s.tutor.fullName) : 'Tutor') + (s.Course ? ' &middot; ' + Shared.escapeHtml(s.Course.title) : '') + '</p></div></div>';
+        }).join('');
+      }).catch(function() {
+        container.innerHTML = '<div class="empty-state" style="color:var(--error)"><span class="material-symbols-outlined icon">error</span><p>Failed to load office hours</p></div>';
+      });
+    });
+  </script>
+</body>
+</html>

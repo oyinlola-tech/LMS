@@ -25,9 +25,9 @@
   </style>
 </head>
 <body>
-  <div data-include="/components/dashboard-sidebar"></div>
-  <main class="dashboard-main">
-    <div data-include="/components/dashboard-header"></div>
+  <div data-include="/students/components/dashboard-sidebar"></div>
+  <main class="admin-main">
+    <div data-include="/students/components/dashboard-header"></div>
     <div class="container" style="padding-top:1rem;padding-bottom:1rem;max-width:720px">
       <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem">Timeline</h1>
       <div class="create-post-box">
@@ -36,218 +36,25 @@
           <button class="btn-secondary text-sm" onclick="document.getElementById('post-image-input').click()">
             <span class="material-symbols-outlined" style="font-size:1.1rem">image</span> Photo
           </button>
-          <input type="file" id="post-image-input" accept="image/*" style="display:none" onchange="handleImageSelect(this)"/>
+          <input type="file" id="post-image-input" accept="image/*" style="display:none" onchange="TimelineApp.handleImageSelect(this)"/>
           <span id="image-name" style="font-size:0.75rem;color:var(--on-surface-variant);flex:1"></span>
-          <button class="btn-primary text-sm" onclick="createPost()">Post</button>
+          <button class="btn-primary text-sm" onclick="TimelineApp.createPost()">Post</button>
         </div>
       </div>
       <div id="recommended-users" style="margin-bottom:1.5rem"></div>
+      <div id="recommended-courses" style="margin-bottom:1.5rem"></div>
       <div id="timeline-posts"></div>
-      <div style="text-align:center;padding:2rem" id="loading-more">
-        <button class="btn-secondary" onclick="loadMore()" id="load-more-btn" style="display:none">Load More</button>
+      <div style="text-align:center;padding:2rem">
+        <button class="btn-secondary" id="load-more-btn" style="display:none">Load More</button>
       </div>
     </div>
   </main>
-  <div data-include="/components/dashboard-bottom-nav"></div>
+  <div data-include="/students/components/dashboard-bottom-nav"></div>
   <div data-include="/auth-modal"></div>
   <script src="/js/components/include.js"></script>
   <script src="/js/shared/api.js"></script>
   <script src="/js/shared/dom.js"></script>
   <script src="/js/shared/auth.js"></script>
-  <script>
-    let currentPage = 1;
-    let totalPages = 1;
-    let selectedImage = null;
-    const user = await Shared.auth.requireAuth();
-
-    function getCheckmarkHtml(u) {
-      if (!u?.isVerified) return '';
-      const cls = u.checkmarkType === 'blue' ? 'blue' : 'black';
-      return `<span class="checkmark ${cls}">${cls === 'blue' ? '✓' : '✦'}</span>`;
-    }
-
-    async function loadTimeline() {
-      try {
-        const res = await Shared.api.get(`/timeline?page=${currentPage}&limit=20`);
-        const data = res.data || {};
-        totalPages = data.totalPages || 1;
-        const posts = data.items || [];
-        const container = document.getElementById('timeline-posts');
-        if (currentPage === 1) container.innerHTML = '';
-        if (!posts.length && currentPage === 1) {
-          container.innerHTML = '<div class="card" style="padding:2rem;text-align:center;color:var(--on-surface-variant)">No posts yet. Follow users to see their posts!</div>';
-          return;
-        }
-        posts.forEach(post => {
-          const author = post.author || {};
-          const div = document.createElement('div');
-          div.className = 'post-card';
-          div.innerHTML = `
-            <div class="post-header">
-              <div class="post-avatar" style="background-image:url(${author.avatarUrl || ''})">${author.avatarUrl ? '' : (author.fullName?.[0] || '?')}</div>
-              <div>
-                <p style="font-weight:600;font-size:0.875rem">${author.fullName || 'Unknown'}${getCheckmarkHtml(author)}</p>
-                <p style="font-size:0.75rem;color:var(--on-surface-variant)">${new Date(post.createdAt).toLocaleDateString()}</p>
-              </div>
-              <div style="margin-left:auto;font-size:0.75rem;color:var(--on-surface-variant)">${author.role || ''}</div>
-            </div>
-            ${post.imageUrl ? `<img src="${post.imageUrl}" class="post-image" alt="Post image"/>` : ''}
-            <div class="post-body">${post.body}</div>
-            <div class="post-actions">
-              <span class="post-action ${post.isLiked ? 'active' : ''}" onclick="toggleLike('${post.id}')">
-                <span class="material-symbols-outlined" style="font-size:1.1rem">${post.isLiked ? 'favorite' : 'favorite_border'}</span>
-                ${post.likeCount || 0}
-              </span>
-              <span class="post-action" onclick="showComments('${post.id}')">
-                <span class="material-symbols-outlined" style="font-size:1.1rem">comment</span>
-                ${post.commentCount || 0}
-              </span>
-              <span class="post-action ${post.isBookmarked ? 'active' : ''}" onclick="toggleBookmark('${post.id}')">
-                <span class="material-symbols-outlined" style="font-size:1.1rem">${post.isBookmarked ? 'bookmark' : 'bookmark_border'}</span>
-              </span>
-              <span class="post-action" onclick="reportPost('${post.id}')">
-                <span class="material-symbols-outlined" style="font-size:1.1rem">flag</span>
-              </span>
-            </div>
-            <div id="comments-${post.id}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--outline-variant)"></div>
-          `;
-          container.appendChild(div);
-        });
-        document.getElementById('load-more-btn').style.display = currentPage < totalPages ? 'block' : 'none';
-      } catch(e) {
-        console.error('Failed to load timeline', e);
-        document.getElementById('timeline-posts').innerHTML = '<div class="card" style="padding:2rem;text-align:center;color:var(--error)">Failed to load timeline</div>';
-      }
-    }
-
-    async function loadRecommendedUsers() {
-      try {
-        const res = await Shared.api.get('/timeline/recommended-users?limit=5');
-        const users = res.data?.items || [];
-        const container = document.getElementById('recommended-users');
-        if (!users.length) { container.style.display = 'none'; return; }
-        container.innerHTML = '<h2 style="font-size:1rem;font-weight:600;margin-bottom:0.75rem">People you may know</h2>' +
-          users.map(u => `
-            <div class="recommended-user">
-              <div class="post-avatar" style="width:36px;height:36px;background-image:url(${u.avatarUrl || ''})">${u.avatarUrl ? '' : (u.fullName?.[0] || '?')}</div>
-              <div style="flex:1">
-                <p style="font-weight:600;font-size:0.8125rem">${u.fullName}${getCheckmarkHtml(u)}</p>
-                <p style="font-size:0.75rem;color:var(--on-surface-variant)">${u.role || ''}</p>
-              </div>
-              <button class="btn-primary text-sm" onclick="followUser('${u.id}')">Follow</button>
-            </div>
-          `).join('');
-      } catch(e) { document.getElementById('recommended-users').style.display = 'none'; }
-    }
-
-    window.followUser = async (id) => {
-      try { await Shared.api.post(`/api/follow/${id}/follow`); loadRecommendedUsers(); } catch(e) { alert('Failed to follow'); }
-    };
-
-    window.toggleLike = async (postId) => {
-      try { await Shared.api.post(`/timeline/${postId}/like`); loadTimeline(); } catch(e) {}
-    };
-
-    window.toggleBookmark = async (postId) => {
-      try { await Shared.api.post(`/timeline/${postId}/bookmark`); loadTimeline(); } catch(e) {}
-    };
-
-    window.reportPost = async (postId) => {
-      const reason = prompt('Reason for report:');
-      if (!reason) return;
-      try { await Shared.api.post(`/timeline/${postId}/report`, { postId, reason }); alert('Reported'); } catch(e) { alert('Failed to report'); }
-    };
-
-    window.handleImageSelect = (input) => {
-      const file = input.files[0];
-      if (file) {
-        if (file.size > 10 * 1024 * 1024) { alert('Image too large (max 10MB)'); return; }
-        selectedImage = file;
-        document.getElementById('image-name').textContent = file.name;
-      }
-    };
-
-    window.createPost = async () => {
-      const body = document.getElementById('post-body').value.trim();
-      if (!body) { alert('Please write something'); return; }
-      let imageUrl = null;
-      if (selectedImage) {
-        const formData = new FormData();
-        formData.append('file', selectedImage);
-        try {
-          const uploadRes = await Shared.api.upload('/uploads', formData);
-          imageUrl = uploadRes.data?.url || null;
-        } catch(e) { alert('Failed to upload image'); return; }
-      }
-      try {
-        await Shared.api.post('/timeline', { body, imageUrl });
-        document.getElementById('post-body').value = '';
-        selectedImage = null;
-        document.getElementById('image-name').textContent = '';
-        currentPage = 1;
-        loadTimeline();
-      } catch(e) { alert('Failed to create post'); }
-    };
-
-    window.loadMore = () => {
-      if (currentPage < totalPages) { currentPage++; loadTimeline(); }
-    };
-
-    window.showComments = async (postId) => {
-      const container = document.getElementById(`comments-${postId}`);
-      if (container.style.display !== 'none') { container.style.display = 'none'; return; }
-      container.style.display = 'block';
-      try {
-        const res = await Shared.api.get(`/timeline/${postId}/comments`);
-        const comments = res.data?.items || [];
-        container.innerHTML = comments.map(c => `
-          <div style="padding:0.5rem 0;border-bottom:1px solid var(--outline-variant)">
-            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem">
-              <strong style="font-size:0.8125rem">${c.commenter?.fullName || 'Unknown'}</strong>
-              <span style="font-size:0.6875rem;color:var(--on-surface-variant)">${new Date(c.createdAt).toLocaleDateString()}</span>
-            </div>
-            <p style="font-size:0.875rem">${c.body}</p>
-            <div style="display:flex;gap:0.75rem;margin-top:0.375rem">
-              <span class="post-action ${c.isLiked ? 'active' : ''}" style="font-size:0.75rem;padding:0.125rem 0.375rem" onclick="toggleCommentLike('${c.id}')">
-                <span class="material-symbols-outlined" style="font-size:0.875rem">${c.isLiked ? 'favorite' : 'favorite_border'}</span>
-                ${c.likeCount || 0}
-              </span>
-              <span class="post-action" style="font-size:0.75rem;padding:0.125rem 0.375rem" onclick="reportComment('${c.id}')">Report</span>
-            </div>
-          </div>
-        `).join('');
-        container.innerHTML += `
-          <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
-            <input type="text" id="comment-input-${postId}" placeholder="Write a comment..." style="flex:1;padding:0.5rem 0.75rem;border-radius:0.375rem;border:1px solid var(--outline-variant);background:var(--surface-container-low);color:var(--on-surface);font-size:0.8125rem"/>
-            <button class="btn-primary text-sm" onclick="addComment('${postId}')">Send</button>
-          </div>
-        `;
-      } catch(e) { container.innerHTML = '<p style="font-size:0.8125rem;color:var(--error)">Failed to load comments</p>'; }
-    };
-
-    window.addComment = async (postId) => {
-      const input = document.getElementById(`comment-input-${postId}`);
-      const body = input.value.trim();
-      if (!body) return;
-      try {
-        await Shared.api.post(`/timeline/${postId}/comment`, { body });
-        input.value = '';
-        showComments(postId);
-      } catch(e) { alert('Failed to comment'); }
-    };
-
-    window.toggleCommentLike = async (commentId) => {
-      try { await Shared.api.post(`/timeline/comments/${commentId}/like`); } catch(e) {}
-    };
-
-    window.reportComment = async (commentId) => {
-      const reason = prompt('Reason for report:');
-      if (!reason) return;
-      try { await Shared.api.post('/timeline/${postId}/report', { commentId, reason }); alert('Reported'); } catch(e) { alert('Failed to report'); }
-    };
-
-    loadTimeline();
-    loadRecommendedUsers();
-  </script>
+  <script src="/js/shared/timeline.js"></script>
 </body>
 </html>

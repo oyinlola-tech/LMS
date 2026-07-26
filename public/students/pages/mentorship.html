@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Mentorship - LearnBridge</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .page-header p { font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 0.125rem; }
+    .section-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
+    .program-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.25rem; margin-bottom: 0.75rem; }
+    .program-card h3 { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .program-card .mentor-name { font-size: 0.8125rem; color: var(--primary); font-weight: 600; margin-bottom: 0.375rem; }
+    .program-card .description { font-size: 0.8125rem; color: var(--on-surface-variant); line-height: 1.5; margin-bottom: 0.75rem; }
+    .program-card .meta { display: flex; justify-content: space-between; align-items: center; }
+    .program-card .course-tag { font-size: 0.6875rem; color: var(--on-surface-variant); background: var(--surface-container-high); padding: 0.25rem 0.625rem; border-radius: 999px; }
+    .btn-apply { padding: 0.5rem 1.25rem; background: var(--primary); color: #fff; border: none; border-radius: 0.75rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-apply:hover { background: var(--surface-tint); }
+    .btn-apply:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-apply.applied { background: var(--surface-container-high); color: var(--on-surface); }
+    .application-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+    .application-card .info h4 { font-size: 0.875rem; font-weight: 700; }
+    .application-card .info p { font-size: 0.75rem; color: var(--on-surface-variant); margin-top: 0.125rem; }
+    .status-badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.6875rem; font-weight: 600; }
+    .status-badge.pending { background: #fef3c7; color: #92400e; }
+    .status-badge.approved { background: #d1fae5; color: #065f46; }
+    .status-badge.rejected { background: #fee2e2; color: #991b1b; }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--on-surface-variant); }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+    .skeleton { background: linear-gradient(90deg, var(--surface-container) 25%, var(--surface-container-high) 50%, var(--surface-container) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0.75rem; height: 120px; margin-bottom: 0.75rem; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/students/components/dashboard-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/students/components/dashboard-header"></div>
+      <div class="page-header">
+        <h1>Mentorship Programs</h1>
+        <p>Browse programs and get guidance from experienced mentors</p>
+      </div>
+      <div class="section-title">Available Programs</div>
+      <div id="programs-list">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+      <div class="section-title" style="margin-top:2rem">My Applications</div>
+      <div id="my-applications">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/students/components/dashboard-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    (function() {
+      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
+      function escapeHtml(t) { var d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+      async function loadMentorship() {
+        var programsEl = document.getElementById('programs-list');
+        var appsEl = document.getElementById('my-applications');
+        try {
+          var programsRes = await api.get('/mentorship/programs');
+          var programs = programsRes.data || [];
+          if (!programs.length) {
+            programsEl.innerHTML = '<div class="empty-state"><span class="icon material-symbols-outlined">school</span><p>No mentorship programs available</p><p style="font-size:0.8125rem;margin-top:0.25rem">New programs will appear here when announced</p></div>';
+          } else {
+            programsEl.innerHTML = programs.map(function(p) {
+              var applied = p.applied || false;
+              return '<div class="program-card">'
+                + '<h3>' + escapeHtml(p.title || 'Mentorship Program') + '</h3>'
+                + '<div class="mentor-name">Mentor: ' + escapeHtml(p.mentorName || 'TBA') + '</div>'
+                + '<div class="description">' + escapeHtml(p.description || '') + '</div>'
+                + '<div class="meta">'
+                + '<span class="course-tag">' + escapeHtml(p.courseName || 'General') + '</span>'
+                + '<button class="btn-apply' + (applied ? ' applied' : '') + '" data-id="' + p.id + '" ' + (applied ? 'disabled' : '') + '>' + (applied ? 'Applied' : 'Apply') + '</button>'
+                + '</div>'
+                + '</div>';
+            }).join('');
+            programsEl.querySelectorAll('.btn-apply:not([disabled])').forEach(function(btn) {
+              btn.addEventListener('click', async function() {
+                var id = btn.getAttribute('data-id');
+                btn.disabled = true;
+                btn.textContent = 'Applying...';
+                try {
+                  await api.post('/mentorship/' + id + '/apply');
+                  btn.textContent = 'Applied';
+                  btn.classList.add('applied');
+                  loadMentorship();
+                } catch(e) {
+                  btn.disabled = false;
+                  btn.textContent = 'Apply';
+                  alert('Failed to apply. Please try again.');
+                }
+              });
+            });
+          }
+        } catch(e) {
+          console.error('Programs error:', e);
+          programsEl.innerHTML = '<div class="empty-state" style="color:var(--error)"><span class="icon material-symbols-outlined">error</span><p>Failed to load mentorship programs</p><p style="font-size:0.8125rem;margin-top:0.25rem">Please try refreshing the page</p></div>';
+        }
+        try {
+          var appsRes = await api.get('/mentorship/my-applications');
+          var apps = appsRes.data || [];
+          if (!apps.length) {
+            appsEl.innerHTML = '<div class="empty-state" style="padding:2rem 1rem"><span class="icon material-symbols-outlined" style="font-size:2rem">description</span><p style="font-size:0.875rem">No applications yet</p></div>';
+          } else {
+            appsEl.innerHTML = apps.map(function(a) {
+              var status = a.status || 'pending';
+              return '<div class="application-card"><div class="info"><h4>' + escapeHtml(a.programTitle || a.title || 'Program') + '</h4><p>' + escapeHtml(a.mentorName || '') + '</p></div><span class="status-badge ' + status + '">' + status.charAt(0).toUpperCase() + status.slice(1) + '</span></div>';
+            }).join('');
+          }
+        } catch(e) {
+          console.error('Applications error:', e);
+          appsEl.innerHTML = '<div class="empty-state" style="padding:2rem 1rem;color:var(--error)"><span class="icon material-symbols-outlined" style="font-size:2rem">error</span><p style="font-size:0.875rem">Failed to load your applications</p></div>';
+        }
+      }
+      document.addEventListener('components-loaded', loadMentorship);
+    })();
+  </script>
+</body>
+</html>

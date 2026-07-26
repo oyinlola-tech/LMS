@@ -46,7 +46,7 @@ const ensureSuperAdmin = async () => {
   }
   const passwordHash = await hashPassword(SUPER_ADMIN_PASSWORD);
   await User.create({
-    fullName: `${APP_NAME} Super Admin`,
+    fullName: `${APP_NAME}`,
     email: normalizedEmail,
     passwordHash,
     role: UserRole.SUPER_ADMIN,

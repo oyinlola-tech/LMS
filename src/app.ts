@@ -56,6 +56,8 @@ import webhookRoutes from './routes/webhook.route';
 import marketingRoutes from './routes/marketing.route';
 import wishlistRoutes from './routes/wishlist.route';
 import portfolioRoutes from './routes/portfolio.route';
+import timelineRoutes from './routes/timeline.route';
+import activitiesRoutes from './routes/activities.route';
 
 export async function buildApp() {
   const jsonLimit = process.env.JSON_BODY_LIMIT || '1mb';
@@ -164,7 +166,6 @@ export async function buildApp() {
     ['/community', 'pages/community.html'],
     ['/discussions', 'pages/discussions.html'],
     ['/messages', 'pages/messages.html'],
-    ['/chat', 'pages/chat.html'],
     ['/students/chat', 'students/chat.html'],
     ['/tutor/chat', 'tutors/chat.html'],
     ['/admin/chat', 'admin/chat.html'],
@@ -188,13 +189,44 @@ export async function buildApp() {
     ['/admin/emails', 'admin/pages/emails.html'],
     ['/tutor/mentorship', 'tutors/pages/mentorship.html'],
     ['/tutor/office-hours', 'tutors/pages/office-hours.html'],
+    ['/admin/warnings', 'admin/pages/warnings.html'],
+    ['/admin/system', 'admin/pages/system.html'],
     ['/admin/profile', 'admin/profile.html'],
     ['/superadmin', 'superadmin/index.html'],
+    ['/superadmin/dashboard', 'superadmin/dashboard.html'],
+    ['/superadmin/plans', 'superadmin/pages/plans.html'],
     ['/superadmin/users', 'superadmin/pages/users.html'],
     ['/superadmin/courses', 'superadmin/pages/courses.html'],
     ['/superadmin/enrollments', 'superadmin/pages/enrollments.html'],
     ['/superadmin/settings', 'superadmin/pages/settings.html'],
     ['/superadmin/profile', 'superadmin/profile.html'],
+    ['/students/communities', 'students/pages/communities.html'],
+    ['/students/groups', 'students/pages/groups.html'],
+    ['/students/warnings', 'students/pages/warnings.html'],
+    ['/students/achievements', 'students/pages/achievements.html'],
+    ['/students/grades', 'students/pages/grades.html'],
+    ['/students/support', 'students/pages/support.html'],
+    ['/students/timeline', 'students/pages/timeline.html'],
+    ['/students/followers', 'students/pages/follower.html'],
+    ['/students/projects', 'students/pages/project.html'],
+    ['/students/activities', 'students/pages/activities.html'],
+    ['/tutor/communities', 'tutors/pages/communities.html'],
+    ['/tutor/groups', 'tutors/pages/groups.html'],
+    ['/tutor/earnings', 'tutors/pages/earnings.html'],
+    ['/tutor/students', 'tutors/pages/students.html'],
+    ['/tutor/analytics', 'tutors/pages/analytics.html'],
+    ['/tutor/calendar', 'tutors/pages/calendar.html'],
+    ['/tutor/submissions', 'tutors/pages/submissions.html'],
+    ['/tutor/projects', 'tutors/pages/project.html'],
+    ['/tutor/tasks', 'tutors/pages/task.html'],
+    ['/tutor/followers', 'tutors/pages/follower.html'],
+    ['/tutor/timeline', 'tutors/pages/timeline.html'],
+    ['/tutor/activities', 'tutors/pages/activities.html'],
+    ['/tutor/profile', 'tutors/pages/profile.html'],
+    ['/mentors/manage', 'mentors/manage.html'],
+    ['/admin/activities', 'admin/pages/activities.html'],
+    ['/superadmin/analytics', 'superadmin/pages/analytics.html'],
+    ['/superadmin/activities', 'superadmin/pages/activities.html'],
     ['/search', 'search.html'],
   ] as const;
 
@@ -204,7 +236,7 @@ export async function buildApp() {
 
   app.get('/blog/:slug', async (_req, reply) => reply.sendFile('blog/details.html'));
   app.get('/notes/:id', async (_req, reply) => reply.sendFile('students/pages/notes-details.html'));
-  app.get('/tutor/profile', async (_req, reply) => reply.sendFile('tutors/profile.html'));
+  app.get('/tutor/detail', async (_req, reply) => reply.sendFile('tutors/profile.html'));
   app.get('/lessons/:id', async (_req, reply) => reply.sendFile('lessons/viewer.html'));
   app.get('/tutor/courses/builder/:id', async (_req, reply) => reply.sendFile('tutors/courses/builder.html'));
   app.get('/checkout', async (_req, reply) => reply.sendFile('checkout.html'));
@@ -218,6 +250,24 @@ export async function buildApp() {
   app.get('/tutor/assignments/:id/review', async (_req, reply) => reply.sendFile('tutors/assignments/review.html'));
   app.get('/tutor/assignments/builder/:id', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
   app.get('/tutor/assignments/builder/:id/step/:step', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
+
+  app.get('/profile/me', async (request, reply) => {
+    try {
+      const authHeader = request.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return reply.redirect('/login');
+      }
+      const token = authHeader.split(' ')[1];
+      const jwt = require('jsonwebtoken');
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET!, { algorithms: ['HS256'] });
+      const { User } = await import('./models');
+      const user = await User.findByPk(decoded.sub, { attributes: ['role'] });
+      if (!user) return reply.redirect('/login');
+      return reply.sendFile(profilePageMap[user.role] || 'pages/profile.html');
+    } catch {
+      return reply.redirect('/login');
+    }
+  });
 
   app.get('/profile/setup', async (_req, reply) => reply.sendFile('students/profile/setup.html'));
 
@@ -292,6 +342,8 @@ export async function buildApp() {
   await app.register(marketingRoutes, { prefix: '/marketing' });
   await app.register(wishlistRoutes, { prefix: '/wishlist' });
   await app.register(portfolioRoutes, { prefix: '/portfolio' });
+  await app.register(timelineRoutes, { prefix: '/timeline' });
+  await app.register(activitiesRoutes, { prefix: '/activities' });
 
   app.get('/favicon.ico', async (_req, reply) => {
     reply.redirect('/favicon.svg');

@@ -106,8 +106,8 @@
         var path = '/instructors?limit='+pageSize+'&page='+currentPage+'&search='+encodeURIComponent(search);
         if (spec) path += '&specialty='+spec;
         api.get(path).then(function(r) {
-          var items = r.data || r.instructors || r.mentors || [];
-          totalPages = r.totalPages || (r.total ? Math.ceil(r.total/pageSize) : 1);
+          var items = (r.data && r.data.items) ? r.data.items : (r.data || r.instructors || r.mentors || []);
+          totalPages = r.data ? (r.data.totalPages || (r.data.total ? Math.ceil(r.data.total/pageSize) : 1)) : 1;
           var grid = $('mentors-grid');
           if (!items.length) { grid.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined" style="font-size:2.5rem;display:block;margin-bottom:0.5rem">search_off</span><p>No mentors found</p></div>'; return; }
           grid.innerHTML = items.map(function(m) {

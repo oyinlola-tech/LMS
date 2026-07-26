@@ -41,7 +41,7 @@ Enrollment.belongsTo(User);
 Course.hasMany(Enrollment, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Enrollment.belongsTo(Course);
 
-Lesson.hasMany(Enrollment, { foreignKey: { name: 'lastLessonId', allowNull: true } });
-Enrollment.belongsTo(Lesson, { as: 'lastLesson', foreignKey: 'lastLessonId' });
+Lesson.hasMany(Enrollment, { foreignKey: { name: 'lastLessonId', allowNull: true }, onDelete: 'SET NULL' });
+Enrollment.belongsTo(Lesson, { as: 'lastLesson', foreignKey: 'lastLessonId', onDelete: 'SET NULL' });
 
 export { Enrollment };

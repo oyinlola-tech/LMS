@@ -1,6 +1,8 @@
 import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import { sequelize } from '../config/db.config';
 import { User } from './User.model';
+import { PortfolioTheme } from './PortfolioTheme.model';
+import { PortfolioPlan } from './PortfolioPlan.model';
 
 class Portfolio extends Model<InferAttributes<Portfolio>, InferCreationAttributes<Portfolio>> {
   declare id: CreationOptional<string>;
@@ -14,6 +16,12 @@ class Portfolio extends Model<InferAttributes<Portfolio>, InferCreationAttribute
   declare experience: string | null;
   declare completedCourses: string | null;
   declare isPublic: CreationOptional<boolean>;
+  declare slug: string | null;
+  declare themeId: string | null;
+  declare customColors: string | null;
+  declare planId: string | null;
+  declare planExpiresAt: string | null;
+  declare images: string | null;
 }
 
 Portfolio.init({
@@ -28,9 +36,17 @@ Portfolio.init({
   experience: { type: DataTypes.JSON, allowNull: true },
   completedCourses: { type: DataTypes.JSON, allowNull: true },
   isPublic: { type: DataTypes.BOOLEAN, defaultValue: true },
-}, { sequelize, tableName: 'portfolios' });
+  slug: { type: DataTypes.STRING(200), allowNull: true, unique: true },
+  themeId: { type: DataTypes.UUID, allowNull: true },
+  customColors: { type: DataTypes.JSON, allowNull: true },
+  planId: { type: DataTypes.UUID, allowNull: true },
+  planExpiresAt: { type: DataTypes.DATE, allowNull: true },
+  images: { type: DataTypes.JSON, allowNull: true },
+}, { sequelize, tableName: 'portfolios', indexes: [{ unique: true, fields: ['slug'] }] });
 
 User.hasOne(Portfolio, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Portfolio.belongsTo(User);
+Portfolio.belongsTo(PortfolioTheme, { foreignKey: 'themeId', as: 'theme' });
+Portfolio.belongsTo(PortfolioPlan, { foreignKey: 'planId', as: 'plan' });
 
 export { Portfolio };

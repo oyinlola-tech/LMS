@@ -6,12 +6,14 @@ class Follow extends Model<InferAttributes<Follow, { omit: 'createdAt' }>, Infer
   declare id: CreationOptional<string>;
   declare followerId: string;
   declare followingId: string;
+  declare status: CreationOptional<string>;
 }
 
 Follow.init({
   id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
   followerId: { type: DataTypes.UUID, allowNull: false },
   followingId: { type: DataTypes.UUID, allowNull: false },
+  status: { type: DataTypes.ENUM('pending', 'accepted'), allowNull: false, defaultValue: 'accepted', comment: 'pending for private profiles, accepted for public' },
 
 }, {
   sequelize,

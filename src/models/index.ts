@@ -72,11 +72,26 @@ import { WishlistItem } from './Wishlist.model';
 import { EmailLog } from './EmailLog.model';
 import { UserMarketingPreference } from './UserMarketingPreference.model';
 import { Portfolio } from './Portfolio.model';
+import { PortfolioTheme } from './PortfolioTheme.model';
+import { PortfolioPlan } from './PortfolioPlan.model';
+import { PortfolioPage } from './PortfolioPage.model';
+import { PortfolioContact } from './PortfolioContact.model';
+import { PortfolioDomain } from './PortfolioDomain.model';
+import { PortfolioReview } from './PortfolioReview.model';
+
+import { Post, associate as postAssociate } from './Post.model';
+import { PostLike } from './PostLike.model';
+import { PostComment, associate as postCommentAssociate } from './PostComment.model';
+import { PostCommentLike } from './PostCommentLike.model';
+import { PostBookmark } from './PostBookmark.model';
+import { PostReport } from './PostReport.model';
 
 
 userAssociate({ MessageThread, Message });
 messageThreadAssociate({ User });
 messageAssociate({ User });
+postAssociate({ PostLike, PostComment, PostBookmark });
+postCommentAssociate({ PostCommentLike });
 
 
 export {
@@ -151,4 +166,16 @@ export {
   EmailLog,
   UserMarketingPreference,
   Portfolio,
+  PortfolioTheme,
+  PortfolioPlan,
+  PortfolioPage,
+  PortfolioContact,
+  PortfolioDomain,
+  PortfolioReview,
+  Post,
+  PostLike,
+  PostComment,
+  PostCommentLike,
+  PostBookmark,
+  PostReport,
 };

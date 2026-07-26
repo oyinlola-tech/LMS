@@ -2,11 +2,14 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { ok, created, error } from '../utils/response.util';
 import { UserRole } from '../enums';
 import { listTutorsQuery } from '../services/tutors/queries/listTutors.query';
+import { listTutorOfficeHoursQuery } from '../services/tutors/queries/listOfficeHours.query';
 import { followTutorCommand } from '../services/tutors/commands/followTutor.command';
 import { unfollowTutorCommand } from '../services/tutors/commands/unfollowTutor.command';
 import { emailStudentsCommand } from '../services/tutors/commands/emailStudents.command';
 import { postUpdateCommand } from '../services/tutors/commands/postUpdate.command';
 import { scheduleOfficeHourCommand } from '../services/tutors/commands/scheduleOfficeHour.command';
+import { Op } from 'sequelize';
+import { Enrollment, OfficeHour } from '../models';
 
 export const getRecommended = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
@@ -75,5 +78,31 @@ export const scheduleOfficeHour = async (request: FastifyRequest, reply: Fastify
     return ok(reply, officeHour, 'Office hour scheduled');
   } catch (err: any) {
     return error(reply, err.statusCode || 500, err.code || 'SCHEDULE_OFFICE_HOUR_FAILED', err.message || 'Failed to schedule office hour');
+  }
+};
+
+export const getOfficeHours = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    if (request.user!.role === UserRole.TUTOR) {
+      const hours = await listTutorOfficeHoursQuery.execute(request.user!.sub);
+      return ok(reply, hours, 'Office hours loaded');
+    }
+    if (request.user!.role === UserRole.LEARNER) {
+      const enrollments = await Enrollment.findAll({
+        where: { UserId: request.user!.sub },
+        attributes: ['CourseId'],
+      });
+      const courseIds = enrollments.map((e: any) => e.CourseId);
+      if (!courseIds.length) return ok(reply, [], 'Office hours loaded');
+      const hours = await OfficeHour.findAll({
+        where: { CourseId: { [Op.in]: courseIds } },
+        include: [{ model: require('../../../models').Course, attributes: ['id', 'title'] }, { model: require('../../../models').User, as: 'tutor', attributes: ['id', 'fullName', 'avatarUrl'] }],
+        order: [['startsAt', 'ASC']],
+      });
+      return ok(reply, hours, 'Office hours loaded');
+    }
+    return ok(reply, [], 'Office hours loaded');
+  } catch (err) {
+    return error(reply, 500, 'OFFICE_HOURS_FAILED', 'Failed to load office hours');
   }
 };

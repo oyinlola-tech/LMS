@@ -10,4 +10,3 @@ export class ScheduleOfficeHourCommand {
     return OfficeHour.create({ tutorId, CourseId: courseId || null, title, startsAt, durationMinutes, meetingUrl });
   }
 }
-export const scheduleOfficeHourCommand = new ScheduleOfficeHourCommand();

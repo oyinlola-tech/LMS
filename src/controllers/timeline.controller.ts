@@ -11,6 +11,7 @@ import { getTimelinePostsQuery } from '../services/timeline/queries/getTimelineP
 import { getPostCommentsQuery } from '../services/timeline/queries/getPostComments.query';
 import { getUserPostsQuery } from '../services/timeline/queries/getUserPosts.query';
 import { getRecommendedUsersQuery } from '../services/timeline/queries/getRecommendedUsers.query';
+import { getRecommendedCoursesQuery } from '../services/course/queries/getRecommendedCourses.query';
 
 export const createPost = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
@@ -120,5 +121,15 @@ export const getRecommendedUsers = async (request: FastifyRequest, reply: Fastif
     return ok(reply, result, 'Recommended users loaded');
   } catch (err: any) {
     return error(reply, 500, 'RECOMMENDED_FAILED', 'Failed to load recommendations');
+  }
+};
+
+export const getRecommendedCourses = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { page, limit } = request.query as any;
+    const result = await getRecommendedCoursesQuery.execute(request.user!.sub);
+    return ok(reply, result, 'Recommended courses loaded');
+  } catch (err: any) {
+    return error(reply, 500, 'RECOMMENDED_COURSES_FAILED', 'Failed to load recommended courses');
   }
 };

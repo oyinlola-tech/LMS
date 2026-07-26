@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import {
   createPost, likePost, commentOnPost, likeComment,
   bookmarkPost, reportContent, deletePost,
-  getTimeline, getPostComments, getUserPosts, getRecommendedUsers,
+  getTimeline, getPostComments, getUserPosts, getRecommendedUsers, getRecommendedCourses,
 } from '../controllers/timeline.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
@@ -11,6 +11,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, createPost);
 
   fastify.get('/recommended-users', { preHandler: [fastify.authenticate] }, getRecommendedUsers);
+
+  fastify.get('/recommended-courses', { preHandler: [fastify.authenticate] }, getRecommendedCourses);
 
   fastify.get('/user/:userId', { preHandler: [fastify.authenticate] }, getUserPosts);
 

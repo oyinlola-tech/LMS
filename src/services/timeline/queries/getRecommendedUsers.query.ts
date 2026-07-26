@@ -32,7 +32,7 @@ export class GetRecommendedUsersQuery {
 
     if (interests.length) {
       interests.forEach(interest => {
-        relevancyCases.push(`EXISTS (SELECT 1 FROM "UserInterests" WHERE "UserId" = "User"."id" AND "interest" = $${paramIndex})`);
+        relevancyCases.push(`EXISTS (SELECT 1 FROM "UserInterests" WHERE "UserId" = "User"."id" AND "name" = $${paramIndex})`);
         relevancyParams.push(interest);
         paramIndex++;
       });

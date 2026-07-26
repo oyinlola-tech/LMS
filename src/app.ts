@@ -140,7 +140,7 @@ export async function buildApp() {
   });
 
   const pages = [
-    ['/', 'index.html'],
+    ['/', 'pages/index.html'],
     ['/login', 'auth/login.html'],
     ['/register', 'auth/register.html'],
     ['/verify-otp', 'auth/verify-otp.html'],
@@ -180,8 +180,8 @@ export async function buildApp() {
     ['/admin/courses', 'admin/pages/courses.html'],
     ['/admin/enrollments', 'admin/pages/enrollments.html'],
     ['/admin/settings', 'admin/pages/settings.html'],
-    ['/notifications', 'notifications.html'],
-    ['/groups', 'groups.html'],
+    ['/notifications', 'pages/notifications.html'],
+    ['/groups', 'pages/groups.html'],
     ['/admin/audit', 'admin/pages/audit.html'],
     ['/admin/financials', 'admin/pages/financials.html'],
     ['/admin/reports', 'admin/pages/reports.html'],
@@ -200,6 +200,15 @@ export async function buildApp() {
     ['/superadmin/enrollments', 'superadmin/pages/enrollments.html'],
     ['/superadmin/settings', 'superadmin/pages/settings.html'],
     ['/superadmin/profile', 'superadmin/profile.html'],
+    ['/students/bookmarks', 'students/pages/bookmarks.html'],
+    ['/students/wishlist', 'students/pages/wishlist.html'],
+    ['/students/progress', 'students/pages/progress.html'],
+    ['/students/settings', 'students/pages/settings.html'],
+    ['/students/certificates', 'students/pages/certificates.html'],
+    ['/students/notes', 'students/pages/notes.html'],
+    ['/students/office-hours', 'students/pages/office-hours.html'],
+    ['/students/mentorship', 'students/pages/mentorship.html'],
+    ['/students/leaderboard', 'students/pages/leaderboard.html'],
     ['/students/communities', 'students/pages/communities.html'],
     ['/students/groups', 'students/pages/groups.html'],
     ['/students/warnings', 'students/pages/warnings.html'],
@@ -224,10 +233,17 @@ export async function buildApp() {
     ['/tutor/activities', 'tutors/pages/activities.html'],
     ['/tutor/profile', 'tutors/pages/profile.html'],
     ['/mentors/manage', 'mentors/manage.html'],
+    ['/admin/timeline', 'admin/pages/timeline.html'],
     ['/admin/activities', 'admin/pages/activities.html'],
     ['/superadmin/analytics', 'superadmin/pages/analytics.html'],
+    ['/superadmin/timeline', 'superadmin/pages/timeline.html'],
     ['/superadmin/activities', 'superadmin/pages/activities.html'],
-    ['/search', 'search.html'],
+    ['/search', 'pages/search.html'],
+    ['/certificate/verify', 'pages/certificate-verify.html'],
+    ['/settings/notifications', 'pages/notification-preferences.html'],
+    ['/settings/account', 'pages/account-settings.html'],
+    ['/reviews', 'pages/course-reviews.html'],
+    ['/mobile-app', 'pages/mobile-app.html'],
   ] as const;
 
   for (const [route, file] of pages) {
@@ -239,6 +255,7 @@ export async function buildApp() {
   app.get('/tutor/detail', async (_req, reply) => reply.sendFile('tutors/profile.html'));
   app.get('/lessons/:id', async (_req, reply) => reply.sendFile('lessons/viewer.html'));
   app.get('/tutor/courses/builder/:id', async (_req, reply) => reply.sendFile('tutors/courses/builder.html'));
+  app.get('/u/:id', async (_req, reply) => reply.sendFile('pages/u-profile.html'));
   app.get('/checkout', async (_req, reply) => reply.sendFile('checkout.html'));
   app.get('/checkout/success', async (_req, reply) => reply.sendFile('checkout-success.html'));
   app.get('/checkout/cancel', async (_req, reply) => reply.sendFile('checkout-cancel.html'));
@@ -251,7 +268,7 @@ export async function buildApp() {
   app.get('/tutor/assignments/builder/:id', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
   app.get('/tutor/assignments/builder/:id/step/:step', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
 
-  app.get('/profile/me', async (request, reply) => {
+  app.get('/profile/me', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
     try {
       const authHeader = request.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {

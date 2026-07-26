@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Verify Certificate</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    .verify-hero {
+      text-align: center;
+      padding: 3rem 0 2rem;
+    }
+    .verify-hero .material-symbols-outlined {
+      font-size: 3.5rem;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+    .verify-form {
+      max-width: 36rem;
+      margin: 0 auto 2rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+    .verify-form input {
+      flex: 1;
+      padding: 0.85rem 1.25rem;
+      border: 2px solid var(--outline-variant);
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fff;
+    }
+    .verify-form input:focus {
+      border-color: var(--primary);
+    }
+    .verify-result {
+      max-width: 36rem;
+      margin: 0 auto;
+      display: none;
+    }
+    .verify-result.visible { display: block; }
+    .cert-card {
+      border-radius: 1.5rem;
+      background: #fff;
+      border: 1px solid var(--outline-variant);
+      overflow: hidden;
+    }
+    .cert-header {
+      padding: 2rem;
+      text-align: center;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+    }
+    .cert-header .material-symbols-outlined {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+    .cert-header h2 { font-size: 1.5rem; font-weight: 800; }
+    .cert-body { padding: 1.5rem 2rem 2rem; }
+    .cert-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--outline-variant);
+      font-size: 0.9rem;
+    }
+    .cert-row:last-child { border-bottom: none; }
+    .cert-row .label { color: var(--on-surface-variant); font-weight: 500; }
+    .cert-row .value { font-weight: 700; }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+    }
+    .status-badge.valid { background: #e6f4ea; color: #1e7e34; }
+    .status-badge.invalid { background: #fce8e6; color: #c5221f; }
+    .spinner {
+      display: inline-block;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid var(--outline-variant);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 2rem 0 4rem">
+      <div class="container" style="max-width: 40rem">
+        <div class="verify-hero">
+          <span class="material-symbols-outlined">verified</span>
+          <h1 class="text-4xl font-black mb-2">Verify a Certificate</h1>
+          <p style="color: var(--on-surface-variant)">Enter the certificate ID to verify its authenticity</p>
+        </div>
+
+        <div class="verify-form" id="verify-form">
+          <input type="text" id="cert-id-input" placeholder="Enter certificate ID (e.g. CERT-XXXX-XXXX)" autocomplete="off"/>
+          <button class="btn-primary" id="verify-btn" onclick="verifyCertificate()">
+            <span class="material-symbols-outlined" style="font-size:1.25rem">search</span>
+            Verify
+          </button>
+        </div>
+
+        <div id="verify-loading" style="display:none;text-align:center;padding:2rem 0">
+          <div class="spinner" style="width:2rem;height:2rem;border-width:3px;margin:0 auto 0.75rem"></div>
+          <p style="color:var(--on-surface-variant)">Verifying certificate...</p>
+        </div>
+
+        <div class="verify-result" id="verify-result">
+          <div class="cert-card">
+            <div class="cert-header">
+              <span class="material-symbols-outlined">verified</span>
+              <h2>Certificate of Completion</h2>
+            </div>
+            <div class="cert-body">
+              <div class="cert-row">
+                <span class="label">Student</span>
+                <span class="value" id="cert-student">—</span>
+              </div>
+              <div class="cert-row">
+                <span class="label">Course</span>
+                <span class="value" id="cert-course">—</span>
+              </div>
+              <div class="cert-row">
+                <span class="label">Issue Date</span>
+                <span class="value" id="cert-date">—</span>
+              </div>
+              <div class="cert-row">
+                <span class="label">Status</span>
+                <span id="cert-status">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="verify-error" style="display:none;text-align:center;padding:2rem 0">
+          <span class="material-symbols-outlined" style="font-size:3rem;color:var(--error);margin-bottom:0.75rem">gpp_bad</span>
+          <h2 class="text-xl font-bold mb-1">Certificate Not Found</h2>
+          <p style="color:var(--on-surface-variant)">No certificate matches the ID you entered. Please check and try again.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/public.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    function verifyCertificate() {
+      var input = document.getElementById('cert-id-input');
+      var certId = input.value.trim();
+      if (!certId) { input.focus(); return; }
+
+      document.getElementById('verify-result').classList.remove('visible');
+      document.getElementById('verify-error').style.display = 'none';
+      document.getElementById('verify-loading').style.display = 'block';
+      document.getElementById('verify-btn').disabled = true;
+
+      api.get('/certificates/verify/' + encodeURIComponent(certId))
+        .then(function(res) {
+          document.getElementById('verify-loading').style.display = 'none';
+          if (res && res.data) {
+            var d = res.data;
+            document.getElementById('cert-student').textContent = d.studentName || d.fullName || '—';
+            document.getElementById('cert-course').textContent = d.courseName || d.courseTitle || '—';
+            document.getElementById('cert-date').textContent = d.issueDate ? new Date(d.issueDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+            var statusEl = document.getElementById('cert-status');
+            var isValid = d.status === 'valid' || d.status === 'active';
+            statusEl.innerHTML = '<span class="status-badge ' + (isValid ? 'valid' : 'invalid') + '"><span class="material-symbols-outlined" style="font-size:1rem">' + (isValid ? 'check_circle' : 'cancel') + '</span>' + (isValid ? 'Valid' : 'Invalid') + '</span>';
+            document.getElementById('verify-result').classList.add('visible');
+          } else {
+            document.getElementById('verify-error').style.display = 'block';
+          }
+        })
+        .catch(function() {
+          document.getElementById('verify-loading').style.display = 'none';
+          document.getElementById('verify-error').style.display = 'block';
+        })
+        .finally(function() {
+          document.getElementById('verify-btn').disabled = false;
+        });
+    }
+
+    document.getElementById('cert-id-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') verifyCertificate();
+    });
+  </script>
+</body>
+</html>

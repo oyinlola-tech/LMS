@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - User Profile</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    .u-cover {
+      height: 240px;
+      border-radius: 1.5rem;
+      background: linear-gradient(135deg, var(--primary-container), var(--secondary));
+      position: relative;
+      overflow: hidden;
+    }
+    .u-header {
+      display: flex;
+      align-items: flex-end;
+      gap: 1.5rem;
+      padding: 0 1.5rem;
+      margin-top: -3.5rem;
+      position: relative;
+      z-index: 2;
+    }
+    .u-avatar {
+      width: 7rem;
+      height: 7rem;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      border: 4px solid #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+      background-color: var(--surface-variant);
+    }
+    .u-details { padding-bottom: 0.5rem; flex: 1; }
+    .tab-btn {
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      color: var(--on-surface-variant);
+      transition: all 0.15s;
+    }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .timeline-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1.25rem 0;
+      border-bottom: 1px solid var(--outline-variant);
+    }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+      background-color: var(--surface-variant);
+    }
+    .timeline-body { flex: 1; }
+    .timeline-body .name { font-weight: 700; font-size: 0.9rem; }
+    .timeline-body .time { font-size: 0.75rem; color: var(--on-surface-variant); }
+    .timeline-body .content { margin-top: 0.35rem; font-size: 0.9rem; line-height: 1.5; }
+    .timeline-body .media { margin-top: 0.75rem; }
+    .timeline-body .media img {
+      max-width: 100%;
+      border-radius: 0.75rem;
+      max-height: 300px;
+      object-fit: cover;
+    }
+    .course-mini-card {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: #fff;
+      border: 1px solid var(--outline-variant);
+      border-radius: 1rem;
+      margin-bottom: 0.75rem;
+      align-items: center;
+      transition: box-shadow 0.2s;
+    }
+    .course-mini-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .course-mini-thumb {
+      width: 5rem;
+      height: 3.5rem;
+      border-radius: 0.5rem;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+      background-color: var(--surface-variant);
+    }
+    .course-mini-info { flex: 1; }
+    .course-mini-info h4 { font-weight: 700; font-size: 0.9rem; }
+    .course-mini-info p { font-size: 0.78rem; color: var(--on-surface-variant); }
+    .about-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr 1fr;
+    }
+    .about-grid .full { grid-column: 1 / -1; }
+    .about-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--on-surface-variant); margin-bottom: 0.2rem; letter-spacing: 0.04em; }
+    .about-value { font-weight: 600; font-size: 0.9rem; }
+    .skill-tag {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      background: var(--surface-variant);
+      margin: 0.15rem;
+    }
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-right: 1rem;
+    }
+    @media (max-width: 640px) {
+      .u-header { flex-direction: column; align-items: center; text-align: center; margin-top: -2.5rem; }
+      .u-avatar { width: 5.5rem; height: 5.5rem; }
+      .about-grid { grid-template-columns: 1fr; }
+    }
+    .spinner-sm {
+      display: inline-block;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid var(--outline-variant);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 5rem">
+    <div id="u-loading" style="padding: 3rem 0">
+      <div class="container">
+        <div class="skeleton" style="height:240px;border-radius:1.5rem;background:var(--surface-variant);margin-bottom:2rem"></div>
+        <div style="display:flex;gap:1.5rem;align-items:center">
+          <div class="skeleton" style="width:7rem;height:7rem;border-radius:50%;background:var(--surface-variant);flex-shrink:0"></div>
+          <div style="flex:1"><div class="skeleton" style="height:1.5rem;width:200px;background:var(--surface-variant);border-radius:0.5rem;margin-bottom:0.5rem"></div><div class="skeleton" style="height:1rem;width:140px;background:var(--surface-variant);border-radius:0.5rem"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="u-error" style="display:none;padding:6rem 0" class="text-center">
+      <span class="material-symbols-outlined" style="font-size:4rem;color:var(--error);margin-bottom:1rem">person_off</span>
+      <h2 class="text-2xl font-bold mb-2">User Not Found</h2>
+      <p style="color:var(--on-surface-variant)" class="mb-6">This profile doesn't exist or has been removed.</p>
+      <a href="/" class="btn-primary">Go Home</a>
+    </div>
+
+    <div id="u-content" style="display:none;padding:1.5rem 0 3rem">
+      <div class="container" style="max-width: 52rem">
+        <div class="u-cover" id="u-cover"></div>
+        <div class="u-header">
+          <div class="u-avatar" id="u-avatar"></div>
+          <div class="u-details">
+            <h1 class="text-3xl font-black" id="u-name"></h1>
+            <p class="text-sm font-semibold mb-1" style="color:var(--primary)" id="u-headline"></p>
+            <p class="text-sm" style="color:var(--on-surface-variant)" id="u-bio"></p>
+          </div>
+        </div>
+
+        <div class="mt-8" style="border-bottom:1px solid var(--outline-variant)">
+          <div class="flex gap-1" id="u-tabs">
+            <button class="tab-btn active" data-tab="posts">Posts</button>
+            <button class="tab-btn" data-tab="courses">Courses</button>
+            <button class="tab-btn" data-tab="about">About</button>
+          </div>
+        </div>
+
+        <div id="tab-posts" class="tab-content active mt-6">
+          <div id="posts-list"></div>
+        </div>
+        <div id="tab-courses" class="tab-content mt-6">
+          <div id="courses-list"></div>
+        </div>
+        <div id="tab-about" class="tab-content mt-6">
+          <div class="rounded-2xl border p-6" style="background:#fff;border-color:var(--outline-variant)">
+            <div id="about-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/public.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    function escapeHtml(t) { var d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+
+    var userId = window.location.pathname.split('/').pop();
+    if (!userId || userId === 'u-profile.html' || userId === '') { userId = null; }
+    var userData = null;
+
+    function showLoading() { document.getElementById('u-loading').style.display = 'block'; document.getElementById('u-error').style.display = 'none'; document.getElementById('u-content').style.display = 'none'; }
+    function showError() { document.getElementById('u-loading').style.display = 'none'; document.getElementById('u-error').style.display = 'block'; document.getElementById('u-content').style.display = 'none'; }
+    function showContent() { document.getElementById('u-loading').style.display = 'none'; document.getElementById('u-error').style.display = 'none'; document.getElementById('u-content').style.display = 'block'; }
+
+    function loadUserProfile() {
+      if (!userId) { showError(); return; }
+      showLoading();
+
+      api.get('/users/' + userId)
+        .then(function(res) {
+          if (!res || !res.data) { showError(); return; }
+          userData = res.data;
+          renderProfile(userData);
+          loadPosts(userId);
+          loadCourses(userData);
+          renderAbout(userData);
+          showContent();
+        })
+        .catch(function() { showError(); });
+    }
+
+    function renderProfile(u) {
+      document.title = 'LearnBridge - ' + (u.fullName || 'User Profile');
+      document.getElementById('u-avatar').style.backgroundImage = 'url(' + (u.avatarUrl || '/img/placeholder.svg') + ')';
+      document.getElementById('u-name').textContent = u.fullName || '';
+      var headline = '';
+      if (u.TutorProfile && u.TutorProfile.headline) headline = u.TutorProfile.headline;
+      if (u.role === 'tutor') headline = headline || 'Instructor';
+      else if (u.role === 'admin' || u.role === 'super_admin') headline = headline || 'Administrator';
+      else headline = headline || 'Learner';
+      document.getElementById('u-headline').textContent = headline;
+      document.getElementById('u-bio').textContent = u.bio || '';
+    }
+
+    function loadPosts(uid) {
+      var container = document.getElementById('posts-list');
+
+      api.get('/timeline/user/' + uid)
+        .then(function(res) {
+          var posts = (res && res.data) ? (res.data.items || res.data.rows || res.data) : [];
+          if (!posts.length) {
+            container.innerHTML = '<div class="text-center py-8" style="color:var(--on-surface-variant)"><span class="material-symbols-outlined text-3xl mb-2">article</span><p>No posts yet.</p></div>';
+            return;
+          }
+          var html = '';
+          posts.forEach(function(p) {
+            html += '<div class="timeline-item">'
+              + '<div class="timeline-avatar" style="background-image:url(' + (p.authorAvatar || userData.avatarUrl || '/img/placeholder.svg') + ')"></div>'
+              + '<div class="timeline-body">'
+              + '<div><span class="name">' + escapeHtml(p.authorName || userData.fullName || '') + '</span> <span class="time">· ' + (p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '') + '</span></div>'
+              + '<div class="content">' + escapeHtml(p.content || '') + '</div>';
+            if (p.mediaUrl) {
+              html += '<div class="media"><img src="' + p.mediaUrl + '" alt="Post media" loading="lazy"/></div>';
+            }
+            html += '</div></div>';
+          });
+          container.innerHTML = html;
+        })
+        .catch(function() {
+          container.innerHTML = '<div class="text-center py-8" style="color:var(--on-surface-variant)"><p>Could not load posts.</p></div>';
+        });
+    }
+
+    function loadCourses(u) {
+      var container = document.getElementById('courses-list');
+
+      var endpoint = u.role === 'tutor' ? '/users/' + userId : '/courses/featured';
+      api.get(endpoint)
+        .then(function(res) {
+          var courses = (res && res.data) ? (res.data.courses || res.data.items || res.data.rows || res.data) : [];
+          if (u.role !== 'tutor' && Array.isArray(courses)) {
+            courses = courses.filter(function(c) { return c.tutor && c.tutor.id === userId; });
+          }
+          if (!courses.length) {
+            container.innerHTML = '<div class="text-center py-8" style="color:var(--on-surface-variant)"><span class="material-symbols-outlined text-3xl mb-2">school</span><p>No courses.</p></div>';
+            return;
+          }
+          var html = '';
+          courses.forEach(function(c) {
+            html += '<a href="/course/' + c.id + '" class="course-mini-card" style="text-decoration:none;color:inherit">'
+              + '<div class="course-mini-thumb" style="background-image:url(' + (c.thumbnailUrl || '/img/placeholder.svg') + ')"></div>'
+              + '<div class="course-mini-info"><h4>' + escapeHtml(c.title || '') + '</h4>'
+              + '<p>' + (c.description ? escapeHtml(c.description.substring(0, 100)) : '') + '</p></div></a>';
+          });
+          container.innerHTML = html;
+        })
+        .catch(function() {
+          container.innerHTML = '<div class="text-center py-8" style="color:var(--on-surface-variant)"><p>Could not load courses.</p></div>';
+        });
+    }
+
+    function renderAbout(u) {
+      var html = '<div class="about-grid">';
+      html += '<div><div class="about-label">Role</div><div class="about-value capitalize">' + escapeHtml((u.role || '').replace('_', ' ')) + '</div></div>';
+      if (u.email) html += '<div><div class="about-label">Email</div><div class="about-value">' + escapeHtml(u.email) + '</div></div>';
+      if (u.location) html += '<div><div class="about-label">Location</div><div class="about-value">' + escapeHtml(u.location) + '</div></div>';
+      if (u.phone) html += '<div><div class="about-label">Phone</div><div class="about-value">' + escapeHtml(u.phone) + '</div></div>';
+      if (u.fullBio || u.bio) html += '<div class="full"><div class="about-label">About</div><div class="about-value" style="font-weight:400;line-height:1.6">' + escapeHtml(u.fullBio || u.bio) + '</div></div>';
+      if (u.skills && u.skills.length) {
+        html += '<div class="full"><div class="about-label">Skills</div><div>';
+        u.skills.forEach(function(s) { html += '<span class="skill-tag">' + escapeHtml(s) + '</span>'; });
+        html += '</div></div>';
+      }
+      if (u.socialLinks || (u.TutorProfile && u.TutorProfile.socialLinks)) {
+        var links = u.socialLinks || (u.TutorProfile && u.TutorProfile.socialLinks) || {};
+        html += '<div class="full"><div class="about-label">Social</div><div>';
+        if (links.github) html += '<a href="' + escapeHtml(links.github) + '" target="_blank" class="social-link" rel="noopener"><span class="material-symbols-outlined" style="font-size:1.1rem">code</span> GitHub</a>';
+        if (links.linkedin) html += '<a href="' + escapeHtml(links.linkedin) + '" target="_blank" class="social-link" rel="noopener"><span class="material-symbols-outlined" style="font-size:1.1rem">work</span> LinkedIn</a>';
+        if (links.twitter) html += '<a href="' + escapeHtml(links.twitter) + '" target="_blank" class="social-link" rel="noopener"><span class="material-symbols-outlined" style="font-size:1.1rem">tag</span> Twitter</a>';
+        if (links.website) html += '<a href="' + escapeHtml(links.website) + '" target="_blank" class="social-link" rel="noopener"><span class="material-symbols-outlined" style="font-size:1.1rem">language</span> Website</a>';
+        html += '</div></div>';
+      }
+      html += '</div>';
+      document.getElementById('about-content').innerHTML = html;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUserProfile);
+
+    document.addEventListener('components-loaded', function() {
+      document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+          document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+          btn.classList.add('active');
+          var tab = document.getElementById('tab-' + btn.getAttribute('data-tab'));
+          if (tab) tab.classList.add('active');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

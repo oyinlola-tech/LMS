@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Account Settings</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    .settings-section {
+      background: #fff;
+      border: 1px solid var(--outline-variant);
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .settings-section h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: var(--on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--outline-variant);
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .section-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--outline-variant);
+    }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+    }
+    .toggle-row .label { font-weight: 500; font-size: 0.9rem; }
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--outline);
+      border-radius: 999px;
+      transition: 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 0.85rem 1.25rem;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      z-index: 9999;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(1rem);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { background: #1e7e34; }
+    .toast.error { background: #c5221f; }
+    .spinner-sm {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid var(--outline-variant);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .password-fields {
+      display: grid;
+      gap: 0.75rem;
+    }
+    @media (min-width: 640px) {
+      .password-fields { grid-template-columns: 1fr 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 2rem 0 4rem">
+      <div class="container" style="max-width: 40rem">
+        <h1 class="text-4xl font-black mb-2">Account Settings</h1>
+        <p class="text-sm mb-8" style="color: var(--on-surface-variant)">Manage your profile, security, and privacy settings</p>
+
+        <div id="settings-loading" style="text-align:center;padding:3rem 0">
+          <div class="spinner-sm" style="width:2rem;height:2rem;border-width:3px;margin:0 auto 0.75rem"></div>
+          <p style="color:var(--on-surface-variant)">Loading settings...</p>
+        </div>
+
+        <div id="settings-content" style="display:none">
+          <div class="settings-section">
+            <h2><span class="material-symbols-outlined" style="color:var(--primary)">person</span> Profile</h2>
+            <div class="form-group">
+              <label for="profile-name">Full Name</label>
+              <input type="text" id="profile-name" placeholder="Your full name"/>
+            </div>
+            <div class="form-group">
+              <label for="profile-email">Email</label>
+              <input type="email" id="profile-email" placeholder="your@email.com"/>
+            </div>
+            <div class="form-group">
+              <label for="profile-phone">Phone</label>
+              <input type="tel" id="profile-phone" placeholder="+1 (555) 000-0000"/>
+            </div>
+            <div class="form-group">
+              <label for="profile-bio">Bio</label>
+              <textarea id="profile-bio" placeholder="Tell us a bit about yourself..."></textarea>
+            </div>
+            <div class="section-actions">
+              <button class="btn-primary" onclick="saveProfile()">
+                <span class="material-symbols-outlined" style="font-size:1.25rem">save</span>
+                Save Profile
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2><span class="material-symbols-outlined" style="color:var(--primary)">lock</span> Security</h2>
+            <div class="password-fields">
+              <div class="form-group">
+                <label for="pwd-current">Current Password</label>
+                <input type="password" id="pwd-current" placeholder="Current password"/>
+              </div>
+              <div class="form-group">
+                <label for="pwd-new">New Password</label>
+                <input type="password" id="pwd-new" placeholder="New password"/>
+              </div>
+              <div class="form-group">
+                <label for="pwd-confirm">Confirm New Password</label>
+                <input type="password" id="pwd-confirm" placeholder="Confirm new password"/>
+              </div>
+            </div>
+            <div class="section-actions">
+              <button class="btn-primary" onclick="changePassword()">
+                <span class="material-symbols-outlined" style="font-size:1.25rem">key</span>
+                Change Password
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h2><span class="material-symbols-outlined" style="color:var(--primary)">shield</span> Privacy</h2>
+            <div class="toggle-row">
+              <div class="label">Show profile to others</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="privacy-profile" onchange="privacyDirty=true">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="toggle-row" style="border-bottom: none">
+              <div class="label">Show email to others</div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="privacy-email" onchange="privacyDirty=true">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="section-actions">
+              <button class="btn-primary" onclick="savePrivacy()">
+                <span class="material-symbols-outlined" style="font-size:1.25rem">save</span>
+                Save Privacy
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="settings-error" style="display:none;text-align:center;padding:3rem 0">
+          <span class="material-symbols-outlined" style="font-size:3rem;color:var(--error);margin-bottom:0.75rem">error_outline</span>
+          <h2 class="text-xl font-bold mb-1">Failed to Load</h2>
+          <p style="color:var(--on-surface-variant)" class="mb-4">Could not load your account settings.</p>
+          <button class="btn-secondary" onclick="loadSettings()">Retry</button>
+        </div>
+
+        <div id="settings-toast" class="toast"></div>
+      </div>
+    </section>
+  </main>
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/public.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    function showToast(msg, type) {
+      var toast = document.getElementById('settings-toast');
+      toast.textContent = msg;
+      toast.className = 'toast ' + type + ' show';
+      setTimeout(function() { toast.classList.remove('show'); }, 3000);
+    }
+
+    function setBtnLoading(btnId, text) {
+      var btn = document.getElementById(btnId);
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner-sm"></div> ' + text;
+      return btn;
+    }
+
+    function resetBtn(btnId, icon, text) {
+      var btn = document.getElementById(btnId);
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1.25rem">' + icon + '</span> ' + text;
+    }
+
+    function loadSettings() {
+      document.getElementById('settings-loading').style.display = 'block';
+      document.getElementById('settings-content').style.display = 'none';
+      document.getElementById('settings-error').style.display = 'none';
+
+      api.get('/users/me')
+        .then(function(res) {
+          document.getElementById('settings-loading').style.display = 'none';
+          if (res && res.data) {
+            var u = res.data;
+            document.getElementById('profile-name').value = u.fullName || '';
+            document.getElementById('profile-email').value = u.email || '';
+            document.getElementById('profile-phone').value = u.phone || '';
+            document.getElementById('profile-bio').value = u.bio || '';
+            if (u.privacy) {
+              document.getElementById('privacy-profile').checked = u.privacy.showProfile !== false;
+              document.getElementById('privacy-email').checked = u.privacy.showEmail !== false;
+            } else {
+              document.getElementById('privacy-profile').checked = true;
+              document.getElementById('privacy-email').checked = true;
+            }
+            document.getElementById('settings-content').style.display = 'block';
+          } else {
+            document.getElementById('settings-error').style.display = 'block';
+          }
+        })
+        .catch(function() {
+          document.getElementById('settings-loading').style.display = 'none';
+          document.getElementById('settings-error').style.display = 'block';
+        });
+    }
+
+    function saveProfile() {
+      var btn = setBtnLoading('profile-save-btn', 'Saving...');
+      var payload = {
+        fullName: document.getElementById('profile-name').value.trim(),
+        email: document.getElementById('profile-email').value.trim(),
+        phone: document.getElementById('profile-phone').value.trim(),
+        bio: document.getElementById('profile-bio').value.trim(),
+      };
+      api.put('/users/me', payload)
+        .then(function() { showToast('Profile updated successfully', 'success'); })
+        .catch(function() { showToast('Failed to update profile', 'error'); })
+        .finally(function() { resetBtn('profile-save-btn', 'save', 'Save Profile'); });
+    }
+
+    function changePassword() {
+      var current = document.getElementById('pwd-current').value;
+      var newPwd = document.getElementById('pwd-new').value;
+      var confirm = document.getElementById('pwd-confirm').value;
+
+      if (!current || !newPwd || !confirm) {
+        showToast('Please fill in all password fields', 'error');
+        return;
+      }
+      if (newPwd !== confirm) {
+        showToast('New passwords do not match', 'error');
+        return;
+      }
+      if (newPwd.length < 8) {
+        showToast('Password must be at least 8 characters', 'error');
+        return;
+      }
+
+      var btn = setBtnLoading('pwd-save-btn', 'Changing...');
+      api.put('/users/password', { currentPassword: current, newPassword: newPwd })
+        .then(function() {
+          showToast('Password changed successfully', 'success');
+          document.getElementById('pwd-current').value = '';
+          document.getElementById('pwd-new').value = '';
+          document.getElementById('pwd-confirm').value = '';
+        })
+        .catch(function() { showToast('Failed to change password. Check your current password.', 'error'); })
+        .finally(function() { resetBtn('pwd-save-btn', 'key', 'Change Password'); });
+    }
+
+    function savePrivacy() {
+      var btn = setBtnLoading('privacy-save-btn', 'Saving...');
+      var payload = {
+        privacy: {
+          showProfile: document.getElementById('privacy-profile').checked,
+          showEmail: document.getElementById('privacy-email').checked,
+        }
+      };
+      api.put('/users/me', payload)
+        .then(function() { showToast('Privacy settings saved', 'success'); })
+        .catch(function() { showToast('Failed to save privacy settings', 'error'); })
+        .finally(function() { resetBtn('privacy-save-btn', 'save', 'Save Privacy'); });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadSettings);
+  </script>
+</body>
+</html>

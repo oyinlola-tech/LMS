@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Course Reviews</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .filter-bar input {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--outline-variant);
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .filter-bar input:focus { border-color: var(--primary); }
+    .star-filter {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .star-filter button {
+      background: none;
+      border: 2px solid var(--outline-variant);
+      border-radius: 999px;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--on-surface-variant);
+    }
+    .star-filter button.active {
+      border-color: var(--primary);
+      background: var(--primary-fixed);
+      color: var(--primary);
+    }
+    .star-filter button .material-symbols-outlined { font-size: 1rem; vertical-align: middle; }
+    .review-card {
+      background: #fff;
+      border: 1px solid var(--outline-variant);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      transition: box-shadow 0.2s;
+    }
+    .review-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .review-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    .review-card-header h3 { font-size: 1.1rem; font-weight: 800; }
+    .stars {
+      display: inline-flex;
+      gap: 0.1rem;
+    }
+    .stars .material-symbols-outlined {
+      font-size: 1.15rem;
+      font-variation-settings: 'FILL' 1;
+    }
+    .stars .star-filled { color: #f59e0b; }
+    .stars .star-empty { color: var(--outline-variant); }
+    .review-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--on-surface-variant);
+      margin-bottom: 0.75rem;
+    }
+    .review-excerpt {
+      font-size: 0.9rem;
+      color: var(--on-surface);
+      line-height: 1.5;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 2rem;
+    }
+    .pagination button {
+      padding: 0.5rem 1rem;
+      border: 2px solid var(--outline-variant);
+      border-radius: 0.5rem;
+      background: #fff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pagination button:hover { border-color: var(--primary); color: var(--primary); }
+    .pagination button:disabled { opacity: 0.4; cursor: default; }
+    .pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .pagination .page-info { font-size: 0.85rem; color: var(--on-surface-variant); padding: 0 0.5rem; }
+    .spinner-sm {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid var(--outline-variant);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 2rem 0 4rem">
+      <div class="container" style="max-width: 48rem">
+        <h1 class="text-4xl font-black mb-2">Course Reviews</h1>
+        <p class="text-sm mb-6" style="color: var(--on-surface-variant)">Browse reviews from learners across all courses</p>
+
+        <div class="filter-bar">
+          <input type="text" id="search-input" placeholder="Search by course name..." oninput="debounceSearch()"/>
+          <div class="star-filter" id="star-filter">
+            <button class="active" data-rating="0" onclick="filterByRating(0)">All</button>
+            <button data-rating="5" onclick="filterByRating(5)"><span class="material-symbols-outlined">star</span> 5</button>
+            <button data-rating="4" onclick="filterByRating(4)"><span class="material-symbols-outlined">star</span> 4</button>
+            <button data-rating="3" onclick="filterByRating(3)"><span class="material-symbols-outlined">star</span> 3</button>
+            <button data-rating="2" onclick="filterByRating(2)"><span class="material-symbols-outlined">star</span> 2</button>
+            <button data-rating="1" onclick="filterByRating(1)"><span class="material-symbols-outlined">star</span> 1</button>
+          </div>
+        </div>
+
+        <div id="reviews-loading" style="text-align:center;padding:3rem 0">
+          <div class="spinner-sm" style="width:2rem;height:2rem;border-width:3px;margin:0 auto 0.75rem"></div>
+          <p style="color:var(--on-surface-variant)">Loading reviews...</p>
+        </div>
+
+        <div id="reviews-empty" style="display:none;text-align:center;padding:3rem 0">
+          <span class="material-symbols-outlined" style="font-size:3rem;color:var(--on-surface-variant);margin-bottom:0.75rem">reviews</span>
+          <h2 class="text-xl font-bold mb-1">No Reviews Found</h2>
+          <p style="color:var(--on-surface-variant)">No courses match your search criteria. Try adjusting your filters.</p>
+        </div>
+
+        <div id="reviews-list"></div>
+
+        <div class="pagination" id="pagination" style="display:none"></div>
+      </div>
+    </section>
+  </main>
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/public.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    function escapeHtml(t) { var d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+
+    var currentPage = 1;
+    var currentRating = 0;
+    var currentSearch = '';
+    var totalPages = 1;
+    var debounceTimer = null;
+
+    function renderStars(rating) {
+      var html = '';
+      for (var i = 1; i <= 5; i++) {
+        html += '<span class="material-symbols-outlined ' + (i <= Math.round(rating) ? 'star-filled' : 'star-empty') + '">star</span>';
+      }
+      return html;
+    }
+
+    function loadReviews(page) {
+      page = page || 1;
+      document.getElementById('reviews-loading').style.display = 'block';
+      document.getElementById('reviews-list').innerHTML = '';
+      document.getElementById('reviews-empty').style.display = 'none';
+      document.getElementById('pagination').style.display = 'none';
+
+      var path = '/courses/reviews?page=' + page + '&limit=10';
+      if (currentRating > 0) path += '&rating=' + currentRating;
+      if (currentSearch) path += '&search=' + encodeURIComponent(currentSearch);
+
+      api.get(path)
+        .then(function(res) {
+          document.getElementById('reviews-loading').style.display = 'none';
+          var items = (res && res.data) ? (res.data.items || res.data.rows || res.data) : [];
+          var total = (res && res.data) ? (res.data.total || res.data.count || items.length) : items.length;
+          totalPages = Math.ceil(total / 10) || 1;
+
+          if (!items.length) {
+            document.getElementById('reviews-empty').style.display = 'block';
+            return;
+          }
+
+          var html = '';
+          items.forEach(function(c) {
+            html += '<div class="review-card">'
+              + '<div class="review-card-header">'
+              + '<h3>' + escapeHtml(c.courseName || c.title || '') + '</h3>'
+              + '<div class="stars">' + renderStars(c.avgRating || c.rating || 0) + '</div>'
+              + '</div>'
+              + '<div class="review-meta">'
+              + '<span>' + (c.reviewCount || c._count || 0) + ' reviews</span>'
+              + '<span>Avg: ' + (c.avgRating || c.rating || '—').toFixed(1) + ' / 5</span>'
+              + '</div>';
+
+            if (c.recentReviews && c.recentReviews.length) {
+              html += '<div class="review-excerpt">"' + escapeHtml(c.recentReviews[0].content || c.recentReviews[0].comment || '') + '"</div>';
+            } else if (c.excerpt) {
+              html += '<div class="review-excerpt">"' + escapeHtml(c.excerpt) + '"</div>';
+            }
+
+            html += '<div class="mt-3"><a href="/course/' + (c.id || c.courseId) + '" style="font-weight:600;font-size:0.85rem;color:var(--primary)">View Details →</a></div>'
+              + '</div>';
+          });
+
+          document.getElementById('reviews-list').innerHTML = html;
+          renderPagination(page);
+        })
+        .catch(function() {
+          document.getElementById('reviews-loading').style.display = 'none';
+          document.getElementById('reviews-list').innerHTML = '<div class="text-center py-8" style="color:var(--on-surface-variant)"><p>Failed to load reviews. <button class="btn-secondary text-sm" onclick="loadReviews(1)">Retry</button></p></div>';
+        });
+    }
+
+    function renderPagination(page) {
+      var container = document.getElementById('pagination');
+      container.style.display = 'flex';
+
+      var html = '<button onclick="goToPage(' + (page - 1) + ')" ' + (page <= 1 ? 'disabled' : '') + '>Previous</button>';
+
+      var start = Math.max(1, page - 2);
+      var end = Math.min(totalPages, page + 2);
+      if (start > 1) { html += '<button onclick="goToPage(1)">1</button>'; if (start > 2) html += '<span class="page-info">...</span>'; }
+      for (var i = start; i <= end; i++) {
+        html += '<button class="' + (i === page ? 'active' : '') + '" onclick="goToPage(' + i + ')">' + i + '</button>';
+      }
+      if (end < totalPages) { if (end < totalPages - 1) html += '<span class="page-info">...</span>'; html += '<button onclick="goToPage(' + totalPages + ')">' + totalPages + '</button>'; }
+
+      html += '<button onclick="goToPage(' + (page + 1) + ')" ' + (page >= totalPages ? 'disabled' : '') + '>Next</button>';
+      container.innerHTML = html;
+    }
+
+    function goToPage(page) {
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      loadReviews(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function filterByRating(rating) {
+      currentRating = rating;
+      currentPage = 1;
+      document.querySelectorAll('.star-filter button').forEach(function(b) {
+        b.classList.toggle('active', parseInt(b.getAttribute('data-rating')) === rating);
+      });
+      loadReviews(1);
+    }
+
+    function debounceSearch() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function() {
+        currentSearch = document.getElementById('search-input').value.trim();
+        currentPage = 1;
+        loadReviews(1);
+      }, 350);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() { loadReviews(1); });
+  </script>
+</body>
+</html>

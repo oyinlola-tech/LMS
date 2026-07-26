@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Notification Preferences</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    .notif-section {
+      background: #fff;
+      border: 1px solid var(--outline-variant);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .notif-section h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .notif-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--outline-variant);
+    }
+    .notif-row:last-child { border-bottom: none; }
+    .notif-row .label { font-weight: 500; font-size: 0.9rem; }
+    .notif-row .desc { font-size: 0.78rem; color: var(--on-surface-variant); margin-top: 0.15rem; }
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--outline);
+      border-radius: 999px;
+      transition: 0.2s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+    .save-bar {
+      position: sticky;
+      bottom: 0;
+      padding: 1rem 0;
+      background: var(--background);
+      border-top: 1px solid var(--outline-variant);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 0.85rem 1.25rem;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      z-index: 9999;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(1rem);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { background: #1e7e34; }
+    .toast.error { background: #c5221f; }
+    .spinner-sm {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid var(--outline-variant);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div data-include="header"></div>
+  <main style="padding-top: 6rem">
+    <section style="padding: 2rem 0 4rem">
+      <div class="container" style="max-width: 40rem">
+        <h1 class="text-4xl font-black mb-2">Notification Preferences</h1>
+        <p class="text-sm mb-8" style="color: var(--on-surface-variant)">Choose which notifications you'd like to receive</p>
+
+        <div id="notif-loading" style="text-align:center;padding:3rem 0">
+          <div class="spinner-sm" style="width:2rem;height:2rem;border-width:3px;margin:0 auto 0.75rem"></div>
+          <p style="color:var(--on-surface-variant)">Loading preferences...</p>
+        </div>
+
+        <div id="notif-content" style="display:none">
+          <div class="notif-section">
+            <h2><span class="material-symbols-outlined" style="color:var(--primary)">mail</span> Email Notifications</h2>
+            <div id="email-notifs"></div>
+          </div>
+
+          <div class="notif-section">
+            <h2><span class="material-symbols-outlined" style="color:var(--primary)">notifications</span> Push Notifications</h2>
+            <div id="push-notifs"></div>
+          </div>
+
+          <div class="save-bar">
+            <button class="btn-primary" id="save-btn" onclick="savePreferences()">
+              <span class="material-symbols-outlined" style="font-size:1.25rem">save</span>
+              Save Preferences
+            </button>
+          </div>
+        </div>
+
+        <div id="notif-error" style="display:none;text-align:center;padding:3rem 0">
+          <span class="material-symbols-outlined" style="font-size:3rem;color:var(--error);margin-bottom:0.75rem">error_outline</span>
+          <h2 class="text-xl font-bold mb-1">Failed to Load</h2>
+          <p style="color:var(--on-surface-variant)" class="mb-4">Could not load your notification preferences.</p>
+          <button class="btn-secondary" onclick="loadPreferences()">Retry</button>
+        </div>
+
+        <div id="save-toast" class="toast"></div>
+      </div>
+    </section>
+  </main>
+  <div data-include="footer"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/apis/public.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script>
+    function escapeHtml(t) { var d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }
+
+    var categories = [
+      { id: 'courseUpdates', label: 'Course updates', desc: 'New lessons, assignments, and course changes' },
+      { id: 'mentorshipUpdates', label: 'Mentorship updates', desc: 'Session reminders and mentor messages' },
+      { id: 'newMessages', label: 'New messages', desc: 'Direct messages from other users' },
+      { id: 'announcements', label: 'Announcements', desc: 'Platform news and feature releases' },
+      { id: 'gradeUpdates', label: 'Grade updates', desc: 'Assignment scores and course grades' },
+    ];
+
+    var prefs = { email: {}, push: {} };
+
+    function buildToggle(channel, cat, checked) {
+      var id = 'toggle-' + channel + '-' + cat.id;
+      return '<div class="notif-row">'
+        + '<div><div class="label">' + escapeHtml(cat.label) + '</div><div class="desc">' + escapeHtml(cat.desc) + '</div></div>'
+        + '<label class="toggle-switch">'
+        + '<input type="checkbox" id="' + id + '" ' + (checked ? 'checked' : '') + ' onchange="updatePref(\'' + channel + '\',\'' + cat.id + '\',this.checked)">'
+        + '<span class="toggle-slider"></span>'
+        + '</label></div>';
+    }
+
+    function updatePref(channel, catId, val) { prefs[channel][catId] = val; }
+
+    function renderPreferences(data) {
+      var e = data && data.email ? data.email : {};
+      var p = data && data.push ? data.push : {};
+      prefs.email = {};
+      prefs.push = {};
+
+      var emailHtml = '';
+      categories.forEach(function(cat) {
+        var checked = e[cat.id] !== false;
+        prefs.email[cat.id] = checked;
+        emailHtml += buildToggle('email', cat, checked);
+      });
+      document.getElementById('email-notifs').innerHTML = emailHtml;
+
+      var pushHtml = '';
+      categories.forEach(function(cat) {
+        var checked = p[cat.id] !== false;
+        prefs.push[cat.id] = checked;
+        pushHtml += buildToggle('push', cat, checked);
+      });
+      document.getElementById('push-notifs').innerHTML = pushHtml;
+    }
+
+    function loadPreferences() {
+      document.getElementById('notif-loading').style.display = 'block';
+      document.getElementById('notif-content').style.display = 'none';
+      document.getElementById('notif-error').style.display = 'none';
+
+      api.get('/users/notification-preferences')
+        .then(function(res) {
+          document.getElementById('notif-loading').style.display = 'none';
+          if (res && res.data) {
+            renderPreferences(res.data);
+            document.getElementById('notif-content').style.display = 'block';
+          } else {
+            renderPreferences({});
+            document.getElementById('notif-content').style.display = 'block';
+          }
+        })
+        .catch(function() {
+          document.getElementById('notif-loading').style.display = 'none';
+          document.getElementById('notif-error').style.display = 'block';
+        });
+    }
+
+    function showToast(msg, type) {
+      var toast = document.getElementById('save-toast');
+      toast.textContent = msg;
+      toast.className = 'toast ' + type + ' show';
+      setTimeout(function() { toast.classList.remove('show'); }, 3000);
+    }
+
+    function savePreferences() {
+      var btn = document.getElementById('save-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner-sm"></div> Saving...';
+
+      var payload = {
+        email: prefs.email,
+        push: prefs.push,
+      };
+
+      api.put('/users/notification-preferences', payload)
+        .then(function() {
+          showToast('Preferences saved successfully', 'success');
+        })
+        .catch(function() {
+          showToast('Failed to save preferences', 'error');
+        })
+        .finally(function() {
+          btn.disabled = false;
+          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1.25rem">save</span> Save Preferences';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPreferences);
+  </script>
+</body>
+</html>

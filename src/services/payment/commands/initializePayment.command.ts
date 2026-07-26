@@ -6,8 +6,8 @@ import { toLowestUnit, getCurrencyDecimals } from '../../../utils/currency.util'
 
 const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY || '';
 const PAYSTACK_PUBLIC_KEY = process.env.PAYSTACK_PUBLIC_KEY || '';
-const PAYSTACK_API_URL = process.env.PAYSTACK_API_URL || 'https://api.paystack.co';
-const BASE_URL = process.env.PUBLIC_BASE_URL || 'http://localhost:3000';
+const PAYSTACK_API_URL = process.env.PAYSTACK_API_URL;
+const BASE_URL = process.env.PUBLIC_BASE_URL;
 const PAYSTACK_SUPPORTED = new Set(['USD', 'NGN', 'GHS', 'KES', 'ZAR', 'EUR', 'GBP', 'XOF', 'EGP']);
 
 function resolvePaystackCurrency(raw: string): string {

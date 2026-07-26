@@ -52,7 +52,7 @@ async function authPlugin(fastify: FastifyInstance): Promise<void> {
 
     let decoded: any;
     try {
-      decoded = jwt.verify(token, secret);
+      decoded = jwt.verify(token, secret, { algorithms: ['HS256'] });
     } catch {
       reply.status(401).send({ error: { code: 'INVALID_TOKEN', message: 'Invalid or expired token' } });
       return;

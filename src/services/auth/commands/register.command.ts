@@ -3,10 +3,11 @@ import { userRepository } from '../../../repositories/user.repository';
 import { otpRepository } from '../../../repositories/otp.repository';
 import { hashPassword } from '../../../utils/password.util';
 import { generateOtp, hashOtp } from '../../../utils/otp.util';
-import { generateStudentId } from '../../../utils/studentId.util';
+import { generateStudentId, generateTutorId, generateAdminId } from '../../../utils/idGenerator.util';
 import { sendEmail, templates } from '../../../services/mail';
 import { normalizeEmail } from '../../../validators/auth.validator';
 import { UserRole } from '../../../enums';
+import { User, Follow } from '../../../models';
 import { logger } from '../../../core/loggers';
 
 const otpExpiryMinutes = Number(process.env.OTP_EXPIRY_MINUTES || 10);
@@ -16,6 +17,7 @@ export class RegisterCommand {
     fullName: string;
     email: string;
     password: string;
+    role?: string;
   }): Promise<{ userId: string }> {
     const normalizedEmail = normalizeEmail(params.email);
 
@@ -29,15 +31,24 @@ export class RegisterCommand {
 
     const passwordHash = await hashPassword(params.password);
 
-    const studentId = await generateStudentId();
+    const role = params.role || UserRole.LEARNER;
+    const studentId = role === UserRole.LEARNER ? await generateStudentId() : null;
+    const tutorId = role === UserRole.TUTOR ? await generateTutorId() : null;
+    const adminId = (role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN) ? await generateAdminId() : null;
+    const isVerified = role === UserRole.TUTOR || role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN;
+    const checkmarkType = role === UserRole.TUTOR ? 'blue' : (role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN ? 'black' : null);
 
     const user = await userRepository.create({
       fullName: String(params.fullName).trim(),
       email: normalizedEmail,
       passwordHash,
-      role: UserRole.LEARNER,
+      role,
       studentId,
-      isLegacyUser: false,
+      tutorId,
+      adminId,
+      isVerified,
+      checkmarkType,
+      isLegacyUser: role !== UserRole.LEARNER,
     });
 
     const code = generateOtp();
@@ -49,6 +60,17 @@ export class RegisterCommand {
     sendEmail({ to: user.email, ...emailPayload }).catch((mailErr: Error) => {
       logger.error('[Auth] OTP email failed (non-blocking):', mailErr?.message);
     });
+
+    try {
+      const superAdmin = await User.findOne({ where: { role: UserRole.SUPER_ADMIN }, order: [['createdAt', 'ASC']] });
+      if (superAdmin && superAdmin.id !== user.id) {
+        await Follow.findOrCreate({
+          where: { followerId: user.id, followingId: superAdmin.id },
+        });
+      }
+    } catch (err) {
+      logger.error('[Auth] Auto-follow superadmin failed (non-blocking):', err);
+    }
 
     return { userId: user.id };
   }

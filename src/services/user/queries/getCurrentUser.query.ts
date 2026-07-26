@@ -1,4 +1,4 @@
-import { User, UserInterest } from '../../../models';
+import { User, UserInterest, Follow } from '../../../models';
 
 export interface CurrentUserResult {
   id: string;
@@ -8,10 +8,18 @@ export interface CurrentUserResult {
   bio?: string | null;
   skills?: string[] | null;
   avatarUrl?: string | null;
+  coverUrl?: string | null;
   phoneNumber?: string | null;
   location?: string | null;
   studentId?: string | null;
+  tutorId?: string | null;
+  adminId?: string | null;
+  isPrivate: boolean;
+  isVerified: boolean;
+  checkmarkType?: string | null;
   isEmailVerified: boolean;
+  followerCount: number;
+  followingCount: number;
   UserInterests?: Array<{ id: string; name: string }>;
 }
 
@@ -30,6 +38,9 @@ export class GetCurrentUserQuery {
       attributes: ['id', 'name'],
     });
 
+    const followerCount = await Follow.count({ where: { followingId: userId } });
+    const followingCount = await Follow.count({ where: { followerId: userId } });
+
     return {
       id: user.id,
       fullName: user.fullName,
@@ -38,10 +49,18 @@ export class GetCurrentUserQuery {
       bio: user.bio,
       skills: user.skills as unknown as string[],
       avatarUrl: user.avatarUrl,
+      coverUrl: user.coverUrl,
       phoneNumber: user.phoneNumber,
       location: user.location,
       studentId: user.studentId,
+      tutorId: user.tutorId,
+      adminId: user.adminId,
+      isPrivate: user.isPrivate,
+      isVerified: user.isVerified,
+      checkmarkType: user.checkmarkType,
       isEmailVerified: user.isEmailVerified,
+      followerCount,
+      followingCount,
       UserInterests: interests.map((i: any) => ({ id: i.id, name: i.name })),
     };
   }

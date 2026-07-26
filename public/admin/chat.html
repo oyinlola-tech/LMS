@@ -9,11 +9,12 @@
   <link href="/css/chat.css" rel="stylesheet"/>
 </head>
 <body>
-  <div data-include="header"></div>
-  <main>
+  <div data-include="/admin/components/admin-sidebar"></div>
+  <main class="admin-main">
+    <div data-include="/admin/components/admin-header"></div>
     <div data-include="/chat-content"></div>
   </main>
-  <div data-include="footer"></div>
+  <div data-include="/admin/components/admin-bottom-nav"></div>
   <div data-include="auth-modal"></div>
   <script src="/js/components/include.js"></script>
   <script src="/js/shared/api.js"></script>

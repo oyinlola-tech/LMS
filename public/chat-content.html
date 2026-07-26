@@ -1,6 +1,16 @@
 <div class="container" style="padding-top: 1rem; padding-bottom: 1rem">
   <div class="chat-layout" id="chat-layout">
     <div class="side-panel" id="side-panel">
+      <div class="chat-sidebar-header">
+        <span class="text-sm font-bold">Chat</span>
+        <button class="btn-icon" id="new-conversation-btn" title="New Conversation">
+          <span class="material-symbols-outlined">person_add</span>
+        </button>
+      </div>
+      <div class="chat-user-search">
+        <input type="text" id="user-search-input" placeholder="Search by name, ID..." autocomplete="off"/>
+        <div id="user-search-results" class="user-search-dropdown" style="display:none"></div>
+      </div>
       <div class="tab-bar" id="tab-bar">
         <button class="tab-btn active" data-tab="messages">Messages</button>
         <button class="tab-btn" data-tab="discussions">Discussions</button>

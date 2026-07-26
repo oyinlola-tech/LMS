@@ -6,6 +6,8 @@ var ChatApp = (function () {
     userId: null,
     fileAttachment: null,
     pollingTimer: null,
+    ws: null,
+    wsReady: false,
   };
 
   function getUserId() {
@@ -72,7 +74,7 @@ var ChatApp = (function () {
     api.get(url).then(function(res) {
       var container = document.getElementById('threads-container');
       if (!res || !res.data || !res.data.items || !res.data.items.length) {
-        container.innerHTML = '<div class="empty-state" style="height:auto;padding:2rem"><span class="material-symbols-outlined icon">mail</span><p style="font-size:0.875rem">No conversations yet.</p><p style="font-size:0.75rem;color:var(--on-surface-variant)">Go to a profile and click Message to start one.</p></div>';
+        container.innerHTML = '<div class="empty-state" style="height:auto;padding:2rem"><span class="material-symbols-outlined icon">mail</span><p style="font-size:0.875rem">No conversations yet.</p><p style="font-size:0.75rem;color:var(--on-surface-variant)">Search for users to start messaging.</p></div>';
         return;
       }
       container.innerHTML = res.data.items.map(function(t) {
@@ -313,6 +315,105 @@ var ChatApp = (function () {
     document.getElementById('file-name').textContent = '';
   }
 
+  function connectWebSocket() {
+    try {
+      var token = localStorage.getItem('token');
+      if (!token) return;
+      var protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      var wsUrl = protocol + '//' + location.host + '/ws/messages?token=' + encodeURIComponent(token);
+      state.ws = new WebSocket(wsUrl);
+
+      state.ws.onopen = function() {
+        state.wsReady = true;
+      };
+
+      state.ws.onmessage = function(event) {
+        try {
+          var msg = JSON.parse(event.data);
+          if (msg.type === 'message' && state.currentThreadId && String(msg.data.threadId) === String(state.currentThreadId)) {
+            var container = document.getElementById('chat-messages');
+            if (container) {
+              var msgData = { senderId: msg.data.senderId, body: msg.data.body, createdAt: msg.data.createdAt };
+              container.appendChild(renderMessage(msgData, 'message'));
+              container.scrollTop = container.scrollHeight;
+            }
+          }
+          if (msg.type === 'message' && state.activeTab === 'messages') {
+            var searchInput = document.getElementById('search-input');
+            loadThreads(searchInput ? searchInput.value : '');
+          }
+        } catch(e) {}
+      };
+
+      state.ws.onclose = function() {
+        state.wsReady = false;
+        setTimeout(connectWebSocket, 3000);
+      };
+
+      state.ws.onerror = function() {
+        state.wsReady = false;
+      };
+    } catch(e) {}
+  }
+
+  function searchUsers(query) {
+    var dropdown = document.getElementById('user-search-results');
+    if (!query || query.length < 1) { dropdown.style.display = 'none'; return; }
+    api.get('/users/search?q=' + encodeURIComponent(query) + '&limit=10').then(function(res) {
+      if (!res || !res.data || !res.data.length) { dropdown.style.display = 'none'; return; }
+      var html = res.data.map(function(u) {
+        var roleLabel = u.role === 'tutor' ? 'Tutor' : (u.role === 'admin' || u.role === 'super_admin' ? 'Admin' : 'Student');
+        var idLabel = u.studentId || u.tutorId || u.adminId || '';
+        return '<div class="user-search-item" data-id="' + u.id + '" data-name="' + escapeHtml(u.fullName || '') + '">'
+          + '<div class="avatar" style="width:2rem;height:2rem;font-size:0.875rem">' + (u.avatarUrl ? '<img src="' + escapeHtml(u.avatarUrl) + '" alt=""/>' : '<span>' + (u.fullName || '?').charAt(0).toUpperCase() + '</span>') + '</div>'
+          + '<div class="user-info"><div class="user-name">' + escapeHtml(u.fullName || 'Unknown') + '</div><div class="user-meta">' + escapeHtml(idLabel) + ' &middot; ' + escapeHtml(u.email || '') + '</div></div>'
+          + '<span class="role-badge">' + roleLabel + '</span></div>';
+      }).join('');
+      dropdown.innerHTML = html;
+      dropdown.style.display = 'block';
+      dropdown.querySelectorAll('.user-search-item').forEach(function(el) {
+        el.addEventListener('click', function() {
+          var userId = el.getAttribute('data-id');
+          var userName = el.getAttribute('data-name');
+          dropdown.style.display = 'none';
+          document.getElementById('user-search-input').value = '';
+          startNewConversation(userId, userName);
+        });
+      });
+    }).catch(function() {
+      document.getElementById('user-search-results').style.display = 'none';
+    });
+  }
+
+  function startNewConversation(userId, userName) {
+    api.post('/messages/threads', { participantId: userId }).then(function(res) {
+      if (res && res.data && res.data.threadId) {
+        switchTab('messages');
+        openConversation(res.data.threadId, 'message');
+      }
+    }).catch(function(err) {
+      alert((err && err.error && err.error.message) || 'Cannot start conversation');
+    });
+  }
+
+  function blockUser(userId) {
+    if (!confirm('Block this user? You will no longer receive messages from them.')) return;
+    api.post('/messages/block/' + userId).then(function() {
+      alert('User blocked');
+      closeChatView();
+      loadThreads(document.getElementById('search-input').value);
+    }).catch(function() { alert('Failed to block user'); });
+  }
+
+  function reportUser(userId) {
+    var reason = prompt('Why are you reporting this user?');
+    if (!reason) return;
+    api.post('/messages/report/' + userId, { reason: reason }).then(function(res) {
+      alert('User reported. Our team will review the last 10 messages.');
+      closeChatView();
+    }).catch(function() { alert('Failed to report user'); });
+  }
+
   function init() {
     getUserId();
     if (!state.userId) return;
@@ -337,29 +438,37 @@ var ChatApp = (function () {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
     });
 
+    var userSearchInput = document.getElementById('user-search-input');
+    if (userSearchInput) {
+      userSearchInput.addEventListener('input', function() {
+        clearTimeout(this._timer);
+        var self = this;
+        this._timer = setTimeout(function() { searchUsers(self.value); }, 200);
+      });
+      userSearchInput.addEventListener('focus', function() {
+        if (userSearchInput.value.trim()) searchUsers(userSearchInput.value.trim());
+      });
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.chat-user-search')) {
+          document.getElementById('user-search-results').style.display = 'none';
+        }
+      });
+    }
+
+    var newBtn = document.getElementById('new-conversation-btn');
+    if (newBtn) {
+      newBtn.addEventListener('click', function() {
+        document.getElementById('user-search-input').focus();
+      });
+    }
+
+    connectWebSocket();
+
     state.pollingTimer = setInterval(function() {
-      if (state.currentType === 'message') {
+      if (state.currentType === 'message' && !state.wsReady) {
         loadThreads(document.getElementById('search-input').value);
       }
     }, 5000);
-  }
-
-  function blockUser(userId) {
-    if (!confirm('Block this user? You will no longer receive messages from them.')) return;
-    api.post('/messages/block/' + userId).then(function() {
-      alert('User blocked');
-      closeChatView();
-      loadThreads(document.getElementById('search-input').value);
-    }).catch(function() { alert('Failed to block user'); });
-  }
-
-  function reportUser(userId) {
-    var reason = prompt('Why are you reporting this user?');
-    if (!reason) return;
-    api.post('/messages/report/' + userId, { reason: reason }).then(function(res) {
-      alert('User reported. Our team will review the last 10 messages.');
-      closeChatView();
-    }).catch(function() { alert('Failed to report user'); });
   }
 
   return { init: init, closeChatView: closeChatView, sendChatMessage: sendChatMessage, onFileSelected: onFileSelected, clearFileAttachment: clearFileAttachment, autoResize: autoResize, blockUser: blockUser, reportUser: reportUser };

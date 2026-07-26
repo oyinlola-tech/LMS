@@ -1,5 +1,4 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { UserRole } from '../enums';
 import {
   applyMentorship,
   getCourseMentors,
@@ -7,10 +6,19 @@ import {
   getApplications,
   approveApplication,
   rejectApplication,
+  listMentorshipPrograms,
+  listMyApplications,
+  applyToProgram,
 } from '../controllers/mentorship.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
+  fastify.get('/programs', listMentorshipPrograms);
+
+  fastify.get('/my-applications', { preHandler: [fastify.authenticate] }, listMyApplications);
+
   fastify.post('/apply', { preHandler: [fastify.authenticate] }, applyMentorship);
+
+  fastify.post('/:id/apply', { preHandler: [fastify.authenticate] }, applyToProgram);
 
   fastify.get('/course/:courseId', getCourseMentors);
 

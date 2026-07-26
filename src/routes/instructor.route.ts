@@ -10,6 +10,8 @@ import {
 } from '../controllers/instructor.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
+  fastify.get('/', listMentors);
+
   fastify.get('/analytics', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.TUTOR)] }, getAnalytics);
 
   fastify.get('/courses', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.TUTOR)] }, getCourses);

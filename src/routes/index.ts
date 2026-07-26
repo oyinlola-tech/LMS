@@ -45,3 +45,4 @@ export { default as paymentRoutes } from './payment.route';
 export { default as webhookRoutes } from './webhook.route';
 export { default as timelineRoutes } from './timeline.route';
 export { default as activitiesRoutes } from './activities.route';
+export { default as leaderboardRoutes } from './leaderboard.route';

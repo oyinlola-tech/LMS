@@ -290,7 +290,7 @@
         var images = p.images ? (typeof p.images === 'string' ? JSON.parse(p.images) : p.images) : [];
         var gallery = document.getElementById('pf-gallery');
         if (gallery) {
-          if (images.length) gallery.innerHTML = images.map(function(img) { return '<img src="' + img + '" alt="" onclick="openLightbox(\'' + img.replace(/'/g, "\\'") + '\')"/>'; }).join('');
+          if (images.length) gallery.innerHTML = images.map(function(img) { return '<img src="' + escapeHtml(img) + '" alt="" onclick="openLightbox(\'' + escapeHtml(img).replace(/'/g, "\\'") + '\')"/>'; }).join('');
         }
 
         var nav = document.getElementById('pf-nav-inner');
@@ -330,12 +330,13 @@
               section.style.marginTop = '1.5rem';
               section.innerHTML = '<h3 style="font-size:1.0625rem;font-weight:700;margin-bottom:0.75rem">Featured Reviews <span style="font-size:0.75rem;font-weight:400;color:var(--pf-secondary)">— top rated</span></h3>' + reviews.map(function(rv) {
                 var stars = ''; for (var i=0;i<5;i++) stars += i < rv.rating ? '&#9733;' : '&#9734;';
-                var avatarStyle = rv.reviewerAvatar ? ' style="background-image:url(' + rv.reviewerAvatar + ')"' : '';
+                var avatarUrl = escapeHtml(rv.reviewerAvatar || '');
+                var avatarStyle = rv.reviewerAvatar ? ' style="background-image:url(' + avatarUrl + ')"' : '';
                 var avatarContent = rv.reviewerAvatar ? '' : (rv.reviewerName||'?').charAt(0).toUpperCase();
                 return '<div style="border:1px solid var(--pf-border);border-radius:var(--pf-card-radius,.75rem);padding:1rem;margin-bottom:.75rem;background:var(--pf-card-bg,var(--pf-surface))"><div style="display:flex;align-items:center;gap:.625rem;margin-bottom:.5rem"><div style="width:40px;height:40px;border-radius:50%;background:var(--pf-surface);background-size:cover;background-position:center;border:1px solid var(--pf-border);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.875rem;flex-shrink:0"' + avatarStyle + '>' + avatarContent + '</div><div><div style="font-weight:600;font-size:.8125rem">' + escapeHtml(rv.reviewerName||'') + '</div><div style="color:#f59e0b;font-size:.875rem;letter-spacing:1px">' + stars + '</div></div></div>' + (rv.content ? '<div style="font-size:.8125rem;color:var(--pf-secondary);line-height:1.5">' + escapeHtml(rv.content) + '</div>' : '') + '</div>';
               }).join('');
               if (reviews.length >= 3) {
-                section.innerHTML += '<div style="margin-top:.5rem"><a class="social-link" href="/portfolio/pages/reviews.html?slug=' + slug + '" target="_blank"><span class="material-symbols-outlined" style="font-size:1rem">open_in_new</span> See all reviews</a></div>';
+                section.innerHTML += '<div style="margin-top:.5rem"><a class="social-link" href="/portfolio/pages/reviews.html?slug=' + encodeURIComponent(slug) + '" target="_blank"><span class="material-symbols-outlined" style="font-size:1rem">open_in_new</span> See all reviews</a></div>';
               }
               el.appendChild(section);
             }).catch(function(){});
@@ -345,7 +346,7 @@
         addPageTab({ id: 'experience', title: 'Experience' }, function(el) {
           var exp = p.experience ? (typeof p.experience === 'string' ? JSON.parse(p.experience) : p.experience) : [];
           el.innerHTML = exp.length ? exp.map(function(e) {
-            var imgHtml = e.image ? '<img class="card-img" src="' + e.image + '" alt=""/>' : '';
+            var imgHtml = e.image ? '<img class="card-img" src="' + escapeHtml(e.image) + '" alt=""/>' : '';
             return '<div class="exp-card">' + imgHtml + '<div class="card-body"><h4>' + escapeHtml(e.role || '') + '</h4><div class="meta">' + [e.company, e.duration].filter(Boolean).join(' &middot; ') + '</div>' + (e.description ? '<p>' + escapeHtml(e.description) + '</p>' : '') + '</div></div>';
           }).join('') : '<p style="color:var(--pf-secondary);font-size:0.875rem">No experience listed</p>';
         }, '<span class="material-symbols-outlined" style="font-size:1.125rem">work</span>');
@@ -382,27 +383,30 @@
         var hasLinks = Object.values(links).some(function(v) { return v; });
         if (hasLinks) {
           addPageTab({ id: 'links', title: 'Links' }, function(el) {
-            el.innerHTML = '<div class="social-links">' + Object.entries(links).filter(function(e) { return e[1]; }).map(function(e) { return '<a href="' + e[1] + '" target="_blank" rel="noopener" class="social-link"><span class="material-symbols-outlined" style="font-size:1rem">' + (e[0]==='github'?'code':e[0]==='linkedin'?'badge':e[0]==='twitter'?'alternate_email':'link') + '</span>' + e[0].charAt(0).toUpperCase() + e[0].slice(1) + '</a>'; }).join('') + '</div>';
+            el.innerHTML = '<div class="social-links">' + Object.entries(links).filter(function(e) { return e[1]; }).map(function(e) { var url = e[1]; if (url && !url.match(/^https?:\/\//i)) url = 'about:blank'; return '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener" class="social-link"><span class="material-symbols-outlined" style="font-size:1rem">' + (e[0]==='github'?'code':e[0]==='linkedin'?'badge':e[0]==='twitter'?'alternate_email':'link') + '</span>' + e[0].charAt(0).toUpperCase() + e[0].slice(1) + '</a>'; }).join('') + '</div>';
           }, '<span class="material-symbols-outlined" style="font-size:1.125rem">link</span>');
         }
 
         pages.forEach(function(page) {
           addPageTab(page, function(el, pg) {
             var type = pg.type || 'custom';
+            var safeSlug = encodeURIComponent(slug);
+            var safePgId = escapeHtml(pg.id || '').replace(/'/g, '&#39;');
             if (type === 'resume') {
-              el.innerHTML = '<div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap"><a class="social-link" href="/portfolio/pages/resume.html?slug=' + slug + '" target="_blank"><span class="material-symbols-outlined">open_in_new</span> Open Full Resume</a><a class="social-link" href="/portfolio/cv?slug=' + slug + '" target="_blank"><span class="material-symbols-outlined">download</span> Download CV</a></div>';
+              el.innerHTML = '<div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap"><a class="social-link" href="/portfolio/pages/resume.html?slug=' + safeSlug + '" target="_blank"><span class="material-symbols-outlined">open_in_new</span> Open Full Resume</a><a class="social-link" href="/portfolio/cv?slug=' + safeSlug + '" target="_blank"><span class="material-symbols-outlined">download</span> Download CV</a></div>';
               renderContentBlocks(el, pg); return;
             }
             if (type === 'reviews') {
-              el.innerHTML = '<div style="margin-bottom:1rem"><a class="social-link" href="/portfolio/pages/reviews.html?slug=' + slug + '" target="_blank"><span class="material-symbols-outlined">open_in_new</span> Open Reviews Page</a></div><div id="inline-reviews-' + pg.id + '"><p style="color:var(--pf-secondary);font-size:0.875rem">Loading reviews...</p></div>';
-              api.get('/portfolio/reviews?slug=' + slug + '&limit=5').then(function(r) {
+              el.innerHTML = '<div style="margin-bottom:1rem"><a class="social-link" href="/portfolio/pages/reviews.html?slug=' + safeSlug + '" target="_blank"><span class="material-symbols-outlined">open_in_new</span> Open Reviews Page</a></div><div id="inline-reviews-' + safePgId + '"><p style="color:var(--pf-secondary);font-size:0.875rem">Loading reviews...</p></div>';
+              api.get('/portfolio/reviews?slug=' + safeSlug + '&limit=5').then(function(r) {
                 var reviews = r.data || [];
-                var container = document.getElementById('inline-reviews-' + pg.id);
+                var container = document.getElementById('inline-reviews-' + safePgId);
                 if (!container) return;
                 if (!reviews.length) { container.innerHTML = '<p style="color:var(--pf-secondary);font-size:0.875rem">No reviews yet</p>'; return; }
                 container.innerHTML = reviews.map(function(rv) {
                   var stars = ''; for (var i=0;i<5;i++) stars += i < rv.rating ? '&#9733;' : '&#9734;';
-                  var avatarStyle = rv.reviewerAvatar ? ' style="background-image:url(' + rv.reviewerAvatar + ')"' : '';
+                  var avatarUrl = escapeHtml(rv.reviewerAvatar || '');
+                  var avatarStyle = rv.reviewerAvatar ? ' style="background-image:url(' + avatarUrl + ')"' : '';
                   var avatarContent = rv.reviewerAvatar ? '' : (rv.reviewerName||'?').charAt(0).toUpperCase();
                   return '<div class="pf-review-card"><div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem"><div style="width:36px;height:36px;border-radius:50%;background:var(--pf-surface);background-size:cover;background-position:center;border:1px solid var(--pf-border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8125rem;flex-shrink:0"' + avatarStyle + '>' + avatarContent + '</div><div><div style="font-weight:600;font-size:.8125rem">' + escapeHtml(rv.reviewerName||'') + '</div><div style="color:#f59e0b;font-size:.875rem;letter-spacing:1px">' + stars + '</div></div></div>' + (rv.title ? '<div style="font-weight:700;font-size:.875rem;margin-bottom:.25rem">' + escapeHtml(rv.title) + '</div>' : '') + (rv.content ? '<div style="font-size:.8125rem;color:var(--pf-secondary)">' + escapeHtml(rv.content) + '</div>' : '') + '</div>';
                 }).join('');
@@ -410,11 +414,12 @@
               return;
             }
             if (type === 'projects') {
-              el.innerHTML = '<div style="margin-bottom:1rem"><a class="social-link" href="/portfolio/pages/projects.html?slug=' + slug + '" target="_blank"><span class="material-symbols-outlined">open_in_new</span> Open Full Projects Page</a></div>';
+              el.innerHTML = '<div style="margin-bottom:1rem"><a class="social-link" href="/portfolio/pages/projects.html?slug=' + safeSlug + '" target="_blank"><span class="material-symbols-outlined">open_in_new</span> Open Full Projects Page</a></div>';
               renderContentBlocks(el, pg); return;
             }
             if (type === 'contact') {
-              el.innerHTML = '<div class="contact-form"><input type="text" id="c-name-' + pg.id + '" placeholder="Your Name"/><input type="email" id="c-email-' + pg.id + '" placeholder="Your Email"/><textarea id="c-message-' + pg.id + '" rows="4" placeholder="Your Message"></textarea><div id="c-status-' + pg.id + '" style="font-size:0.8125rem;margin-bottom:0.5rem"></div><button onclick="sendContactInline(\'' + pg.id + '\')">Send Message</button><div style="margin-top:.75rem"><a class="social-link" href="/portfolio/pages/contact.html?slug=' + slug + '" target="_blank" style="display:inline-flex"><span class="material-symbols-outlined">open_in_new</span> Open Full Contact Page</a></div></div>';
+              el.innerHTML = '<div class="contact-form"><input type="text" id="c-name-' + safePgId + '" placeholder="Your Name"/><input type="email" id="c-email-' + safePgId + '" placeholder="Your Email"/><textarea id="c-message-' + safePgId + '" rows="4" placeholder="Your Message"></textarea><div id="c-status-' + safePgId + '" style="font-size:0.8125rem;margin-bottom:0.5rem"></div><button data-contact-id="' + safePgId + '" class="btn-primary">Send Message</button><div style="margin-top:.75rem"><a class="social-link" href="/portfolio/pages/contact.html?slug=' + safeSlug + '" target="_blank" style="display:inline-flex"><span class="material-symbols-outlined">open_in_new</span> Open Full Contact Page</a></div></div>';
+              el.querySelector('[data-contact-id]').addEventListener('click', function() { sendContactInline(safePgId); });
               return;
             }
             renderContentBlocks(el, pg);
@@ -424,11 +429,11 @@
         function renderContentBlocks(el, pg) {
           var content = pg.content ? (typeof pg.content === 'string' ? JSON.parse(pg.content) : pg.content) : [];
           el.innerHTML += content.map(function(block) {
-            if (block.type === 'text') return '<div style="font-size:0.9375rem;line-height:1.7;margin-bottom:1rem">' + (block.value || '') + '</div>';
-            if (block.type === 'heading') return '<h3 style="font-size:1.125rem;font-weight:700;margin-bottom:0.75rem;margin-top:1.25rem;color:var(--pf-primary)">' + (block.value || '') + '</h3>';
-            if (block.type === 'image') return '<div style="margin-bottom:1rem"><img src="' + (block.value || '') + '" alt="" style="max-width:100%;border-radius:var(--pf-card-radius);cursor:pointer" onclick="openLightbox(\'' + (block.value || '').replace(/'/g, "\\'") + '\')"/></div>';
-            if (block.type === 'list') return '<ul style="margin-bottom:1rem">' + ((block.items || [])).map(function(i) { return '<li style="margin-bottom:0.25rem;font-size:0.9375rem">' + i + '</li>'; }).join('') + '</ul>';
-            if (block.type === 'embed') return '<div style="margin-bottom:1rem;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--pf-card-radius)"><iframe src="' + (block.value || '') + '" style="position:absolute;inset:0;width:100%;height:100%;border:none" allowfullscreen></iframe></div>';
+            if (block.type === 'text') return '<div style="font-size:0.9375rem;line-height:1.7;margin-bottom:1rem">' + escapeHtml(block.value || '') + '</div>';
+            if (block.type === 'heading') return '<h3 style="font-size:1.125rem;font-weight:700;margin-bottom:0.75rem;margin-top:1.25rem;color:var(--pf-primary)">' + escapeHtml(block.value || '') + '</h3>';
+            if (block.type === 'image') return '<div style="margin-bottom:1rem"><img src="' + escapeHtml(block.value || '') + '" alt="" style="max-width:100%;border-radius:var(--pf-card-radius);cursor:pointer" onclick="openLightbox(\'' + escapeHtml(block.value || '').replace(/'/g, "\\'") + '\')"/></div>';
+            if (block.type === 'list') return '<ul style="margin-bottom:1rem">' + ((block.items || [])).map(function(i) { return '<li style="margin-bottom:0.25rem;font-size:0.9375rem">' + escapeHtml(i) + '</li>'; }).join('') + '</ul>';
+            if (block.type === 'embed') { var embedUrl = block.value || ''; if (!embedUrl.match(/^https?:\/\//i)) embedUrl = ''; return '<div style="margin-bottom:1rem;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--pf-card-radius)"><iframe src="' + escapeHtml(embedUrl) + '" style="position:absolute;inset:0;width:100%;height:100%;border:none" allowfullscreen></iframe></div>'; }
             return '';
           }).join('');
         }
@@ -442,7 +447,7 @@
         var footerSocial = document.getElementById('footer-social');
         if (footerSocial) {
           var socialEntries = Object.entries(links).filter(function(e) { return e[1]; });
-          if (socialEntries.length) footerSocial.innerHTML = socialEntries.map(function(e) { return '<a href="' + e[1] + '" target="_blank" rel="noopener"><span class="material-symbols-outlined" style="font-size:1rem">' + (e[0]==='github'?'code':e[0]==='linkedin'?'badge':e[0]==='twitter'?'alternate_email':'link') + '</span>' + e[0].charAt(0).toUpperCase() + e[0].slice(1) + '</a>'; }).join('');
+          if (socialEntries.length) footerSocial.innerHTML = socialEntries.map(function(e) { var url = e[1]; if (url && !url.match(/^https?:\/\//i)) url = 'about:blank'; return '<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener"><span class="material-symbols-outlined" style="font-size:1rem">' + (e[0]==='github'?'code':e[0]==='linkedin'?'badge':e[0]==='twitter'?'alternate_email':'link') + '</span>' + e[0].charAt(0).toUpperCase() + e[0].slice(1) + '</a>'; }).join('');
         }
         var footerLms = document.getElementById('footer-lms');
         if (footerLms) {

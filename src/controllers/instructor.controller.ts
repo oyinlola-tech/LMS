@@ -2,7 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { ok, created, error } from '../utils/response.util';
 import { UserRole } from '../enums';
 import { Op } from 'sequelize';
-import { Course, Enrollment, AssignmentSubmission, CourseReview } from '../models';
+import { Course, Enrollment, AssignmentSubmission, CourseReview, User } from '../models';
 import { getInstructorAnalyticsQuery } from '../services/instructor/queries/getAnalytics.query';
 import { getInstructorActivityQuery } from '../services/instructor/queries/getActivity.query';
 import { getInstructorReviewsQuery } from '../services/instructor/queries/getReviews.query';
@@ -83,5 +83,4 @@ export async function listMentors(request: FastifyRequest, reply: FastifyReply) 
   } catch (err) {
     return error(reply, 500, 'MENTORS_FAILED', 'Failed to load mentors');
   }
-}
 }

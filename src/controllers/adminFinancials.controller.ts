@@ -14,7 +14,7 @@ export async function getFinancialOverview(_request: FastifyRequest, reply: Fast
     const activeStudents = await User.count({ where: { role: UserRole.LEARNER, status: 'active' } });
     const activeTutors = await User.count({ where: { role: UserRole.TUTOR, status: 'active' } });
     const commissionSetting = await PlatformSetting.findByPk('commission_percent');
-    const commissionPercent = commissionSetting ? parseFloat(commissionSetting.value) : 15;
+    const commissionPercent = commissionSetting ? parseFloat(commissionSetting.value) : 10;
 
     return ok(reply, {
       totalRevenue,

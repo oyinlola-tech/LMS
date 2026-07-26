@@ -20,12 +20,18 @@ import type { UpdateProfileBody, UpdateAvatarBody, UpdateInterestsBody, UpdateEm
 
 export const searchUsers = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
-    const { q, studentId, role } = request.query as { q?: string; studentId?: string; role?: string };
+    const { q, studentId, role, tutorId, adminId, limit: queryLimit } = request.query as {
+      q?: string; studentId?: string; role?: string; tutorId?: string; adminId?: string; limit?: string;
+    };
     const where: Record<string, any> = {};
     if (role) where.role = role;
 
     if (studentId) {
       where.studentId = studentId;
+    } else if (tutorId) {
+      where.tutorId = tutorId;
+    } else if (adminId) {
+      where.adminId = adminId;
     } else if (q) {
       if (String(q).length > 100) {
         return error(reply, 400, 'VALIDATION_ERROR', 'Search query too long');
@@ -35,15 +41,19 @@ export const searchUsers = async (request: FastifyRequest, reply: FastifyReply) 
         { fullName: { [Op.like]: `%${escaped}%` } },
         { email: { [Op.like]: `%${escaped}%` } },
         { studentId: { [Op.like]: `%${escaped}%` } },
+        { tutorId: { [Op.like]: `%${escaped}%` } },
+        { adminId: { [Op.like]: `%${escaped}%` } },
       ];
     } else {
-      return error(reply, 400, 'VALIDATION_ERROR', 'Provide q or studentId parameter');
+      return error(reply, 400, 'VALIDATION_ERROR', 'Provide q, studentId, tutorId, or adminId parameter');
     }
 
+    const limit = Math.min(50, Math.max(1, Number(queryLimit) || 20));
     const users = await User.findAll({
       where,
-      attributes: ['id', 'fullName', 'email', 'role', 'avatarUrl', 'studentId'],
-      limit: 20,
+      attributes: ['id', 'fullName', 'email', 'role', 'avatarUrl', 'coverUrl', 'studentId', 'tutorId', 'adminId', 'isVerified', 'checkmarkType', 'isPrivate'],
+      limit,
+      order: [['fullName', 'ASC']],
     });
 
     return ok(reply, users, 'Users found');
@@ -56,8 +66,11 @@ export const searchUsers = async (request: FastifyRequest, reply: FastifyReply) 
 export const getUserById = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     const { id } = request.params as { id: string };
+    const currentUserId = request.user?.sub || null;
+    const isOwner = currentUserId === id;
+
     const user = await User.findByPk(id, {
-      attributes: ['id', 'fullName', 'role', 'bio', 'avatarUrl', 'location', 'skills'],
+      attributes: ['id', 'fullName', 'role', 'bio', 'avatarUrl', 'coverUrl', 'location', 'skills', 'isPrivate', 'isVerified', 'checkmarkType', 'studentId', 'tutorId', 'adminId', 'email'],
       include: [
         { model: TutorProfile, attributes: ['headline'] },
         { model: LearnerStats, attributes: ['coursesActive', 'coursesCompleted', 'hoursSpent', 'weeklyGoalHours', 'weeklyGoalProgressHours'] },
@@ -71,7 +84,56 @@ export const getUserById = async (request: FastifyRequest, reply: FastifyReply) 
     const followerCount = await Follow.count({ where: { followingId: id } });
     const followingCount = await Follow.count({ where: { followerId: id } });
 
-    return ok(reply, { ...user.toJSON(), followerCount, followingCount }, 'Profile loaded');
+    let isFollowing = false;
+    let isPending = false;
+    let doesFollowBack = false;
+    if (currentUserId && !isOwner) {
+      const followRel = await Follow.findOne({ where: { followerId: currentUserId, followingId: id } });
+      if (followRel) {
+        isFollowing = followRel.status === 'accepted';
+        isPending = followRel.status === 'pending';
+      }
+      const followBack = await Follow.findOne({ where: { followerId: id, followingId: currentUserId, status: 'accepted' } });
+      doesFollowBack = !!followBack;
+    }
+
+    if (user.isPrivate && !isOwner && !isFollowing) {
+      const publicData: any = {
+        id: user.id,
+        fullName: user.fullName,
+        role: user.role,
+        bio: user.bio,
+        avatarUrl: null,
+        coverUrl: null,
+        isPrivate: true,
+        isPending,
+        isVerified: user.isVerified,
+        checkmarkType: user.checkmarkType,
+        studentId: user.studentId,
+        tutorId: user.tutorId,
+        adminId: user.adminId,
+        followerCount,
+        followingCount,
+        isFollowing: false,
+        doesFollowBack,
+      };
+      if (isPending) {
+        publicData.message = 'Follow request pending';
+      } else {
+        publicData.message = 'This profile is private';
+      }
+      return ok(reply, publicData, 'Profile is private');
+    }
+
+    return ok(reply, {
+      ...user.toJSON(),
+      followerCount,
+      followingCount,
+      isFollowing,
+      isPending,
+      doesFollowBack,
+      isOwner,
+    }, 'Profile loaded');
   } catch (err) {
     request.log.error(err, 'PROFILE_LOAD_FAILED');
     return error(reply, 500, 'PROFILE_LOAD_FAILED', 'Failed to load profile');
@@ -129,6 +191,30 @@ export const updateAvatar = async (request: FastifyRequest, reply: FastifyReply)
       return error(reply, 404, err.code, err.message);
     }
     return error(reply, 500, 'AVATAR_UPDATE_FAILED', 'Failed to update avatar');
+  }
+};
+
+export const updateCover = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { coverUrl } = (request.body || {}) as { coverUrl?: string };
+    if (!coverUrl) return error(reply, 400, 'VALIDATION_ERROR', 'coverUrl is required');
+    await User.update({ coverUrl }, { where: { id: request.user!.sub } });
+    return ok(reply, { coverUrl }, 'Cover photo updated');
+  } catch (err) {
+    request.log.error(err, 'COVER_UPDATE_FAILED');
+    return error(reply, 500, 'COVER_UPDATE_FAILED', 'Failed to update cover photo');
+  }
+};
+
+export const updatePrivacy = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { isPrivate } = (request.body || {}) as { isPrivate?: boolean };
+    if (typeof isPrivate !== 'boolean') return error(reply, 400, 'VALIDATION_ERROR', 'isPrivate (boolean) is required');
+    await User.update({ isPrivate }, { where: { id: request.user!.sub } });
+    return ok(reply, { isPrivate }, `Profile set to ${isPrivate ? 'private' : 'public'}`);
+  } catch (err) {
+    request.log.error(err, 'PRIVACY_UPDATE_FAILED');
+    return error(reply, 500, 'PRIVACY_UPDATE_FAILED', 'Failed to update privacy');
   }
 };
 

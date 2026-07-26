@@ -5,10 +5,10 @@ import crypto from 'crypto';
 import { Op } from 'sequelize';
 import { ok, created, error } from '../utils/response.util';
 import { Message, MessageThread, User, UserBlock, Report } from '../models';
-import { listThreadsQuery } from '../services/messages/queries/listThreads.query';
-import { getThreadMessagesQuery } from '../services/messages/queries/getThreadMessages.query';
-import { sendMessageCommand } from '../services/messages/commands/createMessage.command';
-import { replyToThreadCommand } from '../services/messages/commands/replyToThread.command';
+import { listThreadsQuery } from '../services/chat/queries/listThreads.query';
+import { getThreadMessagesQuery } from '../services/chat/queries/getThreadMessages.query';
+import { sendMessageCommand } from '../services/chat/commands/createMessage.command';
+import { replyToThreadCommand } from '../services/chat/commands/replyToThread.command';
 import { MAX_MESSAGE_ATTACHMENT_SIZE_MB } from '../utils/profanity.util';
 
 const ALLOWED_ATTACHMENT_TYPES: Record<string, string[]> = {

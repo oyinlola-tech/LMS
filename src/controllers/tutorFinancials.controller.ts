@@ -7,14 +7,14 @@ export const getEarnings = async (request: FastifyRequest, reply: FastifyReply) 
   try {
     const tutorId = request.user!.sub;
     const courseIds = (await Course.findAll({ where: { tutorId }, attributes: ['id'] })).map(c => c.id);
-    if (courseIds.length === 0) return ok(reply, { totalEarnings: 0, totalStudents: 0, courseCount: 0, pendingPayouts: 0, commissionPercent: 15 });
+    if (courseIds.length === 0) return ok(reply, { totalEarnings: 0, totalStudents: 0, courseCount: 0, pendingPayouts: 0, commissionPercent: 10 });
 
     const totalEarnings = await Enrollment.sum('pricePaid', { where: { CourseId: { [Op.in]: courseIds } } as any }) || 0;
     const totalStudents = await Enrollment.count({ where: { CourseId: { [Op.in]: courseIds } } as any });
     const pendingPayouts = await PayoutRequest.sum('amount', { where: { tutorId, status: 'pending' } }) || 0;
     const payoutsApproved = await PayoutRequest.sum('amount', { where: { tutorId, status: 'approved' } }) || 0;
     const commissionSetting = await PlatformSetting.findByPk('commission_percent');
-    const commissionPercent = commissionSetting ? parseFloat(commissionSetting.value) : 15;
+    const commissionPercent = commissionSetting ? parseFloat(commissionSetting.value) : 10;
 
     return ok(reply, {
       totalEarnings,

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Reviews - Portfolio</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--pf-primary:#1a56db;--pf-secondary:#374151;--pf-bg:#ffffff;--pf-surface:#f9fafb;--pf-text:#111827;--pf-accent:#3b82f6;--pf-border:#e5e7eb;--pf-btn-radius:.75rem;--pf-card-radius:1rem}
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+    body{background:var(--pf-bg);color:var(--pf-text);padding:2rem}
+    .container{max-width:800px;margin:0 auto}
+    .pf-badge{display:inline-block;font-size:.75rem;font-weight:600;background:var(--pf-surface);border:1px solid var(--pf-border);padding:.25rem .75rem;border-radius:999px;margin-bottom:1rem}
+    h1{font-size:1.5rem;font-weight:800;margin-bottom:.5rem}
+    .sub{color:var(--pf-secondary);font-size:.875rem;margin-bottom:1rem}
+    .summary{display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;margin-bottom:2rem;padding:1.5rem;border:1px solid var(--pf-border);border-radius:var(--pf-card-radius);background:var(--pf-surface)}
+    .summary .avg{font-size:2.5rem;font-weight:800;color:var(--pf-primary)}
+    .summary .total{font-size:.8125rem;color:var(--pf-secondary)}
+    .review-card{border:1px solid var(--pf-border);border-radius:var(--pf-card-radius);padding:1.25rem;margin-bottom:1rem;background:var(--pf-surface)}
+    .review-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+    .review-avatar{width:48px;height:48px;border-radius:50%;background-size:cover;background-position:center;border:2px solid var(--pf-border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.125rem;color:var(--pf-secondary);flex-shrink:0;background-color:var(--pf-surface)}
+    .review-name{font-weight:600;font-size:.875rem}
+    .review-date{font-size:.6875rem;color:var(--pf-secondary)}
+    .stars{color:#f59e0b;font-size:1rem;letter-spacing:1px}
+    .review-title{font-weight:700;font-size:.9375rem;margin-bottom:.375rem;color:var(--pf-text)}
+    .review-content{font-size:.8125rem;color:var(--pf-secondary);line-height:1.6}
+    .review-form{border:1px solid var(--pf-border);border-radius:var(--pf-card-radius);padding:1.5rem;background:var(--pf-surface);margin-bottom:2rem}
+    .review-form h3{font-size:1.0625rem;font-weight:700;margin-bottom:.25rem}
+    .review-form .form-sub{font-size:.8125rem;color:var(--pf-secondary);margin-bottom:1.25rem}
+    .form-group{margin-bottom:1rem}
+    .form-group label{display:block;font-size:.8125rem;font-weight:600;margin-bottom:.375rem}
+    .form-group input,.form-group textarea,.form-group select{width:100%;padding:.625rem .875rem;border:1px solid var(--pf-border);border-radius:var(--pf-btn-radius);font-size:.875rem;font-family:inherit;outline:none;background:var(--pf-bg);color:var(--pf-text)}
+    .form-group input:focus,.form-group textarea:focus{border-color:var(--pf-accent)}
+    .form-group textarea{min-height:80px;resize:vertical}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+    .avatar-upload{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+    .avatar-upload .preview{width:56px;height:56px;border-radius:50%;background-size:cover;background-position:center;border:2px solid var(--pf-border);display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:700;color:var(--pf-secondary);background-color:var(--pf-surface)}
+    .avatar-upload .upload-btn{display:inline-flex;align-items:center;gap:.375rem;padding:.5rem 1rem;border:1px dashed var(--pf-border);border-radius:var(--pf-btn-radius);cursor:pointer;font-size:.8125rem;color:var(--pf-secondary);font-family:inherit;background:none;transition:border-color .2s}
+    .avatar-upload .upload-btn:hover{border-color:var(--pf-accent)}
+    .avatar-upload input[type="file"]{display:none}
+    .btn-primary{padding:.625rem 1.75rem;background:var(--pf-primary);color:#fff;border:none;border-radius:var(--pf-btn-radius);font-size:.875rem;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s}
+    .btn-primary:hover{opacity:.9}
+    .btn-primary:disabled{opacity:.5;cursor:default}
+    .filters{display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
+    .filters select,.filters input{padding:.5rem .75rem;border:1px solid var(--pf-border);border-radius:var(--pf-btn-radius);font-size:.8125rem;font-family:inherit;outline:none;background:var(--pf-bg);color:var(--pf-text)}
+    .filters select:focus,.filters input:focus{border-color:var(--pf-accent)}
+    .pagination{display:flex;gap:.5rem;justify-content:center;margin-top:2rem;flex-wrap:wrap}
+    .page-btn{padding:.5rem 1rem;border:1px solid var(--pf-border);border-radius:var(--pf-btn-radius);background:var(--pf-surface);cursor:pointer;font-size:.8125rem;font-weight:600;font-family:inherit;color:var(--pf-text);transition:all .2s}
+    .page-btn:hover{border-color:var(--pf-accent);color:var(--pf-accent)}
+    .page-btn.active{background:var(--pf-primary);color:#fff;border-color:var(--pf-primary)}
+    .page-btn:disabled{opacity:.4;cursor:default}
+    .empty{text-align:center;padding:2rem;color:var(--pf-secondary);font-size:.875rem}
+    .loader{text-align:center;padding:3rem;color:var(--pf-secondary)}
+    .toast{position:fixed;bottom:2rem;right:2rem;background:var(--pf-primary);color:#fff;padding:.75rem 1.25rem;border-radius:var(--pf-btn-radius);font-size:.875rem;z-index:200;opacity:0;transform:translateY(1rem);transition:all .3s}
+    .toast.show{opacity:1;transform:translateY(0)}
+    @media(max-width:640px){.form-row,.form-row-3{grid-template-columns:1fr}.container{padding:0}}
+  </style>
+</head>
+<body>
+  <div class="container" id="app"><div class="loader">Loading reviews...</div></div>
+  <div class="toast" id="toast"></div>
+  <script src="/js/apis/api.js"></script>
+  <script>
+    var slug = new URLSearchParams(window.location.search).get('slug');
+    var currentPage = 1;
+    var currentSort = '';
+    var currentMinRating = '';
+    var totalPages = 1;
+
+    function toast(m) { var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show')},3000); }
+
+    api.get('/portfolio/public?slug=' + (slug||'')).then(function(r) {
+      if (r.data) {
+        var p = r.data.portfolio || {};
+        if (p.customColors) { var c=typeof p.customColors==='string'?JSON.parse(p.customColors):p.customColors; Object.entries(c).forEach(function(e){ document.documentElement.style.setProperty('--pf-'+e[0],e[1]) }); }
+      }
+      loadReviews();
+    }).catch(function(){ document.getElementById('app').innerHTML='<p>Failed to load portfolio</p>'; });
+
+    function esc(s) { if(typeof s!=='string')return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    function stars(n) { var s=''; for(var i=0;i<5;i++) s += i < n ? '&#9733;' : '&#9734;'; return s; }
+
+    function loadReviews() {
+      var q = '?slug=' + (slug||'') + '&page=' + currentPage + '&limit=12';
+      if (currentSort) q += '&sort=' + currentSort;
+      if (currentMinRating) q += '&minRating=' + currentMinRating;
+      api.get('/portfolio/reviews' + q).then(function(r) {
+        var data = r.data || {};
+        var reviews = data.reviews || [];
+        totalPages = data.pages || 1;
+        var total = data.total || 0;
+
+        var html = '<div class="pf-badge">Testimonials</div><h1>Reviews & Testimonials</h1><p class="sub">What people say about working with me</p>';
+
+        html += '<div class="summary"><div><div class="avg">' + avgRating(reviews) + '</div><div class="total">' + total + ' review' + (total!==1?'s':'') + '</div></div><div style="flex:1;min-width:120px"><div style="display:flex;gap:.25rem;font-size:1.125rem;color:#f59e0b" id="summary-stars">' + stars(Math.round(avgRatingNum(reviews))) + '</div></div></div>';
+
+        html += '<div class="review-form"><h3>Leave a Review</h3><p class="form-sub">Share your experience working with me. Your review helps build trust.</p>';
+        html += '<div class="form-row"><div class="form-group"><label>Your Name</label><input type="text" id="r-name" placeholder="Jane Doe"/></div>';
+        html += '<div class="form-group"><label>Rating</label><select id="r-rating"><option value="5">5 - Excellent</option><option value="4" selected>4 - Good</option><option value="3">3 - Average</option><option value="2">2 - Below Average</option><option value="1">1 - Poor</option></select></div></div>';
+        html += '<div class="avatar-upload"><div class="preview" id="avatar-preview">?</div><label class="upload-btn"><span class="material-symbols-outlined" style="font-size:1.125rem">add_a_photo</span> Add Photo<input type="file" id="avatar-input" accept="image/*"/></label><span style="font-size:.75rem;color:var(--pf-secondary)">Optional: add your photo to build trust</span></div>';
+        html += '<div class="form-group" style="margin-top:1rem"><label>Your Message</label><textarea id="r-content" rows="3" placeholder="Tell others about your experience working with me..."></textarea></div>';
+        html += '<div id="r-status" style="font-size:.8125rem;margin-bottom:.5rem"></div>';
+        html += '<button class="btn-primary" onclick="submitReview()">Submit Review</button></div>';
+
+        html += '<div class="filters"><span style="font-size:.8125rem;font-weight:600;color:var(--pf-secondary)">Filter:</span>';
+        html += '<select id="filter-rating" onchange="currentMinRating=this.value;currentPage=1;loadReviews()"><option value="">All Ratings</option><option value="5">5 Stars</option><option value="4">4+ Stars</option><option value="3">3+ Stars</option></select>';
+        html += '<select id="filter-sort" onchange="currentSort=this.value;currentPage=1;loadReviews()"><option value="">Newest First</option><option value="oldest">Oldest First</option><option value="highest">Highest Rated</option><option value="lowest">Lowest Rated</option></select>';
+        html += '<span style="font-size:.75rem;color:var(--pf-secondary)">' + total + ' review' + (total!==1?'s':'') + '</span></div>';
+
+        if (reviews.length) {
+          html += reviews.map(function(rv) {
+            var avatarStyle = rv.reviewerAvatar ? ' style="background-image:url(' + rv.reviewerAvatar + ')"' : '';
+            var avatarContent = rv.reviewerAvatar ? '' : esc((rv.reviewerName||'?').charAt(0).toUpperCase());
+            return '<div class="review-card"><div class="review-header"><div class="review-avatar"' + avatarStyle + '>' + avatarContent + '</div><div><div class="review-name">' + esc(rv.reviewerName||'') + '</div><div class="stars">' + stars(rv.rating) + '</div><div class="review-date">' + new Date(rv.createdAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) + '</div></div></div>' + (rv.title ? '<div class="review-title">' + esc(rv.title) + '</div>' : '') + (rv.content ? '<div class="review-content">' + esc(rv.content) + '</div>' : '') + '</div>';
+          }).join('');
+
+          if (totalPages > 1) {
+            html += '<div class="pagination">';
+            html += '<button class="page-btn" onclick="goPage(' + (currentPage-1) + ')"' + (currentPage<=1?' disabled':'') + '>Previous</button>';
+            for (var p=1; p<=totalPages; p++) {
+              if (p===1 || p===totalPages || Math.abs(p-currentPage)<=2) {
+                html += '<button class="page-btn' + (p===currentPage?' active':'') + '" onclick="goPage(' + p + ')">' + p + '</button>';
+              } else if (Math.abs(p-currentPage)===3) {
+                html += '<button class="page-btn" disabled>...</button>';
+              }
+            }
+            html += '<button class="page-btn" onclick="goPage(' + (currentPage+1) + ')"' + (currentPage>=totalPages?' disabled':'') + '>Next</button>';
+            html += '</div>';
+          }
+        } else {
+          html += '<div class="empty">No reviews yet. Be the first to leave one!</div>';
+        }
+        document.getElementById('app').innerHTML = html;
+      }).catch(function(){ document.getElementById('app').innerHTML='<p>Failed to load reviews</p>'; });
+    }
+
+    function avgRating(reviews) {
+      if (!reviews.length) return '0.0';
+      return (reviews.reduce(function(s,r){return s+r.rating},0)/reviews.length).toFixed(1);
+    }
+    function avgRatingNum(reviews) {
+      if (!reviews.length) return 0;
+      return reviews.reduce(function(s,r){return s+r.rating},0)/reviews.length;
+    }
+
+    window.goPage = function(p) { if(p<1||p>totalPages)return; currentPage=p; loadReviews(); };
+
+    var uploadedAvatarUrl = '';
+    document.addEventListener('change', function(e) {
+      if (e.target.id === 'avatar-input') {
+        var file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 5*1024*1024) { toast('Image too large (max 5MB)'); return; }
+        if (!file.type.startsWith('image/')) { toast('Please upload an image'); return; }
+        var fd = new FormData(); fd.append('file', file);
+        api.upload('/portfolio/me/upload', fd).then(function(r) {
+          var url = r.data?.url;
+          if (url) {
+            uploadedAvatarUrl = url;
+            var p = document.getElementById('avatar-preview');
+            if (p) { p.style.backgroundImage = 'url(' + url + ')'; p.textContent = ''; }
+          }
+        }).catch(function(){ toast('Upload failed'); });
+      }
+    });
+
+    window.submitReview = function() {
+      var name = document.getElementById('r-name').value.trim();
+      var rating = document.getElementById('r-rating').value;
+      var content = document.getElementById('r-content').value.trim();
+      if (!name) { document.getElementById('r-status').textContent = 'Your name is required'; return; }
+      document.getElementById('r-status').textContent = 'Submitting...';
+      api.post('/portfolio/reviews', { slug: slug, reviewerName: name, reviewerAvatar: uploadedAvatarUrl || undefined, rating: Number(rating), content: content || undefined }).then(function() {
+        document.getElementById('r-status').innerHTML = 'Review submitted! It will appear after the portfolio owner approves it.';
+        document.getElementById('r-status').style.color = '#16a34a';
+        document.getElementById('r-name').value = '';
+        document.getElementById('r-content').value = '';
+        uploadedAvatarUrl = '';
+        var p = document.getElementById('avatar-preview');
+        if (p) { p.style.backgroundImage = ''; p.textContent = '?'; }
+        document.getElementById('avatar-input').value = '';
+        setTimeout(function(){ loadReviews(); }, 1500);
+      }).catch(function() { document.getElementById('r-status').textContent = 'Failed to submit. Try again.'; document.getElementById('r-status').style.color = '#dc2626'; });
+    };
+  </script>
+</body>
+</html>

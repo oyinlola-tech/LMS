@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>My Activities - Tutor | LearnBridge</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="/tutors/components/tutor-sidebar"></div>
+  <main class="admin-main">
+    <div data-include="/tutors/components/tutor-header"></div>
+    <div class="container" style="padding-top:1rem;padding-bottom:1rem;max-width:800px">
+      <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem">My Activities</h1>
+      <div id="activities-content"></div>
+    </div>
+  </main>
+  <div data-include="/tutors/components/tutor-bottom-nav"></div>
+  <div data-include="/auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await Shared.auth.requireAuth();
+      try {
+        const res = await Shared.api.get(`/activities/user/${user.id}`);
+        const data = res.data || {};
+        const stats = data.stats || {};
+        document.getElementById('activities-content').innerHTML = `
+          <div class="grid gap-4" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-bottom:2rem">
+            <div class="card" style="padding:1rem;text-align:center"><p style="font-size:1.5rem;font-weight:700">${stats.postCount || 0}</p><p style="font-size:0.75rem;color:var(--on-surface-variant)">Posts</p></div>
+            <div class="card" style="padding:1rem;text-align:center"><p style="font-size:1.5rem;font-weight:700">${stats.likeCount || 0}</p><p style="font-size:0.75rem;color:var(--on-surface-variant)">Likes</p></div>
+            <div class="card" style="padding:1rem;text-align:center"><p style="font-size:1.5rem;font-weight:700">${stats.commentCount || 0}</p><p style="font-size:0.75rem;color:var(--on-surface-variant)">Comments</p></div>
+            <div class="card" style="padding:1rem;text-align:center"><p style="font-size:1.5rem;font-weight:700">${stats.followingCount || 0}</p><p style="font-size:0.75rem;color:var(--on-surface-variant)">Following</p></div>
+          </div>
+        `;
+      } catch(e) { console.error(e); }
+    });
+  </script>
+</body>
+</html>

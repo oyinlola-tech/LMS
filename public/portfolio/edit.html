@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Build Portfolio - LearnBridge</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .builder-wrap { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+    .builder-header { margin-bottom: 2rem; }
+    .builder-header h1 { font-size: 1.75rem; font-weight: 800; }
+    .builder-header p { color: var(--on-surface-variant); font-size: 0.875rem; }
+    .step-indicators { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
+    .step { flex: 1; padding: 0.75rem; text-align: center; border-radius: 0.75rem; font-size: 0.8125rem; font-weight: 600; background: var(--surface-container); color: var(--on-surface-variant); cursor: pointer; }
+    .step.active { background: var(--primary); color: #fff; }
+    .step.done { background: var(--primary-fixed); color: var(--on-primary-fixed); }
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+    .section-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .section-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.375rem; color: var(--on-surface-variant); }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.625rem 0.875rem; border: 1px solid var(--outline-variant); border-radius: 0.75rem; font-size: 0.875rem; outline: none; font-family: inherit; background: var(--surface); }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--primary); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .array-item { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+    .array-item input { flex: 1; }
+    .btn-remove { background: none; border: none; color: var(--error); cursor: pointer; padding: 0.25rem; }
+    .btn-add { background: none; border: 1px dashed var(--outline-variant); padding: 0.5rem; border-radius: 0.75rem; cursor: pointer; color: var(--primary); font-size: 0.8125rem; font-weight: 600; width: 100%; font-family: inherit; }
+    .btn-nav { padding: 0.75rem 2rem; border-radius: 0.75rem; font-size: 0.9375rem; font-weight: 700; cursor: pointer; font-family: inherit; border: none; }
+    .btn-next { background: var(--primary); color: #fff; }
+    .btn-prev { background: var(--surface-container); color: var(--on-surface); border: 1px solid var(--outline-variant); }
+    .btn-save { background: #16a34a; color: #fff; }
+    .nav-buttons { display: flex; justify-content: space-between; margin-top: 2rem; }
+    .theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    .theme-card { border: 2px solid var(--outline-variant); border-radius: 1rem; padding: 1rem; cursor: pointer; transition: all 0.2s; text-align: center; background: var(--surface); }
+    .theme-card:hover { border-color: var(--primary); }
+    .theme-card.selected { border-color: var(--primary); background: var(--primary-fixed); }
+    .theme-preview { height: 80px; border-radius: 0.5rem; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; }
+    .premium-badge { font-size: 0.65rem; padding: 0.125rem 0.5rem; border-radius: 1rem; background: #f59e0b; color: #fff; display: inline-block; }
+    .color-input { display: flex; align-items: center; gap: 0.5rem; }
+    .color-input input[type="color"] { width: 40px; height: 40px; border: 1px solid var(--outline-variant); border-radius: 0.5rem; padding: 0; cursor: pointer; }
+    @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div data-include="/components/header"></div>
+  <div class="builder-wrap">
+    <div class="builder-header">
+      <h1>Build Your Portfolio</h1>
+      <p>Showcase your skills, certifications, and completed courses</p>
+    </div>
+    <div class="step-indicators" id="steps">
+      <div class="step active" data-step="0">1. Basic Info</div>
+      <div class="step" data-step="1">2. Skills</div>
+      <div class="step" data-step="2">3. Experience</div>
+      <div class="step" data-step="3">4. Education</div>
+      <div class="step" data-step="4">5. Certifications</div>
+      <div class="step" data-step="5">6. Theme & Colors</div>
+      <div class="step" data-step="6">7. Links & Slug</div>
+      <div class="step" data-step="7">8. Preview</div>
+    </div>
+
+    <form id="portfolio-form">
+      <div class="step-panel active" data-panel="0">
+        <div class="section-card">
+          <h3><span class="material-symbols-outlined">person</span> Basic Info</h3>
+          <div class="form-group">
+            <label>Portfolio URL Slug (e.g. "john-doe")</label>
+            <input type="text" id="slug" placeholder="your-name" required/>
+            <small style="color:var(--on-surface-variant);font-size:0.75rem">Your portfolio will be at /portfolio/view?slug=your-name</small>
+          </div>
+          <div class="form-group">
+            <label>Headline (e.g. "Full Stack Developer")</label>
+            <input type="text" id="headline" placeholder="What do you do?"/>
+          </div>
+          <div class="form-group">
+            <label>Bio / About You</label>
+            <textarea id="bio" rows="4" placeholder="Tell your story..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-panel" data-panel="1">
+        <div class="section-card">
+          <h3><span class="material-symbols-outlined">psychology</span> Skills</h3>
+          <p style="font-size:0.8125rem;color:var(--on-surface-variant);margin-bottom:1rem">Add the skills you've learned</p>
+          <div id="skills-container"></div>
+          <button class="btn-add" type="button" onclick="addSkill()">+ Add Skill</button>
+        </div>
+      </div>
+
+      <div class="step-panel" data-panel="2">
+        <div class="section-card">
+          <h3><span class="material-symbols-outlined">work</span> Experience</h3>
+          <div id="experience-container"></div>
+          <button class="btn-add" type="button" onclick="addExperience()">+ Add Experience</button>
+        </div>
+      </div>
+
+      <div class="step-panel" data-panel="3">
+        <div class="section-card">
+          <h3><span class="material-symbols-outlined">school</span> Education</h3>
+          <div id="education-container"></div>
+          <button class="btn-add" type="button" onclick="addEducation()">+ Add Education</button>
+        </div>
+      </div>
+
+      <div class="step-panel" data-panel="4">
+        <div class="section-card">
+          <h3><span class="material-symbols-outlined">verified</span> Certifications</h3>
+          <div id="certifications-container"></div>
+          <button class="btn-add" type="button" onclick="addCertification()">+ Add Certification</button>
+        </div>
+      </div>
+
+      <div class="step-panel" data-panel="5">
+        <div class="section-card">
+          <h3><span class="material-symbols-outlined">palette</span> Theme</h3>
+          <div class="theme-grid" id="theme-grid"></div>
+        </div>
+        <div class="section-card" id="theme-style-info" style="display:none">
+          <h3><span class="material-symbols-outlined">info</span> Theme Style</h3>
+          <div id="theme-style-badges" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem"></div>
+          <p style="font-size:0.75rem;color:var(--on-surface-variant)">These design characteristics are applied automatically with the theme.</p>
+        </div>
+        <div class="section-card">
+          <h3><span class="material-symbols-outlined">format_paint</span> Custom Colors</h3>
+          <p style="font-size:0.75rem;color:var(--on-surface-variant);margin-bottom:1rem">Personalize every color of your portfolio. Selecting a theme will pre-fill these values.</p>
+          <div class="form-row">
+            <div class="form-group"><label>Header Background</label><div class="color-input"><input type="color" id="color-headerBg" value="#1a56db"/><span id="color-headerBg-val">#1a56db</span></div></div>
+            <div class="form-group"><label>Header Text</label><div class="color-input"><input type="color" id="color-headerText" value="#ffffff"/><span id="color-headerText-val">#ffffff</span></div></div>
+            <div class="form-group"><label>Primary (Buttons)</label><div class="color-input"><input type="color" id="color-primary" value="#1a56db"/><span id="color-primary-val">#1a56db</span></div></div>
+            <div class="form-group"><label>Background</label><div class="color-input"><input type="color" id="color-bg" value="#ffffff"/><span id="color-bg-val">#ffffff</span></div></div>
+            <div class="form-group"><label>Surface (Cards)</label><div class="color-input"><input type="color" id="color-surface" value="#f9fafb"/><span id="color-surface-val">#f9fafb</span></div></div>
+            <div class="form-group"><label>Text</label><div class="color-input"><input type="color" id="color-text" value="#111827"/><span id="color-text-val">#111827</span></div></div>
+            <div class="form-group"><label>Accent</label><div class="color-input"><input type="color" id="color-accent" value="#3b82f6"/><span id="color-accent-val">#3b82f6</span></div></div>
+            <div class="form-group"><label>Border</label><div class="color-input"><input type="color" id="color-border" value="#e5e7eb"/><span id="color-border-val">#e5e7eb</span></div></div>
+            <div class="form-group"><label>Footer Background</label><div class="color-input"><input type="color" id="color-footerBg" value="#374151"/><span id="color-footerBg-val">#374151</span></div></div>
+            <div class="form-group"><label>Footer Text</label><div class="color-input"><input type="color" id="color-footerText" value="#e5e7eb"/><span id="color-footerText-val">#e5e7eb</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-panel" data-panel="6">
+        <div class="section-card">
+          <h3><span class="material-symbols-outlined">link</span> Social Links</h3>
+          <div class="form-row">
+            <div class="form-group"><label>GitHub</label><input type="url" id="link-github" placeholder="https://github.com/..."/></div>
+            <div class="form-group"><label>LinkedIn</label><input type="url" id="link-linkedin" placeholder="https://linkedin.com/in/..."/></div>
+            <div class="form-group"><label>Twitter / X</label><input type="url" id="link-twitter" placeholder="https://twitter.com/..."/></div>
+            <div class="form-group"><label>Website</label><input type="url" id="link-website" placeholder="https://..."/></div>
+          </div>
+        </div>
+        <div class="section-card">
+          <h3><span class="material-symbols-outlined">public</span> Portfolio URL</h3>
+          <div class="form-group">
+            <label>Slug</label>
+            <input type="text" id="slug2" placeholder="your-name"/>
+          </div>
+          <div class="checkbox-row" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem">
+            <input type="checkbox" id="isPublic" checked style="width:auto"/>
+            <label for="isPublic" style="margin:0;cursor:pointer;font-size:0.875rem">Make portfolio publicly visible</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-panel" data-panel="7">
+        <div class="section-card">
+          <h3><span class="material-symbols-outlined">visibility</span> Preview</h3>
+          <div id="preview-content" style="text-align:center;padding:2rem">
+            <p>Review your information before saving</p>
+            <button class="btn-nav btn-save" type="button" onclick="submitPortfolio()" style="margin-top:1rem">Save Portfolio</button>
+            <div id="save-status" style="margin-top:0.75rem;font-size:0.875rem"></div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="nav-buttons">
+      <button class="btn-nav btn-prev" id="prev-btn" onclick="prevStep()" disabled>Previous</button>
+      <button class="btn-nav btn-next" id="next-btn" onclick="nextStep()">Next</button>
+    </div>
+  </div>
+  <div data-include="/components/footer"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script>
+    var currentStep = 0;
+    var totalSteps = 8;
+    var themes = [];
+    var selectedThemeId = null;
+    var existingPortfolio = null;
+
+    function showStep(n) {
+      document.querySelectorAll('.step-panel').forEach(function(el) { el.classList.remove('active'); });
+      document.querySelectorAll('.step').forEach(function(el) { el.classList.remove('active'); });
+      document.querySelector('.step-panel[data-panel="' + n + '"]').classList.add('active');
+      document.querySelector('.step[data-step="' + n + '"]').classList.add('active');
+      document.getElementById('prev-btn').disabled = n === 0;
+      var nextBtn = document.getElementById('next-btn');
+      if (n === totalSteps - 1) { nextBtn.textContent = 'Done'; } else { nextBtn.textContent = 'Next'; }
+      currentStep = n;
+    }
+
+    window.nextStep = function() {
+      if (currentStep < totalSteps - 1) {
+        document.querySelector('.step[data-step="' + currentStep + '"]').classList.add('done');
+        showStep(currentStep + 1);
+      }
+    };
+
+    window.prevStep = function() {
+      if (currentStep > 0) showStep(currentStep - 1);
+    };
+
+    function createArrayItem(value, prefix, fields) {
+      var div = document.createElement('div');
+      div.className = 'array-item';
+      var html = '';
+      if (fields) {
+        fields.forEach(function(f) {
+          html += '<input type="text" placeholder="' + f.placeholder + '" value="' + ((value && value[f.key]) ? value[f.key] : '') + '" data-field="' + f.key + '" style="' + (f.style || '') + '"/>';
+        });
+      } else {
+        html += '<input type="text" placeholder="Enter value" value="' + (value || '') + '"/>';
+      }
+      html += '<button class="btn-remove material-symbols-outlined" type="button" onclick="this.parentElement.remove()">close</button>';
+      div.innerHTML = html;
+      return div;
+    }
+
+    window.addSkill = function() { document.getElementById('skills-container').appendChild(createArrayItem('')); };
+    window.addExperience = function() {
+      document.getElementById('experience-container').appendChild(createArrayItem({ role: '', company: '', duration: '', description: '' }, null, [
+        { key: 'role', placeholder: 'Role' },
+        { key: 'company', placeholder: 'Company', style: 'flex:0.7' },
+        { key: 'duration', placeholder: 'Duration', style: 'width:100px' },
+      ]));
+    };
+    window.addEducation = function() {
+      document.getElementById('education-container').appendChild(createArrayItem({ degree: '', school: '', graduationYear: '' }, null, [
+        { key: 'degree', placeholder: 'Degree' },
+        { key: 'school', placeholder: 'School', style: 'flex:0.7' },
+        { key: 'graduationYear', placeholder: 'Year', style: 'width:80px' },
+      ]));
+    };
+    window.addCertification = function() {
+      document.getElementById('certifications-container').appendChild(createArrayItem({ name: '', issuer: '', year: '' }, null, [
+        { key: 'name', placeholder: 'Certification Name' },
+        { key: 'issuer', placeholder: 'Issuer', style: 'flex:0.7' },
+        { key: 'year', placeholder: 'Year', style: 'width:80px' },
+      ]));
+    };
+
+    function collectArray(containerId, isObject) {
+      var items = [];
+      document.querySelectorAll('#' + containerId + ' .array-item').forEach(function(item) {
+        if (isObject) {
+          var obj = {};
+          item.querySelectorAll('input[data-field]').forEach(function(inp) { obj[inp.getAttribute('data-field')] = inp.value; });
+          items.push(obj);
+        } else {
+          var val = item.querySelector('input');
+          if (val && val.value.trim()) items.push(val.value.trim());
+        }
+      });
+      return items;
+    }
+
+    function loadThemes() {
+      api.get('/portfolio/themes').then(function(r) {
+        themes = r.data || [];
+        var grid = document.getElementById('theme-grid');
+        grid.innerHTML = themes.map(function(t) {
+          var colors = t.presetColors ? (typeof t.presetColors === 'string' ? JSON.parse(t.presetColors) : t.presetColors) : {};
+          var previewStyle = 'background:linear-gradient(135deg,' + (colors.primary || '#1a56db') + ',' + (colors.accent || colors.primary || '#3b82f6') + ');color:' + (colors.headerText || '#fff') + ';font-family:' + (t.fontFamily || 'sans-serif');
+          var styleTags = [];
+          if (colors.btnStyle) styleTags.push(colors.btnStyle);
+          if (colors.cardStyle) styleTags.push(colors.cardStyle);
+          if (colors.headerStyle) styleTags.push(colors.headerStyle + ' header');
+          return '<div class="theme-card' + (selectedThemeId === t.id ? ' selected' : '') + '" data-id="' + t.id + '" onclick="selectTheme(\'' + t.id + '\')">'
+            + '<div class="theme-preview" style="' + previewStyle + '">' + t.name + '</div>'
+            + '<div style="font-size:0.8125rem;font-weight:600">' + t.name + '</div>'
+            + '<div style="font-size:0.65rem;color:var(--on-surface-variant);margin-top:0.125rem">' + styleTags.join(' &middot; ') + '</div>'
+            + (t.isPremium ? '<div class="premium-badge">Premium</div>' : '<div style="font-size:0.65rem;color:#16a34a;font-weight:600">Free</div>')
+            + '</div>';
+        }).join('');
+      }).catch(function() {});
+    }
+
+    function setColorInput(id, value) {
+      var el = document.getElementById(id);
+      var span = document.getElementById(id + '-val');
+      if (el && value) { el.value = value; if (span) span.textContent = value; }
+    }
+
+    window.selectTheme = function(id) {
+      selectedThemeId = id;
+      document.querySelectorAll('.theme-card').forEach(function(c) { c.classList.toggle('selected', c.getAttribute('data-id') === id); });
+      var theme = themes.find(function(t) { return t.id === id; });
+      if (theme && theme.presetColors) {
+        var colors = typeof theme.presetColors === 'string' ? JSON.parse(theme.presetColors) : theme.presetColors;
+        setColorInput('color-primary', colors.primary);
+        setColorInput('color-bg', colors.background);
+        setColorInput('color-surface', colors.surface);
+        setColorInput('color-text', colors.text);
+        setColorInput('color-accent', colors.accent);
+        setColorInput('color-border', colors.border);
+        setColorInput('color-headerBg', colors.headerBg || colors.primary);
+        setColorInput('color-headerText', colors.headerText);
+        setColorInput('color-footerBg', colors.footerBg || colors.secondary);
+        setColorInput('color-footerText', colors.footerText);
+        // Show style info
+        var info = document.getElementById('theme-style-info');
+        var badges = document.getElementById('theme-style-badges');
+        info.style.display = 'block';
+        var items = [
+          { label: 'Header', value: colors.headerStyle || 'solid' },
+          { label: 'Cards', value: colors.cardStyle || 'elevated' },
+          { label: 'Buttons', value: colors.btnStyle || 'filled' },
+          { label: 'Nav', value: colors.navStyle || 'line' },
+          { label: 'Radius', value: colors.radius || '1rem' },
+          { label: 'Font', value: theme.fontFamily || 'Inter' },
+          { label: 'Layout', value: theme.layout || 'centered' },
+        ];
+        badges.innerHTML = items.map(function(i) {
+          return '<span style="padding:0.25rem 0.75rem;border-radius:999px;background:var(--secondary-container);color:var(--on-secondary-container);font-size:0.75rem;font-weight:600">' + i.label + ': ' + i.value + '</span>';
+        }).join('');
+      }
+    };
+
+    function loadExisting() {
+      api.get('/portfolio/me').then(function(r) {
+        var data = r.data || {};
+        var p = data.portfolio || {};
+        if (!p.UserId) return;
+        existingPortfolio = p;
+        document.getElementById('slug').value = p.slug || '';
+        document.getElementById('slug2').value = p.slug || '';
+        document.getElementById('headline').value = p.headline || '';
+        document.getElementById('bio').value = p.bio || '';
+        document.getElementById('isPublic').checked = p.isPublic !== false;
+        if (p.themeId) selectedThemeId = p.themeId;
+        if (p.customColors) {
+          var c = typeof p.customColors === 'string' ? JSON.parse(p.customColors) : p.customColors;
+          setColorInput('color-primary', c.primary);
+          setColorInput('color-bg', c.background);
+          setColorInput('color-surface', c.surface);
+          setColorInput('color-text', c.text);
+          setColorInput('color-accent', c.accent);
+          setColorInput('color-border', c.border);
+          setColorInput('color-headerBg', c.headerBg || c.primary);
+          setColorInput('color-headerText', c.headerText);
+          setColorInput('color-footerBg', c.footerBg || c.secondary);
+          setColorInput('color-footerText', c.footerText);
+          // Show stored style info if available
+          if (c.radius || c.headerStyle || c.cardStyle || c.btnStyle) {
+            var info = document.getElementById('theme-style-info');
+            var badges = document.getElementById('theme-style-badges');
+            if (info && badges) {
+              info.style.display = 'block';
+              var items = [
+                { label: 'Header', value: c.headerStyle || 'solid' },
+                { label: 'Cards', value: c.cardStyle || 'elevated' },
+                { label: 'Buttons', value: c.btnStyle || 'filled' },
+                { label: 'Nav', value: c.navStyle || 'line' },
+                { label: 'Radius', value: c.radius || '1rem' },
+              ];
+              badges.innerHTML = items.map(function(i) {
+                return '<span style="padding:0.25rem 0.75rem;border-radius:999px;background:var(--secondary-container);color:var(--on-secondary-container);font-size:0.75rem;font-weight:600">' + i.label + ': ' + i.value + '</span>';
+              }).join('');
+            }
+          }
+        }
+        if (p.skills) { var s = typeof p.skills === 'string' ? JSON.parse(p.skills) : p.skills; s.forEach(function(v) { document.getElementById('skills-container').appendChild(createArrayItem(v)); }); }
+        if (p.experience) { var e = typeof p.experience === 'string' ? JSON.parse(p.experience) : p.experience; e.forEach(function(v) { document.getElementById('experience-container').appendChild(createArrayItem(v, null, [{key:'role',placeholder:'Role'},{key:'company',placeholder:'Company',style:'flex:0.7'},{key:'duration',placeholder:'Duration',style:'width:100px'}])); }); }
+        if (p.education) { var ed = typeof p.education === 'string' ? JSON.parse(p.education) : p.education; ed.forEach(function(v) { document.getElementById('education-container').appendChild(createArrayItem(v, null, [{key:'degree',placeholder:'Degree'},{key:'school',placeholder:'School',style:'flex:0.7'},{key:'graduationYear',placeholder:'Year',style:'width:80px'}])); }); }
+        if (p.certifications) { var c = typeof p.certifications === 'string' ? JSON.parse(p.certifications) : p.certifications; c.forEach(function(v) { document.getElementById('certifications-container').appendChild(createArrayItem(v, null, [{key:'name',placeholder:'Certification Name'},{key:'issuer',placeholder:'Issuer',style:'flex:0.7'},{key:'year',placeholder:'Year',style:'width:80px'}])); }); }
+        if (p.socialLinks) { var l = typeof p.socialLinks === 'string' ? JSON.parse(p.socialLinks) : p.socialLinks; if (l.github) document.getElementById('link-github').value = l.github; if (l.linkedin) document.getElementById('link-linkedin').value = l.linkedin; if (l.twitter) document.getElementById('link-twitter').value = l.twitter; if (l.website) document.getElementById('link-website').value = l.website; }
+        loadThemes();
+      }).catch(function() { loadThemes(); });
+    }
+
+    window.submitPortfolio = function() {
+      var slugVal = document.getElementById('slug').value.trim() || document.getElementById('slug2').value.trim();
+      if (!slugVal) { alert('Portfolio URL slug is required'); showStep(0); return; }
+      var data = {
+        slug: slugVal,
+        headline: document.getElementById('headline').value,
+        bio: document.getElementById('bio').value,
+        isPublic: document.getElementById('isPublic').checked,
+        skills: collectArray('skills-container', false),
+        experience: collectArray('experience-container', true),
+        education: collectArray('education-container', true),
+        certifications: collectArray('certifications-container', true),
+        socialLinks: {
+          github: document.getElementById('link-github').value || undefined,
+          linkedin: document.getElementById('link-linkedin').value || undefined,
+          twitter: document.getElementById('link-twitter').value || undefined,
+          website: document.getElementById('link-website').value || undefined,
+        },
+        themeId: selectedThemeId || undefined,
+        customColors: (function() {
+          var c = {
+            primary: document.getElementById('color-primary').value,
+            secondary: document.getElementById('color-footerBg').value || document.getElementById('color-primary').value,
+            background: document.getElementById('color-bg').value,
+            surface: document.getElementById('color-surface').value,
+            text: document.getElementById('color-text').value,
+            accent: document.getElementById('color-accent').value,
+            border: document.getElementById('color-border').value,
+            headerBg: document.getElementById('color-headerBg').value,
+            headerText: document.getElementById('color-headerText').value,
+            footerBg: document.getElementById('color-footerBg').value,
+            footerText: document.getElementById('color-footerText').value,
+            buttonBg: document.getElementById('color-primary').value,
+            buttonText: '#ffffff',
+            cardBg: document.getElementById('color-surface').value,
+            navBg: document.getElementById('color-surface').value,
+          };
+          var theme = themes.find(function(t) { return t.id === selectedThemeId; });
+          if (theme && theme.presetColors) {
+            var pc = typeof theme.presetColors === 'string' ? JSON.parse(theme.presetColors) : theme.presetColors;
+            c.radius = pc.radius;
+            c.shadow = pc.shadow;
+            c.headerStyle = pc.headerStyle;
+            c.cardStyle = pc.cardStyle;
+            c.btnStyle = pc.btnStyle;
+            c.navStyle = pc.navStyle;
+          }
+          return c;
+        })(),
+      };
+      var status = document.getElementById('save-status');
+      status.textContent = 'Saving...';
+      status.style.color = 'var(--on-surface-variant)';
+      api.put('/portfolio/me', data).then(function(r) {
+        status.textContent = 'Portfolio saved! View it: /portfolio/view?slug=' + slugVal;
+        status.style.color = '#16a34a';
+        localStorage.setItem('portfolioSlug', slugVal);
+      }).catch(function(err) {
+        var msg = (err && err.error && err.error.message) || 'Failed to save';
+        status.textContent = msg;
+        status.style.color = '#dc2626';
+      });
+    };
+
+    document.querySelectorAll('.color-input input').forEach(function(inp) {
+      inp.addEventListener('input', function() {
+        var span = this.parentElement.querySelector('span');
+        if (span) span.textContent = this.value;
+      });
+    });
+
+    document.addEventListener('components-loaded', loadExisting);
+  </script>
+</body>
+</html>

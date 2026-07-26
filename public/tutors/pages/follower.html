@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Followers - Tutor | LearnBridge</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="/tutors/components/tutor-sidebar"></div>
+  <main class="admin-main">
+    <div data-include="/tutors/components/tutor-header"></div>
+    <div class="container" style="padding-top:1rem;padding-bottom:1rem">
+      <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem">Followers</h1>
+      <div id="followers-container" class="grid gap-3" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))"></div>
+    </div>
+  </main>
+  <div data-include="/tutors/components/tutor-bottom-nav"></div>
+  <div data-include="/auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await Shared.auth.requireAuth();
+      const container = document.getElementById('followers-container');
+      try {
+        const res = await Shared.api.get(`/api/follow/${user.id}/followers`);
+        const followers = res.data || [];
+        container.innerHTML = followers.map(f => `
+          <div class="card" style="padding:1rem;display:flex;align-items:center;gap:1rem">
+            <div class="avatar" style="width:48px;height:48px;border-radius:50%;background:var(--primary-container);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--on-primary-container);background-image:url(${f.follower?.avatarUrl || ''});background-size:cover">${!f.follower?.avatarUrl ? (f.follower?.fullName?.[0] || '?') : ''}</div>
+            <div style="flex:1"><p style="font-weight:600;font-size:0.875rem">${f.follower?.fullName || 'Unknown'}</p><p style="font-size:0.75rem;color:var(--on-surface-variant)">${f.follower?.role || ''}</p></div>
+          </div>
+        `).join('');
+      } catch(e) { container.innerHTML = '<p>Failed to load followers</p>'; }
+    });
+  </script>
+</body>
+</html>

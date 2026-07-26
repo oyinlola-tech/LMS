@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Analytics - Super Admin | LearnBridge</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="/superadmin/components/superadmin-sidebar"></div>
+  <main class="admin-main">
+    <div data-include="/superadmin/components/superadmin-header"></div>
+    <div class="container" style="padding-top:1rem;padding-bottom:1rem">
+      <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem">Platform Analytics</h1>
+      <div class="grid gap-4" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin-bottom:2rem">
+        <div class="card" style="padding:1.5rem;text-align:center" id="stat-total-users"><p style="font-size:2rem;font-weight:700">-</p><p style="font-size:0.875rem;color:var(--on-surface-variant)">Total Users</p></div>
+        <div class="card" style="padding:1.5rem;text-align:center" id="stat-total-courses"><p style="font-size:2rem;font-weight:700">-</p><p style="font-size:0.875rem;color:var(--on-surface-variant)">Total Courses</p></div>
+        <div class="card" style="padding:1.5rem;text-align:center" id="stat-total-enrollments"><p style="font-size:2rem;font-weight:700">-</p><p style="font-size:0.875rem;color:var(--on-surface-variant)">Enrollments</p></div>
+        <div class="card" style="padding:1.5rem;text-align:center" id="stat-total-revenue"><p style="font-size:2rem;font-weight:700">-</p><p style="font-size:0.875rem;color:var(--on-surface-variant)">Revenue</p></div>
+      </div>
+    </div>
+  </main>
+  <div data-include="/superadmin/components/superadmin-bottom-nav"></div>
+  <div data-include="/auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/shared/auth.js"></script>
+</body>
+</html>

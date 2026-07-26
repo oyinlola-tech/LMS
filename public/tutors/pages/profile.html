@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>My Profile - Tutor | LearnBridge</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="/tutors/components/tutor-sidebar"></div>
+  <main class="admin-main">
+    <div data-include="/tutors/components/tutor-header"></div>
+    <div class="container" style="padding-top:1rem;padding-bottom:1rem;max-width:720px">
+      <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem">My Profile</h1>
+      <div id="profile-content" class="card" style="padding:1.5rem">
+        <p style="color:var(--on-surface-variant)">Loading profile...</p>
+      </div>
+    </div>
+  </main>
+  <div data-include="/tutors/components/tutor-bottom-nav"></div>
+  <div data-include="/auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await Shared.auth.requireAuth();
+      document.getElementById('profile-content').innerHTML = `
+        <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem">
+          <div class="avatar" style="width:80px;height:80px;border-radius:50%;background:var(--primary-container);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:var(--on-primary-container);background-image:url(${user.avatarUrl || ''});background-size:cover">${user.avatarUrl ? '' : (user.fullName?.[0] || '?')}</div>
+          <div>
+            <h2 style="font-size:1.25rem;font-weight:700">${user.fullName}${user.tutorId ? `<span style="font-size:0.75rem;color:var(--on-surface-variant);margin-left:0.5rem">${user.tutorId}</span>` : ''}</h2>
+            <p style="color:var(--on-surface-variant);font-size:0.875rem">${user.email}</p>
+            <span class="badge" style="margin-top:0.375rem">${user.role}</span>
+          </div>
+        </div>
+        ${user.bio ? `<p style="margin-bottom:1rem">${user.bio}</p>` : ''}
+      `;
+    });
+  </script>
+</body>
+</html>

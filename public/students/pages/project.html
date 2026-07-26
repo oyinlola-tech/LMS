@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Projects - LearnBridge</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+</head>
+<body>
+  <div data-include="/components/dashboard-sidebar"></div>
+  <main class="dashboard-main">
+    <div data-include="/components/dashboard-header"></div>
+    <div class="container" style="padding-top:1rem;padding-bottom:1rem">
+      <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:1.5rem">My Projects</h1>
+      <div id="projects-container" class="grid gap-4" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))"></div>
+    </div>
+  </main>
+  <div data-include="/components/dashboard-bottom-nav"></div>
+  <div data-include="/auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/shared/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await Shared.auth.requireAuth();
+      const container = document.getElementById('projects-container');
+      container.innerHTML = '<div class="card" style="padding:2rem;text-align:center;grid-column:1/-1;color:var(--on-surface-variant)"><span class="material-symbols-outlined" style="font-size:3rem;display:block;margin-bottom:1rem">folder_open</span><p>No projects yet. Check back later!</p></div>';
+    });
+  </script>
+</body>
+</html>

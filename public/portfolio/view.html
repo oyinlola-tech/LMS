@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Portfolio</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" id="font-link"/>
+  <style id="theme-style">
+    :root {
+      --pf-primary: #1a56db;
+      --pf-secondary: #374151;
+      --pf-bg: #ffffff;
+      --pf-surface: #f9fafb;
+      --pf-text: #111827;
+      --pf-accent: #3b82f6;
+      --pf-success: #10b981;
+      --pf-border: #e5e7eb;
+      --pf-header-bg: var(--pf-primary);
+      --pf-header-text: #ffffff;
+      --pf-footer-bg: var(--pf-secondary);
+      --pf-footer-text: #e5e7eb;
+      --pf-btn-bg: var(--pf-primary);
+      --pf-btn-text: #ffffff;
+      --pf-btn-radius: 0.75rem;
+      --pf-card-bg: var(--pf-surface);
+      --pf-card-radius: 1rem;
+      --pf-nav-bg: var(--pf-surface);
+      --pf-font: 'Inter', sans-serif;
+      --pf-layout: centered;
+      --pf-container-max: 960px;
+      --pf-shadow: 0 4px 16px rgba(26,86,219,0.1);
+      --pf-header-style: solid;
+      --pf-card-style: elevated;
+      --pf-btn-style: filled;
+      --pf-nav-style: line;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--pf-font); }
+    body { background: var(--pf-bg); color: var(--pf-text); }
+    .container { max-width: var(--pf-container-max); margin: 0 auto; padding: 0 1.5rem; }
+
+    .pf-header-style-minimal .pf-topbar { background: var(--pf-bg); color: var(--pf-text); border-bottom: 1px solid var(--pf-border); }
+    .pf-header-style-minimal .pf-topbar-nav a { color: var(--pf-secondary); }
+    .pf-header-style-minimal .pf-topbar-brand a { color: var(--pf-text); }
+    .pf-header-style-gradient .pf-topbar { background: linear-gradient(135deg, var(--pf-header-bg), color-mix(in srgb, var(--pf-header-bg) 70%, var(--pf-accent))); }
+    .pf-topbar { background: var(--pf-header-bg); padding: 0.75rem 0; color: var(--pf-header-text); }
+    .pf-topbar .container { display: flex; align-items: center; justify-content: space-between; }
+    .pf-topbar-brand { font-weight: 700; font-size: 0.9375rem; }
+    .pf-topbar-brand a { color: var(--pf-header-text); text-decoration: none; }
+    .pf-topbar-nav { display: flex; gap: 1.25rem; font-size: 0.8125rem; }
+    .pf-topbar-nav a { color: color-mix(in srgb, var(--pf-header-text) 80%, transparent); text-decoration: none; transition: opacity 0.2s; }
+    .pf-topbar-nav a:hover { opacity: 1; }
+
+    .pf-header { color: var(--pf-header-text); padding: 2.5rem 0 2rem; }
+    .pf-header-style-solid .pf-header { background: var(--pf-header-bg); }
+    .pf-header-style-gradient .pf-header { background: linear-gradient(135deg, var(--pf-header-bg), color-mix(in srgb, var(--pf-header-bg) 70%, var(--pf-accent))); }
+    .pf-header-style-minimal .pf-header { background: var(--pf-bg); color: var(--pf-text); border-bottom: 1px solid var(--pf-border); padding: 1.5rem 0; }
+    .pf-header .container { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+    .pf-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid color-mix(in srgb, var(--pf-header-text) 30%, transparent); background-size: cover; background-position: center; flex-shrink: 0; background-color: color-mix(in srgb, var(--pf-header-bg) 80%, white); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 700; }
+    .pf-name { font-size: 1.75rem; font-weight: 800; }
+    .pf-headline { font-size: 1rem; opacity: 0.9; margin-top: 0.125rem; }
+    .pf-bio { max-width: 600px; margin-top: 0.5rem; opacity: 0.8; line-height: 1.6; font-size: 0.875rem; }
+    .pf-gallery { margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .pf-gallery img { width: 100px; height: 100px; object-fit: cover; border-radius: var(--pf-card-radius); border: 2px solid color-mix(in srgb, var(--pf-header-text) 20%, transparent); cursor: pointer; transition: transform 0.2s; }
+    .pf-gallery img:hover { transform: scale(1.05); }
+
+    .pf-nav { background: var(--pf-nav-bg); border-bottom: 1px solid var(--pf-border); position: sticky; top: 0; z-index: 10; }
+    .pf-nav-inner { display: flex; gap: 0; overflow-x: auto; }
+    .pf-nav-inner::-webkit-scrollbar { height: 2px; }
+    .pf-nav-inner::-webkit-scrollbar-thumb { background: var(--pf-border); border-radius: 2px; }
+    .pf-nav-btn { padding: 0.75rem 1.25rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--pf-secondary); white-space: nowrap; font-family: var(--pf-font); transition: color 0.2s, border-color 0.2s, background 0.2s; }
+    .pf-nav-btn:hover { color: var(--pf-primary); }
+    .pf-nav-style-line .pf-nav-btn { border-bottom: 2px solid transparent; }
+    .pf-nav-style-line .pf-nav-btn:hover { color: var(--pf-primary); }
+    .pf-nav-style-line .pf-nav-btn.active { color: var(--pf-primary); border-bottom-color: var(--pf-primary); }
+    .pf-nav-style-filled .pf-nav-btn { border-radius: var(--pf-btn-radius); margin: 0.125rem 0; padding: 0.5rem 1rem; }
+    .pf-nav-style-filled .pf-nav-btn:hover { background: color-mix(in srgb, var(--pf-primary) 10%, transparent); }
+    .pf-nav-style-filled .pf-nav-btn.active { background: var(--pf-primary); color: var(--pf-btn-text); }
+    .pf-nav-style-minimal .pf-nav-btn { border-bottom: none; }
+    .pf-nav-style-minimal .pf-nav-btn.active { color: var(--pf-primary); font-weight: 700; }
+
+    .pf-section { display: none; padding: 2.5rem 0; }
+    .pf-section.active { display: block; }
+    .pf-section-title { font-size: 1.375rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--pf-primary); }
+
+    .pf-btn-style-filled .pf-btn { background: var(--pf-btn-bg); color: var(--pf-btn-text); border: none; }
+    .pf-btn-style-filled .pf-btn:hover { opacity: 0.9; }
+    .pf-btn-style-outline .pf-btn { background: transparent; border: 2px solid var(--pf-btn-bg); color: var(--pf-btn-bg); }
+    .pf-btn-style-outline .pf-btn:hover { background: var(--pf-btn-bg); color: var(--pf-btn-text); }
+    .pf-btn-style-pill .pf-btn { border-radius: 999px; background: var(--pf-btn-bg); color: var(--pf-btn-text); border: none; padding: 0.625rem 2rem; }
+    .pf-btn-style-pill .pf-btn:hover { opacity: 0.9; }
+    .pf-btn-style-soft .pf-btn { background: color-mix(in srgb, var(--pf-btn-bg) 15%, transparent); color: var(--pf-btn-bg); border: none; font-weight: 600; }
+    .pf-btn-style-soft .pf-btn:hover { background: color-mix(in srgb, var(--pf-btn-bg) 25%, transparent); }
+    .pf-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.5rem; border-radius: var(--pf-btn-radius); font-size: 0.875rem; font-weight: 700; cursor: pointer; font-family: var(--pf-font); text-decoration: none; transition: all 0.2s; background: var(--pf-btn-bg); color: var(--pf-btn-text); border: none; }
+    .pf-btn-outline { background: transparent; border: 1px solid var(--pf-border); color: var(--pf-text); }
+    .pf-btn-outline:hover { border-color: var(--pf-accent); color: var(--pf-accent); }
+
+    .skills-wrap { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .skill-badge { padding: 0.5rem 1rem; border-radius: 999px; background: var(--pf-card-bg); border: 1px solid var(--pf-border); font-size: 0.8125rem; font-weight: 500; color: var(--pf-text); }
+
+    .cert-card, .exp-card, .edu-card { padding: 1.25rem; border: 1px solid var(--pf-border); border-radius: var(--pf-card-radius); background: var(--pf-card-bg); margin-bottom: 0.875rem; display: flex; gap: 1rem; align-items: flex-start; }
+    .cert-card .card-img, .exp-card .card-img, .edu-card .card-img { width: 60px; height: 60px; border-radius: 0.75rem; object-fit: cover; flex-shrink: 0; background: var(--pf-border); }
+    .cert-card .card-body, .exp-card .card-body, .edu-card .card-body { flex: 1; }
+    .cert-card h4, .exp-card h4, .edu-card h4 { font-size: 0.9375rem; font-weight: 700; margin-bottom: 0.125rem; }
+    .cert-card .meta, .exp-card .meta, .edu-card .meta { font-size: 0.75rem; color: var(--pf-secondary); }
+    .exp-card p { font-size: 0.8125rem; color: var(--pf-secondary); margin-top: 0.375rem; line-height: 1.5; }
+
+    .social-links { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .social-link { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; border-radius: var(--pf-btn-radius); background: var(--pf-card-bg); border: 1px solid var(--pf-border); text-decoration: none; color: var(--pf-text); font-size: 0.8125rem; font-weight: 500; transition: all 0.2s; font-family: var(--pf-font); }
+    .social-link:hover { border-color: var(--pf-accent); color: var(--pf-accent); }
+
+    .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .course-card { border: 1px solid var(--pf-border); border-radius: var(--pf-card-radius); overflow: hidden; background: var(--pf-card-bg); }
+    .course-card .thumb { height: 120px; background-size: cover; background-position: center; }
+    .course-card .body { padding: 0.875rem; }
+    .course-card .body h4 { font-size: 0.875rem; font-weight: 700; }
+    .course-card .body .meta { font-size: 0.6875rem; color: var(--pf-secondary); }
+
+    .contact-form { max-width: 480px; }
+    .contact-form input, .contact-form textarea { width: 100%; padding: 0.625rem 0.875rem; border: 1px solid var(--pf-border); border-radius: var(--pf-btn-radius); font-size: 0.875rem; outline: none; font-family: var(--pf-font); margin-bottom: 0.75rem; background: var(--pf-card-bg); color: var(--pf-text); }
+    .contact-form input:focus, .contact-form textarea:focus { border-color: var(--pf-accent); }
+    .contact-form button { padding: 0.625rem 1.75rem; background: var(--pf-btn-bg); color: var(--pf-btn-text); border: none; border-radius: var(--pf-btn-radius); font-size: 0.875rem; font-weight: 700; cursor: pointer; font-family: var(--pf-font); transition: opacity 0.2s; }
+    .contact-form button:disabled { opacity: 0.5; }
+    .contact-form button:hover { opacity: 0.9; }
+
+    .custom-page-content { max-width: 800px; }
+    .custom-page-content img { max-width: 100%; border-radius: var(--pf-card-radius); }
+
+    .modal-overlay { position: fixed; inset: 0; background: color-mix(in srgb, #000 60%, transparent); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal-content-pf { max-width: 90vw; max-height: 90vh; }
+    .modal-content-pf img { max-width: 100%; max-height: 85vh; border-radius: var(--pf-card-radius); display: block; }
+
+    .pf-footer { background: var(--pf-footer-bg); color: var(--pf-footer-text); border-top: 1px solid color-mix(in srgb, var(--pf-footer-text) 15%, transparent); padding: 2.5rem 0 2rem; margin-top: 2rem; }
+    .pf-footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem; }
+    .pf-footer-brand { font-weight: 700; font-size: 0.9375rem; }
+    .pf-footer-social { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .pf-footer-social a { color: var(--pf-footer-text); text-decoration: none; font-size: 0.8125rem; display: flex; align-items: center; gap: 0.25rem; opacity: 0.8; transition: opacity 0.2s; }
+    .pf-footer-social a:hover { opacity: 1; }
+    .pf-footer-copy { font-size: 0.75rem; opacity: 0.7; margin-top: 0.25rem; }
+    .pf-footer-copy a { color: var(--pf-accent); text-decoration: none; }
+    .pf-footer-lms { margin-top: 0.75rem; font-size: 0.75rem; opacity: 0.8; }
+    .pf-footer-lms a { color: var(--pf-accent); opacity: 0.9; text-decoration: none; }
+    .pf-footer-lms a:hover { opacity: 1; text-decoration: underline; }
+
+    .lightbox-close { position: fixed; top: 1rem; right: 1.5rem; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; z-index: 101; }
+
+    .pf-card { border-radius: var(--pf-card-radius); background: var(--pf-card-bg); padding: 1.5rem; margin-bottom: 1rem; border: 1px solid var(--pf-border); }
+    .pf-review-card { border: 1px solid var(--pf-border); border-radius: var(--pf-card-radius); padding: 1.25rem; margin-bottom: 0.875rem; background: var(--pf-card-bg); }
+    .pf-card-style-elevated .pf-card, .pf-card-style-elevated .pf-review-card, .pf-card-style-elevated .cert-card, .pf-card-style-elevated .exp-card, .pf-card-style-elevated .edu-card, .pf-card-style-elevated .course-card { box-shadow: var(--pf-shadow); border: none; }
+    .pf-card-style-outlined .pf-card, .pf-card-style-outlined .pf-review-card { border: 1px solid var(--pf-border); }
+
+    @media (max-width: 768px) {
+      .container { padding: 0 1rem; }
+      .pf-header .container { flex-direction: column; text-align: center; }
+      .pf-gallery { justify-content: center; }
+      .pf-footer-inner { flex-direction: column; text-align: center; }
+      .pf-footer-social { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:var(--pf-secondary)">
+    <span class="material-symbols-outlined" style="font-size:3rem;animation:spin 1s linear infinite">refresh</span>
+  </div>
+  <div id="portfolio-root" style="display:none">
+    <div data-include="/portfolio/components/header"></div>
+    <div data-include="/portfolio/components/nav"></div>
+    <div class="container" id="pf-pages"></div>
+    <div data-include="/portfolio/components/footer"></div>
+  </div>
+  <div id="error" style="display:none;text-align:center;padding:4rem;color:var(--pf-secondary)">
+    <span class="material-symbols-outlined" style="font-size:3rem;display:block;margin-bottom:1rem">error</span>
+    <p>Portfolio not found</p>
+  </div>
+  <div class="modal-overlay" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <div class="modal-content-pf"><img id="lightbox-img" src="" alt=""/></div>
+  </div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script>
+    var portfolioData = null;
+    var params = new URLSearchParams(window.location.search);
+    var slug = params.get('slug') || localStorage.getItem('portfolioSlug');
+    var themeFontLoaded = false;
+
+    function escapeHtml(s) { if (typeof s !== 'string') return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    function openLightbox(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').classList.add('open'); }
+    function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+
+    function applyTheme(colors, fontFamily, layout) {
+      if (!colors) return;
+      var r = document.documentElement;
+      var b = document.body;
+      var map = {
+        primary: '--pf-primary', secondary: '--pf-secondary', background: '--pf-bg',
+        surface: '--pf-surface', text: '--pf-text', accent: '--pf-accent',
+        success: '--pf-success', border: '--pf-border',
+        headerBg: '--pf-header-bg', headerText: '--pf-header-text',
+        footerBg: '--pf-footer-bg', footerText: '--pf-footer-text',
+        buttonBg: '--pf-btn-bg', buttonText: '--pf-btn-text',
+        cardBg: '--pf-card-bg', navBg: '--pf-nav-bg',
+        radius: '--pf-card-radius', shadow: '--pf-shadow',
+      };
+      Object.entries(map).forEach(function(e) {
+        if (colors[e[0]]) r.style.setProperty(e[1], colors[e[0]]);
+      });
+      if (!colors.headerBg) r.style.setProperty('--pf-header-bg', colors.primary || '#1a56db');
+      if (!colors.footerBg) r.style.setProperty('--pf-footer-bg', colors.secondary || '#374151');
+      if (!colors.buttonBg) r.style.setProperty('--pf-btn-bg', colors.primary || '#1a56db');
+      if (!colors.navBg) r.style.setProperty('--pf-nav-bg', colors.surface || '#f9fafb');
+      if (!colors.cardBg) r.style.setProperty('--pf-card-bg', colors.surface || '#f9fafb');
+
+      // Style classes
+      b.className = '';
+      var headerStyle = colors.headerStyle || 'solid';
+      var cardStyle = colors.cardStyle || 'elevated';
+      var btnStyle = colors.btnStyle || 'filled';
+      var navStyle = colors.navStyle || 'line';
+      b.classList.add('pf-header-style-' + headerStyle, 'pf-card-style-' + cardStyle, 'pf-btn-style-' + btnStyle, 'pf-nav-style-' + navStyle);
+
+      if (fontFamily) {
+        r.style.setProperty('--pf-font', fontFamily);
+        var fontLink = document.getElementById('font-link');
+        if (fontFamily.includes('Inter') && !fontLink) {
+          var link = document.createElement('link');
+          link.id = 'font-link';
+          link.rel = 'stylesheet';
+          link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap';
+          document.head.appendChild(link);
+        }
+      }
+
+      if (layout === 'wide') {
+        r.style.setProperty('--pf-container-max', '1200px');
+      } else if (layout === 'full') {
+        r.style.setProperty('--pf-container-max', '100%');
+        r.style.setProperty('--pf-card-radius', colors.radius || '0.75rem');
+      } else {
+        r.style.setProperty('--pf-container-max', '960px');
+      }
+    }
+
+    function sendContactInline(id) {
+      var suffix = id || '';
+      var name = document.getElementById('c-name' + suffix);
+      var email = document.getElementById('c-email' + suffix);
+      var message = document.getElementById('c-message' + suffix);
+      var status = document.getElementById('c-status' + suffix);
+      if (!name || !email || !message) { if (status) { status.textContent = 'All fields required'; status.style.color = '#dc2626'; } return; }
+      api.post('/portfolio/contact', { slug: slug, name: name.value, email: email.value, message: message.value }).then(function() {
+        if (status) { status.textContent = 'Message sent! A copy has been sent to your email.'; status.style.color = '#16a34a'; }
+        name.value = ''; email.value = ''; message.value = '';
+      }).catch(function() { if (status) { status.textContent = 'Failed to send'; status.style.color = '#dc2626'; } });
+    }
+
+    function loadPortfolio() {
+      var q = slug ? '?slug=' + slug : '';
+      api.get('/portfolio/public' + q).then(function(r) {
+        if (!r.data) { document.getElementById('loading').style.display = 'none'; document.getElementById('error').style.display = ''; return; }
+        portfolioData = r.data;
+        var p = r.data.portfolio || {};
+        var pages = r.data.pages || [];
+        var user = p.User || {};
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('portfolio-root').style.display = '';
+
+        var colors = null;
+        if (p.customColors) colors = typeof p.customColors === 'string' ? JSON.parse(p.customColors) : p.customColors;
+        else if (p.theme && p.theme.presetColors) colors = typeof p.theme.presetColors === 'string' ? JSON.parse(p.theme.presetColors) : p.theme.presetColors;
+        applyTheme(colors, p.theme ? p.theme.fontFamily : null, p.theme ? p.theme.layout : null);
+
+        document.title = (user.fullName || 'Portfolio') + ' | Portfolio';
+        var avatar = document.getElementById('pf-avatar');
+        if (avatar) {
+          if (user.avatarUrl) { avatar.style.backgroundImage = 'url(' + user.avatarUrl + ')'; avatar.textContent = ''; }
+          else avatar.textContent = (user.fullName || '?').charAt(0).toUpperCase();
+        }
+        var nameEl = document.getElementById('pf-name');
+        if (nameEl) nameEl.textContent = user.fullName || 'Unknown';
+        var headlineEl = document.getElementById('pf-headline');
+        if (headlineEl) headlineEl.textContent = p.headline || 'Learner';
+        var bioEl = document.getElementById('pf-bio');
+        if (bioEl) bioEl.textContent = p.bio || '';
+
+        var images = p.images ? (typeof p.images === 'string' ? JSON.parse(p.images) : p.images) : [];
+        var gallery = document.getElementById('pf-gallery');
+        if (gallery) {
+          if (images.length) gallery.innerHTML = images.map(function(img) { return '<img src="' + img + '" alt="" onclick="openLightbox(\'' + img.replace(/'/g, "\\'") + '\')"/>'; }).join('');
+        }
+
+        var nav = document.getElementById('pf-nav-inner');
+        var pagesContainer = document.getElementById('pf-pages');
+        if (!nav || !pagesContainer) return;
+        nav.innerHTML = '';
+        pagesContainer.innerHTML = '';
+
+        function addPageTab(page, contentFn, icon) {
+          var btn = document.createElement('button');
+          btn.className = 'pf-nav-btn';
+          btn.textContent = page.title || page;
+          btn.onclick = function() { document.querySelectorAll('.pf-nav-btn').forEach(function(b) { b.classList.remove('active'); }); btn.classList.add('active'); document.querySelectorAll('.pf-section').forEach(function(s) { s.classList.remove('active'); }); var sec = document.getElementById('section-' + (page.id || page)); if (sec) sec.classList.add('active'); };
+          nav.appendChild(btn);
+          var section = document.createElement('div');
+          section.className = 'pf-section active';
+          section.id = 'section-' + (page.id || page);
+          section.innerHTML = '<div class="pf-section-title">' + (icon || '') + ' ' + (page.title || page) + '</div>';
+          var contentDiv = document.createElement('div');
+          contentDiv.id = 'content-' + (page.id || page);
+          section.appendChild(contentDiv);
+          pagesContainer.appendChild(section);
+          if (contentFn) contentFn(contentDiv, page);
+        }
+
+        addPageTab({ id: 'about', title: 'About' }, function(el) {
+          var html = '';
+          if (p.bio) html += '<div style="font-size:0.9375rem;line-height:1.7;margin-bottom:1.5rem">' + escapeHtml(p.bio) + '</div>';
+          var skills = p.skills ? (typeof p.skills === 'string' ? JSON.parse(p.skills) : p.skills) : [];
+          if (skills.length) html += '<h3 style="font-size:1.0625rem;font-weight:700;margin-bottom:0.75rem">Skills</h3><div class="skills-wrap">' + skills.map(function(s) { return '<span class="skill-badge">' + escapeHtml(s) + '</span>'; }).join('') + '</div>';
+          el.innerHTML = html;
+          if (slug) {
+            api.get('/portfolio/reviews/top?slug=' + slug + '&limit=3').then(function(r) {
+              var reviews = r.data || [];
+              if (!reviews.length) return;
+              var section = document.createElement('div');
+              section.style.marginTop = '1.5rem';
+              section.innerHTML = '<h3 style="font-size:1.0625rem;font-weight:700;margin-bottom:0.75rem">Featured Reviews <span style="font-size:0.75rem;font-weight:400;color:var(--pf-secondary)">— top rated</span></h3>' + reviews.map(function(rv) {
+                var stars = ''; for (var i=0;i<5;i++) stars += i < rv.rating ? '&#9733;' : '&#9734;';
+                var avatarStyle = rv.reviewerAvatar ? ' style="background-image:url(' + rv.reviewerAvatar + ')"' : '';
+                var avatarContent = rv.reviewerAvatar ? '' : (rv.reviewerName||'?').charAt(0).toUpperCase();
+                return '<div style="border:1px solid var(--pf-border);border-radius:var(--pf-card-radius,.75rem);padding:1rem;margin-bottom:.75rem;background:var(--pf-card-bg,var(--pf-surface))"><div style="display:flex;align-items:center;gap:.625rem;margin-bottom:.5rem"><div style="width:40px;height:40px;border-radius:50%;background:var(--pf-surface);background-size:cover;background-position:center;border:1px solid var(--pf-border);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.875rem;flex-shrink:0"' + avatarStyle + '>' + avatarContent + '</div><div><div style="font-weight:600;font-size:.8125rem">' + escapeHtml(rv.reviewerName||'') + '</div><div style="color:#f59e0b;font-size:.875rem;letter-spacing:1px">' + stars + '</div></div></div>' + (rv.content ? '<div style="font-size:.8125rem;color:var(--pf-secondary);line-height:1.5">' + escapeHtml(rv.content) + '</div>' : '') + '</div>';
+              }).join('');
+              if (reviews.length >= 3) {
+                section.innerHTML += '<div style="margin-top:.5rem"><a class="social-link" href="/portfolio/pages/reviews.html?slug=' + slug + '" target="_blank"><span class="material-symbols-outlined" style="font-size:1rem">open_in_new</span> See all reviews</a></div>';
+              }
+              el.appendChild(section);
+            }).catch(function(){});
+          }
+        }, '<span class="material-symbols-outlined" style="font-size:1.125rem">person</span>');
+
+        addPageTab({ id: 'experience', title: 'Experience' }, function(el) {
+          var exp = p.experience ? (typeof p.experience === 'string' ? JSON.parse(p.experience) : p.experience) : [];
+          el.innerHTML = exp.length ? exp.map(function(e) {
+            var imgHtml = e.image ? '<img class="card-img" src="' + e.image + '" alt=""/>' : '';
+            return '<div class="exp-card">' + imgHtml + '<div class="card-body"><h4>' + escapeHtml(e.role || '') + '</h4><div class="meta">' + [e.company, e.duration].filter(Boolean).join(' &middot; ') + '</div>' + (e.description ? '<p>' + escapeHtml(e.description) + '</p>' : '') + '</div></div>';
+          }).join('') : '<p style="color:var(--pf-secondary);font-size:0.875rem">No experience listed</p>';
+        }, '<span class="material-symbols-outlined" style="font-size:1.125rem">work</span>');
+
+        addPageTab({ id: 'education', title: 'Education' }, function(el) {
+          var edu = p.education ? (typeof p.education === 'string' ? JSON.parse(p.education) : p.education) : [];
+          el.innerHTML = edu.length ? edu.map(function(e) {
+            var imgHtml = e.image ? '<img class="card-img" src="' + e.image + '" alt=""/>' : '';
+            return '<div class="edu-card">' + imgHtml + '<div class="card-body"><h4>' + escapeHtml(e.degree || '') + '</h4><div class="meta">' + [e.school, e.graduationYear].filter(Boolean).join(' &middot; ') + '</div></div></div>';
+          }).join('') : '<p style="color:var(--pf-secondary);font-size:0.875rem">No education listed</p>';
+        }, '<span class="material-symbols-outlined" style="font-size:1.125rem">school</span>');
+
+        addPageTab({ id: 'certifications', title: 'Certifications' }, function(el) {
+          var certs = p.certifications ? (typeof p.certifications === 'string' ? JSON.parse(p.certifications) : p.certifications) : [];
+          el.innerHTML = certs.length ? certs.map(function(c) {
+            var imgHtml = c.image ? '<img class="card-img" src="' + c.image + '" alt=""/>' : '';
+            return '<div class="cert-card">' + imgHtml + '<div class="card-body"><h4>' + escapeHtml(c.name || '') + '</h4><div class="meta">' + [c.issuer, c.year].filter(Boolean).join(' &middot; ') + '</div></div></div>';
+          }).join('') : '<p style="color:var(--pf-secondary);font-size:0.875rem">No certifications listed</p>';
+        }, '<span class="material-symbols-outlined" style="font-size:1.125rem">verified</span>');
+
+        addPageTab({ id: 'courses', title: 'Courses' }, function(el) {
+          el.innerHTML = '<p style="color:var(--pf-secondary);font-size:0.875rem">Loading courses...</p>';
+          api.get('/portfolio/' + p.UserId + '/courses').then(function(r) {
+            var courses = r.data || [];
+            if (!courses.length) { el.innerHTML = '<p style="color:var(--pf-secondary);font-size:0.875rem">No completed courses</p>'; return; }
+            el.innerHTML = '<div class="course-grid">' + courses.map(function(enr) {
+              var c = enr.Course || {};
+              return '<div class="course-card"><div class="thumb" style="background-image:url(' + (c.thumbnailUrl || '/img/placeholder.svg') + ')"></div><div class="body"><h4>' + escapeHtml(c.title || '') + '</h4><div class="meta">' + (c.category || '') + '</div></div></div>';
+            }).join('') + '</div>';
+          }).catch(function() { el.innerHTML = '<p style="color:var(--pf-secondary);font-size:0.875rem">Failed to load courses</p>'; });
+        }, '<span class="material-symbols-outlined" style="font-size:1.125rem">menu_book</span>');
+
+        var links = p.socialLinks ? (typeof p.socialLinks === 'string' ? JSON.parse(p.socialLinks) : p.socialLinks) : {};
+        var hasLinks = Object.values(links).some(function(v) { return v; });
+        if (hasLinks) {
+          addPageTab({ id: 'links', title: 'Links' }, function(el) {
+            el.innerHTML = '<div class="social-links">' + Object.entries(links).filter(function(e) { return e[1]; }).map(function(e) { return '<a href="' + e[1] + '" target="_blank" rel="noopener" class="social-link"><span class="material-symbols-outlined" style="font-size:1rem">' + (e[0]==='github'?'code':e[0]==='linkedin'?'badge':e[0]==='twitter'?'alternate_email':'link') + '</span>' + e[0].charAt(0).toUpperCase() + e[0].slice(1) + '</a>'; }).join('') + '</div>';
+          }, '<span class="material-symbols-outlined" style="font-size:1.125rem">link</span>');
+        }
+
+        pages.forEach(function(page) {
+          addPageTab(page, function(el, pg) {
+            var type = pg.type || 'custom';
+            if (type === 'resume') {
+              el.innerHTML = '<div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap"><a class="social-link" href="/portfolio/pages/resume.html?slug=' + slug + '" target="_blank"><span class="material-symbols-outlined">open_in_new</span> Open Full Resume</a><a class="social-link" href="/portfolio/cv?slug=' + slug + '" target="_blank"><span class="material-symbols-outlined">download</span> Download CV</a></div>';
+              renderContentBlocks(el, pg); return;
+            }
+            if (type === 'reviews') {
+              el.innerHTML = '<div style="margin-bottom:1rem"><a class="social-link" href="/portfolio/pages/reviews.html?slug=' + slug + '" target="_blank"><span class="material-symbols-outlined">open_in_new</span> Open Reviews Page</a></div><div id="inline-reviews-' + pg.id + '"><p style="color:var(--pf-secondary);font-size:0.875rem">Loading reviews...</p></div>';
+              api.get('/portfolio/reviews?slug=' + slug + '&limit=5').then(function(r) {
+                var reviews = r.data || [];
+                var container = document.getElementById('inline-reviews-' + pg.id);
+                if (!container) return;
+                if (!reviews.length) { container.innerHTML = '<p style="color:var(--pf-secondary);font-size:0.875rem">No reviews yet</p>'; return; }
+                container.innerHTML = reviews.map(function(rv) {
+                  var stars = ''; for (var i=0;i<5;i++) stars += i < rv.rating ? '&#9733;' : '&#9734;';
+                  var avatarStyle = rv.reviewerAvatar ? ' style="background-image:url(' + rv.reviewerAvatar + ')"' : '';
+                  var avatarContent = rv.reviewerAvatar ? '' : (rv.reviewerName||'?').charAt(0).toUpperCase();
+                  return '<div class="pf-review-card"><div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem"><div style="width:36px;height:36px;border-radius:50%;background:var(--pf-surface);background-size:cover;background-position:center;border:1px solid var(--pf-border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8125rem;flex-shrink:0"' + avatarStyle + '>' + avatarContent + '</div><div><div style="font-weight:600;font-size:.8125rem">' + escapeHtml(rv.reviewerName||'') + '</div><div style="color:#f59e0b;font-size:.875rem;letter-spacing:1px">' + stars + '</div></div></div>' + (rv.title ? '<div style="font-weight:700;font-size:.875rem;margin-bottom:.25rem">' + escapeHtml(rv.title) + '</div>' : '') + (rv.content ? '<div style="font-size:.8125rem;color:var(--pf-secondary)">' + escapeHtml(rv.content) + '</div>' : '') + '</div>';
+                }).join('');
+              }).catch(function(){});
+              return;
+            }
+            if (type === 'projects') {
+              el.innerHTML = '<div style="margin-bottom:1rem"><a class="social-link" href="/portfolio/pages/projects.html?slug=' + slug + '" target="_blank"><span class="material-symbols-outlined">open_in_new</span> Open Full Projects Page</a></div>';
+              renderContentBlocks(el, pg); return;
+            }
+            if (type === 'contact') {
+              el.innerHTML = '<div class="contact-form"><input type="text" id="c-name-' + pg.id + '" placeholder="Your Name"/><input type="email" id="c-email-' + pg.id + '" placeholder="Your Email"/><textarea id="c-message-' + pg.id + '" rows="4" placeholder="Your Message"></textarea><div id="c-status-' + pg.id + '" style="font-size:0.8125rem;margin-bottom:0.5rem"></div><button onclick="sendContactInline(\'' + pg.id + '\')">Send Message</button><div style="margin-top:.75rem"><a class="social-link" href="/portfolio/pages/contact.html?slug=' + slug + '" target="_blank" style="display:inline-flex"><span class="material-symbols-outlined">open_in_new</span> Open Full Contact Page</a></div></div>';
+              return;
+            }
+            renderContentBlocks(el, pg);
+          });
+        });
+
+        function renderContentBlocks(el, pg) {
+          var content = pg.content ? (typeof pg.content === 'string' ? JSON.parse(pg.content) : pg.content) : [];
+          el.innerHTML += content.map(function(block) {
+            if (block.type === 'text') return '<div style="font-size:0.9375rem;line-height:1.7;margin-bottom:1rem">' + (block.value || '') + '</div>';
+            if (block.type === 'heading') return '<h3 style="font-size:1.125rem;font-weight:700;margin-bottom:0.75rem;margin-top:1.25rem;color:var(--pf-primary)">' + (block.value || '') + '</h3>';
+            if (block.type === 'image') return '<div style="margin-bottom:1rem"><img src="' + (block.value || '') + '" alt="" style="max-width:100%;border-radius:var(--pf-card-radius);cursor:pointer" onclick="openLightbox(\'' + (block.value || '').replace(/'/g, "\\'") + '\')"/></div>';
+            if (block.type === 'list') return '<ul style="margin-bottom:1rem">' + ((block.items || [])).map(function(i) { return '<li style="margin-bottom:0.25rem;font-size:0.9375rem">' + i + '</li>'; }).join('') + '</ul>';
+            if (block.type === 'embed') return '<div style="margin-bottom:1rem;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--pf-card-radius)"><iframe src="' + (block.value || '') + '" style="position:absolute;inset:0;width:100%;height:100%;border:none" allowfullscreen></iframe></div>';
+            return '';
+          }).join('');
+        }
+
+        document.querySelectorAll('.pf-nav-btn')[0].click();
+
+        var footerName = document.getElementById('footer-name');
+        if (footerName) footerName.textContent = user.fullName || 'Portfolio';
+        var footerCopy = document.getElementById('footer-copy');
+        if (footerCopy) footerCopy.innerHTML = '&copy; ' + new Date().getFullYear() + ' ' + (user.fullName || 'Portfolio') + '. Powered by <a href="/">LearnBridge</a>';
+        var footerSocial = document.getElementById('footer-social');
+        if (footerSocial) {
+          var socialEntries = Object.entries(links).filter(function(e) { return e[1]; });
+          if (socialEntries.length) footerSocial.innerHTML = socialEntries.map(function(e) { return '<a href="' + e[1] + '" target="_blank" rel="noopener"><span class="material-symbols-outlined" style="font-size:1rem">' + (e[0]==='github'?'code':e[0]==='linkedin'?'badge':e[0]==='twitter'?'alternate_email':'link') + '</span>' + e[0].charAt(0).toUpperCase() + e[0].slice(1) + '</a>'; }).join('');
+        }
+        var footerLms = document.getElementById('footer-lms');
+        if (footerLms) {
+          var plan = p.plan || {};
+          if (!plan.price || plan.price <= 0) footerLms.innerHTML = 'Built with <a href="/">LearnBridge</a> &mdash; start your own portfolio today';
+        }
+      }).catch(function() { document.getElementById('loading').style.display = 'none'; document.getElementById('error').style.display = ''; });
+    }
+
+    document.getElementById('lightbox').addEventListener('click', function(e) { if (e.target === this) closeLightbox(); });
+
+    document.addEventListener('components-loaded', loadPortfolio);
+  </script>
+</body>
+</html>

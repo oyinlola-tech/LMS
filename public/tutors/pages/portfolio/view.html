@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - My Portfolio</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .page-header p { font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 0.125rem; }
+    .btn-primary { padding: 0.625rem 1.5rem; background: var(--primary); color: #fff; border: none; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .btn-secondary { padding: 0.625rem 1.5rem; background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 0.75rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; font-family: inherit; color: var(--on-surface); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .preview-frame { width: 100%; border: 1px solid var(--outline-variant); border-radius: 1rem; overflow: hidden; background: #fff; min-height: 600px; }
+    .preview-frame iframe { width: 100%; height: 100vh; border: none; display: block; }
+    .status-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; padding: 2rem; text-align: center; margin-bottom: 1.5rem; }
+    .status-card .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+    .status-card h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .status-card p { font-size: 0.875rem; color: var(--on-surface-variant); margin-bottom: 1rem; }
+    .badge { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+    .badge-live { background: #dcfce7; color: #166534; }
+    .badge-draft { background: #fef3c7; color: #92400e; }
+    .badge-muted { background: var(--surface-container-high); color: var(--on-surface-variant); }
+    @media (max-width: 768px) { .admin-main { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <div data-include="/tutors/components/tutor-sidebar"></div>
+    <main class="admin-main">
+      <div data-include="/tutors/components/tutor-header"></div>
+      <div class="page-header">
+        <div>
+          <h1>My Portfolio</h1>
+          <p id="portfolio-status">Loading...</p>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <a href="/tutors/pages/portfolio/edit.html" class="btn-secondary">Edit</a>
+          <a id="public-view-link" class="btn-primary" target="_blank" style="display:none">View Live</a>
+        </div>
+      </div>
+
+      <div id="no-portfolio" class="status-card" style="display:none">
+        <span class="icon material-symbols-outlined">person_off</span>
+        <h2>No Portfolio Yet</h2>
+        <p>Create your teaching portfolio to showcase your expertise and courses.</p>
+        <a href="/tutors/pages/portfolio/edit.html" class="btn-primary">Create Portfolio</a>
+      </div>
+
+      <div id="portfolio-preview" style="display:none">
+        <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center">
+          <span id="status-badge" class="badge"></span>
+          <span class="badge badge-muted" id="slug-display"></span>
+          <span class="badge badge-muted" id="theme-display"></span>
+        </div>
+        <div class="preview-frame">
+          <iframe id="preview-iframe" title="Portfolio Preview"></iframe>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div data-include="/tutors/components/tutor-bottom-nav"></div>
+  <div data-include="auth-modal"></div>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/apis/api.js"></script>
+  <script src="/js/apis/auth.js"></script>
+  <script src="/js/components/auth-modal.js"></script>
+  <script src="/js/shared/dom.js"></script>
+  <script src="/js/components/active-page.js"></script>
+  <script>
+    (function() {
+      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
+      var userId = null;
+      try { userId = JSON.parse(atob(localStorage.getItem('token').split('.')[1])).sub; } catch(e) {}
+
+      function loadPortfolio() {
+        api.get('/portfolio/me').then(function(r) {
+          var p = (r.data || {}).portfolio || {};
+          if (!p.UserId) {
+            document.getElementById('no-portfolio').style.display = 'block';
+            document.getElementById('portfolio-status').textContent = 'Not created yet';
+            return;
+          }
+          document.getElementById('no-portfolio').style.display = 'none';
+          document.getElementById('portfolio-preview').style.display = 'block';
+
+          var isPublic = p.isPublic !== false;
+          var badge = document.getElementById('status-badge');
+          badge.className = 'badge ' + (isPublic ? 'badge-live' : 'badge-draft');
+          badge.innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem">' + (isPublic ? 'public' : 'lock') + '</span> ' + (isPublic ? 'Public' : 'Private');
+
+          document.getElementById('slug-display').innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem">link</span> /' + (p.slug || '?');
+          document.getElementById('theme-display').innerHTML = '<span class="material-symbols-outlined" style="font-size:0.875rem">palette</span> ' + (p.themeName || 'Default');
+
+          var slug = p.slug;
+          var viewLink = document.getElementById('public-view-link');
+          if (slug) {
+            viewLink.href = '/portfolio/view.html?slug=' + slug;
+            viewLink.style.display = 'inline-flex';
+            document.getElementById('preview-iframe').src = '/portfolio/view.html?slug=' + slug;
+          }
+
+          document.getElementById('portfolio-status').innerHTML = 'Your portfolio is ' + (isPublic ? 'live' : 'in draft') + ' &mdash; ' + (p.headline || 'No headline set');
+        }).catch(function() {
+          document.getElementById('portfolio-status').textContent = 'Could not load portfolio';
+        });
+      }
+
+      document.addEventListener('components-loaded', loadPortfolio);
+    })();
+  </script>
+</body>
+</html>

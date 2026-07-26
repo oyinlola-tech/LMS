@@ -96,7 +96,7 @@ var ChatApp = (function () {
       container.querySelectorAll('.conversation-item').forEach(function(el) {
         el.addEventListener('click', function() { openConversation(el.getAttribute('data-id'), el.getAttribute('data-type')); });
       });
-    }).catch(function() {});
+    }).catch(function(err) { console.error('loadThreads error:', err); });
   }
 
   function loadDiscussions(search) {
@@ -126,7 +126,7 @@ var ChatApp = (function () {
       container.querySelectorAll('.conversation-item').forEach(function(el) {
         el.addEventListener('click', function() { openConversation(el.getAttribute('data-id'), el.getAttribute('data-type')); });
       });
-    }).catch(function() {});
+    }).catch(function(err) { console.error('loadDiscussions error:', err); });
   }
 
   function openConversation(id, type) {
@@ -143,14 +143,14 @@ var ChatApp = (function () {
       api.get('/messages/threads/' + id + '?limit=100').then(function(res) {
         if (!res || !res.data) return;
         renderMessageView(res.data);
-        api.post('/messages/threads/' + id + '/read').catch(function(){});
+        api.post('/messages/threads/' + id + '/read').catch(function(err) { console.error('markRead error:', err); });
         if (state.activeTab === 'messages') loadThreads(document.getElementById('search-input').value);
-      }).catch(function() {});
+      }).catch(function(err) { console.error('openConversation message error:', err); });
     } else {
       api.get('/discussions/threads/' + id + '?limit=100').then(function(res) {
         if (!res || !res.data) return;
         renderDiscussionView(res.data);
-      }).catch(function() {});
+      }).catch(function(err) { console.error('openConversation discussion error:', err); });
     }
 
     if (window.innerWidth <= 768) {

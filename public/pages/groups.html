@@ -95,7 +95,7 @@
           return '<div class="group-card"><h3>' + Shared.escapeHtml(g.name) + '</h3>' +
             (g.description ? '<p>' + Shared.escapeHtml(g.description) + '</p>' : '') +
             '<div class="meta"><span>' + (g.memberCount || 0) + ' members</span>' +
-            '<button class="join-btn' + (joined ? ' joined' : '') + '" onclick="toggleJoin(\'' + g.id + '\',this)">' + (joined ? 'Joined' : 'Join') + '</button></div></div>';
+            '<button class="join-btn' + (joined ? ' joined' : '') + '" onclick="toggleJoin(\'' + encodeURIComponent(g.id) + '\',this)">' + (joined ? 'Joined' : 'Join') + '</button></div></div>';
         }).join('');
       });
     }
@@ -112,7 +112,7 @@
           return '<div class="group-card"><h3>' + Shared.escapeHtml(g.name) + '</h3>' +
             (g.description ? '<p>' + Shared.escapeHtml(g.description) + '</p>' : '') +
             '<div class="meta"><span>' + (g.memberCount || 0) + ' members</span>' +
-            '<button class="join-btn joined" onclick="toggleJoin(\'' + g.id + '\',this)">Leave</button></div></div>';
+            '<button class="join-btn joined" onclick="toggleJoin(\'' + encodeURIComponent(g.id) + '\',this)">Leave</button></div></div>';
         }).join('');
       });
     }

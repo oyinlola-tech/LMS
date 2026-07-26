@@ -5,8 +5,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/register', {
     config: {
       rateLimit: {
-        max: Number(process.env.AUTH_RATE_LIMIT_MAX) || 30,
-        timeWindow: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS) || 10 * 60 * 1000,
+        max: 5,
+        timeWindow: 15 * 60 * 1000,
       },
     },
   }, register);
@@ -14,8 +14,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/login', {
     config: {
       rateLimit: {
-        max: Number(process.env.AUTH_RATE_LIMIT_MAX) || 30,
-        timeWindow: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS) || 10 * 60 * 1000,
+        max: 5,
+        timeWindow: 15 * 60 * 1000,
       },
     },
   }, login);
@@ -23,8 +23,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/verify-otp', {
     config: {
       rateLimit: {
-        max: Number(process.env.AUTH_RATE_LIMIT_MAX) || 30,
-        timeWindow: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS) || 10 * 60 * 1000,
+        max: 10,
+        timeWindow: 15 * 60 * 1000,
       },
     },
   }, verifyOtp);
@@ -32,8 +32,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/resend-otp', {
     config: {
       rateLimit: {
-        max: Number(process.env.AUTH_RATE_LIMIT_MAX) || 30,
-        timeWindow: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS) || 10 * 60 * 1000,
+        max: 3,
+        timeWindow: 15 * 60 * 1000,
       },
     },
   }, resendOtp);
@@ -41,8 +41,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/forgot-password', {
     config: {
       rateLimit: {
-        max: Number(process.env.AUTH_RATE_LIMIT_MAX) || 30,
-        timeWindow: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS) || 10 * 60 * 1000,
+        max: 3,
+        timeWindow: 15 * 60 * 1000,
       },
     },
   }, forgotPassword);
@@ -50,8 +50,8 @@ export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.post('/reset-password', {
     config: {
       rateLimit: {
-        max: Number(process.env.AUTH_RATE_LIMIT_MAX) || 30,
-        timeWindow: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS) || 10 * 60 * 1000,
+        max: 5,
+        timeWindow: 15 * 60 * 1000,
       },
     },
   }, resetPassword);

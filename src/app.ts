@@ -10,6 +10,7 @@ import fastifyMultipart from '@fastify/multipart';
 import fastifyStatic from '@fastify/static';
 import fastifyFormbody from '@fastify/formbody';
 import authPlugin from './plugins/auth.plugin';
+import csrfPlugin from './plugins/csrf.plugin';
 import swaggerPlugin from './plugins/swagger.plugin';
 import authRoutes from './routes/auth.route';
 import userRoutes from './routes/user.route';
@@ -55,12 +56,14 @@ import adminEmailRoutes from './routes/adminEmail.route';
 import webhookRoutes from './routes/webhook.route';
 import marketingRoutes from './routes/marketing.route';
 import wishlistRoutes from './routes/wishlist.route';
+import bookmarksRoutes from './routes/bookmarks.route';
 import portfolioRoutes from './routes/portfolio.route';
 import timelineRoutes from './routes/timeline.route';
 import activitiesRoutes from './routes/activities.route';
+import leaderboardRoutes from './routes/leaderboard.route';
 
 export async function buildApp() {
-  const jsonLimit = process.env.JSON_BODY_LIMIT || '1mb';
+  const jsonLimit = parseBodyLimit(process.env.JSON_BODY_LIMIT || '1mb');
   const requestTimeoutMs = Number(process.env.REQUEST_TIMEOUT_MS) || 30000;
   const rateLimitWindowMs = Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000;
   const rateLimitMax = Number(process.env.RATE_LIMIT_MAX) || 200;
@@ -70,6 +73,8 @@ export async function buildApp() {
   const projectRoot = path.resolve(__dirname, '..');
   if (resolvedUploadDir === path.parse(resolvedUploadDir).root) throw new Error('UPLOAD_DIR must not be the filesystem root directory.');
   if (!resolvedUploadDir.startsWith(projectRoot + path.sep)) throw new Error('UPLOAD_DIR must be within the project directory.');
+  const dbSyncAlter = String(process.env.DB_SYNC_ALTER || 'false') === 'true';
+  if (dbSyncAlter && process.env.NODE_ENV === 'production') throw new Error('DB_SYNC_ALTER must not be true in production.');
   const uploadDir = resolvedUploadDir;
   fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -80,7 +85,7 @@ export async function buildApp() {
   const app = Fastify({
     logger: false,
     requestTimeout: requestTimeoutMs,
-    bodyLimit: 1048576,
+    bodyLimit: jsonLimit,
   });
 
   const cspEnabled = String(process.env.CSP_ENABLED || 'false') === 'true';
@@ -92,8 +97,8 @@ export async function buildApp() {
     contentSecurityPolicy: cspEnabled ? {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'https://images.unsplash.com'],
         connectSrc: ["'self'"],
@@ -120,6 +125,7 @@ export async function buildApp() {
     timeWindow: rateLimitWindowMs,
   });
 
+  await app.register(csrfPlugin);
   await app.register(authPlugin);
   await app.register(swaggerPlugin);
 
@@ -147,9 +153,10 @@ export async function buildApp() {
     ['/forgot-password', 'auth/forgot-password.html'],
     ['/change-password', 'auth/change-password.html'],
     ['/dashboard', 'students/index.html'],
+    ['/students/dashboard', 'students/index.html'],
     ['/tutor', 'tutors/index.html'],
+    ['/tutor/dashboard', 'tutors/index.html'],
     ['/admin', 'admin/index.html'],
-    ['/courses', 'pages/courses.html'],
     ['/learning-paths', 'pages/learning-paths.html'],
     ['/certifications', 'pages/certifications.html'],
     ['/corporate-training', 'pages/corporate-training.html'],
@@ -170,17 +177,12 @@ export async function buildApp() {
     ['/tutor/chat', 'tutors/chat.html'],
     ['/admin/chat', 'admin/chat.html'],
     ['/progress', 'students/pages/progress.html'],
-    ['/certificates', 'students/pages/certificates.html'],
     ['/settings', 'students/pages/settings.html'],
-    ['/wishlist', 'students/pages/wishlist.html'],
     ['/notes', 'students/pages/notes.html'],
-    ['/bookmarks', 'students/pages/bookmarks.html'],
     ['/tutor/settings', 'tutors/pages/settings.html'],
-    ['/admin/users', 'admin/pages/users.html'],
     ['/admin/courses', 'admin/pages/courses.html'],
     ['/admin/enrollments', 'admin/pages/enrollments.html'],
     ['/admin/settings', 'admin/pages/settings.html'],
-    ['/notifications', 'pages/notifications.html'],
     ['/groups', 'pages/groups.html'],
     ['/admin/audit', 'admin/pages/audit.html'],
     ['/admin/financials', 'admin/pages/financials.html'],
@@ -244,6 +246,23 @@ export async function buildApp() {
     ['/settings/account', 'pages/account-settings.html'],
     ['/reviews', 'pages/course-reviews.html'],
     ['/mobile-app', 'pages/mobile-app.html'],
+    ['/tutor/courses/create', 'pages/workspace.html'],
+    ['/admin/emails/templates', 'pages/workspace.html'],
+    ['/admin/system/logs', 'pages/workspace.html'],
+    ['/mentorship/applications', 'pages/workspace.html'],
+    ['/billing/history', 'pages/workspace.html'],
+    ['/billing/payment-methods', 'pages/workspace.html'],
+    ['/admin/reports/export', 'pages/workspace.html'],
+    ['/students/study-planner', 'pages/workspace.html'],
+    ['/admin/compliance', 'pages/workspace.html'],
+    ['/tutor/course-insights', 'pages/workspace.html'],
+    ['/privacy/manage', 'pages/workspace.html'],
+    ['/terms/manage', 'pages/workspace.html'],
+    ['/maintenance', 'pages/maintenance.html'],
+    ['/401', 'pages/401.html'],
+    ['/403', 'pages/403.html'],
+    ['/500', 'pages/500.html'],
+    ['/offline', 'pages/offline.html'],
   ] as const;
 
   for (const [route, file] of pages) {
@@ -256,17 +275,33 @@ export async function buildApp() {
   app.get('/lessons/:id', async (_req, reply) => reply.sendFile('lessons/viewer.html'));
   app.get('/tutor/courses/builder/:id', async (_req, reply) => reply.sendFile('tutors/courses/builder.html'));
   app.get('/u/:id', async (_req, reply) => reply.sendFile('pages/u-profile.html'));
-  app.get('/checkout', async (_req, reply) => reply.sendFile('checkout.html'));
-  app.get('/checkout/success', async (_req, reply) => reply.sendFile('checkout-success.html'));
-  app.get('/checkout/cancel', async (_req, reply) => reply.sendFile('checkout-cancel.html'));
+  app.get('/checkout', async (_req, reply) => reply.sendFile('courses/checkout.html'));
+  app.get('/checkout/success', async (_req, reply) => reply.sendFile('courses/checkout-success.html'));
+  app.get('/checkout/cancel', async (_req, reply) => reply.sendFile('courses/checkout-cancel.html'));
 
   app.get('/assignments/:id/student', async (_req, reply) => reply.sendFile('students/assignment.html'));
+  app.get('/assignments/:id/student/submit', async (_req, reply) => reply.sendFile('pages/workspace.html'));
+  app.get('/gradebook/:studentId', async (_req, reply) => reply.sendFile('pages/workspace.html'));
+  app.get('/tutor/earnings/:period', async (_req, reply) => reply.sendFile('pages/workspace.html'));
+  app.get('/learning-paths/:id', async (_req, reply) => reply.sendFile('pages/workspace.html'));
+  app.get('/certifications/:id', async (_req, reply) => reply.sendFile('pages/workspace.html'));
+  app.get('/corporate-training/:id', async (_req, reply) => reply.sendFile('pages/workspace.html'));
+  app.get('/certificate/download/:certId', async (_req, reply) => reply.sendFile('pages/workspace.html'));
+  app.get('/certificates/download/:certId/page', async (_req, reply) => reply.sendFile('pages/workspace.html'));
   app.get('/tutor/assignments', async (_req, reply) => reply.sendFile('tutors/assignments/index.html'));
   app.get('/tutor/assignments/:id/details', async (_req, reply) => reply.sendFile('tutors/assignments/details.html'));
   app.get('/tutor/assignments/:id/submission', async (_req, reply) => reply.sendFile('tutors/assignments/submission.html'));
   app.get('/tutor/assignments/:id/review', async (_req, reply) => reply.sendFile('tutors/assignments/review.html'));
   app.get('/tutor/assignments/builder/:id', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
   app.get('/tutor/assignments/builder/:id/step/:step', async (_req, reply) => reply.sendFile('tutors/assignment/builder.html'));
+
+  const profilePageMap: Record<string, string> = {
+    learner: 'students/profile/index.html',
+    tutor: 'tutors/profile.html',
+    admin: 'admin/profile.html',
+    super_admin: 'superadmin/profile.html',
+  };
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   app.get('/profile/me', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
     try {
@@ -292,14 +327,6 @@ export async function buildApp() {
   app.get('/courses/:id/details', async (_req, reply) => reply.sendFile('students/courses/details.html'));
 
   app.get('/course/:id', async (_req, reply) => reply.sendFile('courses/course-details.html'));
-
-  const profilePageMap: Record<string, string> = {
-    learner: 'students/profile/index.html',
-    tutor: 'tutors/profile.html',
-    admin: 'admin/profile.html',
-    super_admin: 'superadmin/profile.html',
-  };
-  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
   app.get('/profile/:id', async (request, reply) => {
     try {
@@ -358,9 +385,11 @@ export async function buildApp() {
   await app.register(webhookRoutes, { prefix: '/webhook' });
   await app.register(marketingRoutes, { prefix: '/marketing' });
   await app.register(wishlistRoutes, { prefix: '/wishlist' });
+  await app.register(bookmarksRoutes, { prefix: '/bookmarks' });
   await app.register(portfolioRoutes, { prefix: '/portfolio' });
   await app.register(timelineRoutes, { prefix: '/timeline' });
   await app.register(activitiesRoutes, { prefix: '/activities' });
+  await app.register(leaderboardRoutes, { prefix: '/leaderboard' });
 
   app.get('/favicon.ico', async (_req, reply) => {
     reply.redirect('/favicon.svg');
@@ -387,16 +416,26 @@ export async function buildApp() {
     reply.type('text/plain').send(`${lines.join('\n')}\n`);
   });
 
-  app.setNotFoundHandler((_req, reply) => {
+  app.setNotFoundHandler((req, reply) => {
+    const accept = String(req.headers.accept || '');
+    if (accept.includes('text/html')) {
+      return reply.status(404).sendFile('pages/404.html');
+    }
     reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Route not found' } });
   });
 
-  app.setErrorHandler((err, _req, reply) => {
+  app.setErrorHandler((err, req, reply) => {
     app.log.error(err);
     if (reply.raw.headersSent) return;
     const status = err instanceof AppError && err.statusCode >= 400 && err.statusCode < 600
       ? err.statusCode
       : 500;
+    const accept = String(req.headers.accept || '');
+    if (accept.includes('text/html')) {
+      if (status === 401) return reply.status(401).sendFile('pages/401.html');
+      if (status === 403) return reply.status(403).sendFile('pages/403.html');
+      if (status >= 500) return reply.status(status).sendFile('pages/500.html');
+    }
     reply.status(status).send({
       error: {
         code: err instanceof AppError ? err.code : 'INTERNAL_ERROR',
@@ -406,4 +445,18 @@ export async function buildApp() {
   });
 
   return app;
+}
+
+function parseBodyLimit(value: string): number {
+  const normalized = String(value || '').trim().toLowerCase();
+  const match = normalized.match(/^(\d+(?:\.\d+)?)(b|kb|mb)?$/);
+  if (!match) return 1024 * 1024;
+  const amount = Number(match[1]);
+  const unit = match[2] || 'b';
+  const multipliers: Record<string, number> = {
+    b: 1,
+    kb: 1024,
+    mb: 1024 * 1024,
+  };
+  return Math.floor(amount * multipliers[unit]);
 }

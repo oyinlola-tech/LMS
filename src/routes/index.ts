@@ -46,3 +46,4 @@ export { default as webhookRoutes } from './webhook.route';
 export { default as timelineRoutes } from './timeline.route';
 export { default as activitiesRoutes } from './activities.route';
 export { default as leaderboardRoutes } from './leaderboard.route';
+export { default as bookmarksRoutes } from './bookmarks.route';

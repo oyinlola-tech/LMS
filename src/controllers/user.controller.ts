@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { Op } from 'sequelize';
-import { User, TutorProfile, LearnerStats, UserStreak, Milestone, UserSkillProgress, Follow, UserInterest } from '../models';
+import { User, TutorProfile, LearnerStats, UserStreak, Milestone, UserSkillProgress, Follow, UserInterest, UserWarning } from '../models';
 import { ok, error } from '../utils/response.util';
 import { getCurrentUserQuery } from '../services/user/queries/getCurrentUser.query';
 import { updateProfileCommand } from '../services/user/commands/updateProfile.command';
@@ -9,6 +9,7 @@ import { updateInterestsCommand } from '../services/user/commands/updateInterest
 import { updateEmailCommand } from '../services/user/commands/updateEmail.command';
 import { updateWeeklyGoalCommand } from '../services/user/commands/updateWeeklyGoal.command';
 import { AppError } from '../errors';
+import { verifyPassword, hashPassword } from '../utils/password.util';
 import {
   validateUpdateProfile,
   validateUpdateAvatar,
@@ -70,7 +71,7 @@ export const getUserById = async (request: FastifyRequest, reply: FastifyReply) 
     const isOwner = currentUserId === id;
 
     const user = await User.findByPk(id, {
-      attributes: ['id', 'fullName', 'role', 'bio', 'avatarUrl', 'coverUrl', 'location', 'skills', 'isPrivate', 'isVerified', 'checkmarkType', 'studentId', 'tutorId', 'adminId', 'email'],
+      attributes: ['id', 'fullName', 'role', 'bio', 'avatarUrl', 'coverUrl', 'location', 'skills', 'isPrivate', 'isVerified', 'checkmarkType'],
       include: [
         { model: TutorProfile, attributes: ['headline'] },
         { model: LearnerStats, attributes: ['coursesActive', 'coursesCompleted', 'hoursSpent', 'weeklyGoalHours', 'weeklyGoalProgressHours'] },
@@ -109,9 +110,6 @@ export const getUserById = async (request: FastifyRequest, reply: FastifyReply) 
         isPending,
         isVerified: user.isVerified,
         checkmarkType: user.checkmarkType,
-        studentId: user.studentId,
-        tutorId: user.tutorId,
-        adminId: user.adminId,
         followerCount,
         followingCount,
         isFollowing: false,
@@ -125,7 +123,7 @@ export const getUserById = async (request: FastifyRequest, reply: FastifyReply) 
       return ok(reply, publicData, 'Profile is private');
     }
 
-    return ok(reply, {
+    const profileData: any = {
       ...user.toJSON(),
       followerCount,
       followingCount,
@@ -133,7 +131,13 @@ export const getUserById = async (request: FastifyRequest, reply: FastifyReply) 
       isPending,
       doesFollowBack,
       isOwner,
-    }, 'Profile loaded');
+    };
+    if (!isOwner) {
+      delete profileData.studentId;
+      delete profileData.tutorId;
+      delete profileData.adminId;
+    }
+    return ok(reply, profileData, 'Profile loaded');
   } catch (err) {
     request.log.error(err, 'PROFILE_LOAD_FAILED');
     return error(reply, 500, 'PROFILE_LOAD_FAILED', 'Failed to load profile');
@@ -292,10 +296,9 @@ export const updateFcmToken = async (request: FastifyRequest, reply: FastifyRepl
 
 export const getUserWarnings = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
-    const { UserWarning } = require('../models');
-    const warnings = await (UserWarning as any).findAll({
+    const warnings = await UserWarning.findAll({
       where: { userId: request.user!.sub },
-      include: [{ model: require('../models').User, as: 'issuedBy', attributes: ['id', 'fullName', 'email'] }],
+      include: [{ model: User, as: 'issuedBy', attributes: ['id', 'fullName', 'email'] }],
       order: [['createdAt', 'DESC']],
       limit: 20,
     });
@@ -303,5 +306,75 @@ export const getUserWarnings = async (request: FastifyRequest, reply: FastifyRep
   } catch (err) {
     request.log.error(err, 'WARNINGS_LOAD_FAILED');
     return error(reply, 500, 'WARNINGS_FAILED', 'Failed to load warnings');
+  }
+};
+
+export const getNotificationPreferences = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const user = await User.findByPk(request.user!.sub, { attributes: ['notificationPreferences'] });
+    const prefs = (user as any)?.notificationPreferences || {
+      email: {
+        courseUpdates: true,
+        announcements: true,
+        messages: true,
+        weeklyDigest: false,
+      },
+      push: {
+        assignments: true,
+        announcements: true,
+        messages: true,
+      },
+    };
+    return ok(reply, prefs, 'Notification preferences loaded');
+  } catch (err) {
+    request.log.error(err, 'NOTIFICATION_PREFS_LOAD_FAILED');
+    return error(reply, 500, 'NOTIFICATION_PREFS_LOAD_FAILED', 'Failed to load notification preferences');
+  }
+};
+
+export const updateNotificationPreferences = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const body = (request.body || {}) as {
+      email?: Record<string, boolean>;
+      push?: Record<string, boolean>;
+    };
+    const preferences = {
+      email: body.email || {},
+      push: body.push || {},
+    };
+    await User.update({ notificationPreferences: preferences }, { where: { id: request.user!.sub } });
+    return ok(reply, preferences, 'Notification preferences updated');
+  } catch (err) {
+    request.log.error(err, 'NOTIFICATION_PREFS_FAILED');
+    return error(reply, 500, 'NOTIFICATION_PREFS_FAILED', 'Failed to update notification preferences');
+  }
+};
+
+export const changePassword = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { currentPassword, newPassword } = (request.body || {}) as {
+      currentPassword?: string;
+      newPassword?: string;
+    };
+    if (!currentPassword || !newPassword) {
+      return error(reply, 400, 'VALIDATION_ERROR', 'currentPassword and newPassword are required');
+    }
+    if (newPassword.length < 8) {
+      return error(reply, 400, 'VALIDATION_ERROR', 'newPassword must be at least 8 characters');
+    }
+    const user = await User.findByPk(request.user!.sub);
+    if (!user || !user.passwordHash) {
+      return error(reply, 400, 'VALIDATION_ERROR', 'User not found or has no password');
+    }
+    const valid = await verifyPassword(user.passwordHash, currentPassword);
+    if (!valid) {
+      return error(reply, 401, 'INVALID_CREDENTIALS', 'Current password is incorrect');
+    }
+    const newHash = await hashPassword(newPassword);
+    await user.update({ passwordHash: newHash });
+    return ok(reply, null, 'Password changed successfully');
+  } catch (err) {
+    request.log.error(err, 'PASSWORD_CHANGE_FAILED');
+    return error(reply, 500, 'PASSWORD_CHANGE_FAILED', 'Failed to change password');
   }
 };

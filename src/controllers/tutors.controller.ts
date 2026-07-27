@@ -1,19 +1,19 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { ok, created, error } from '../utils/response.util';
 import { UserRole } from '../enums';
-import { listTutorsQuery } from '../services/tutors/queries/listTutors.query';
-import { listTutorOfficeHoursQuery } from '../services/tutors/queries/listOfficeHours.query';
+import { listMentorsQuery } from '../services/tutors/queries/listTutors.query';
+import { ListTutorOfficeHoursQuery } from '../services/tutors/queries/listOfficeHours.query';
 import { followTutorCommand } from '../services/tutors/commands/followTutor.command';
 import { unfollowTutorCommand } from '../services/tutors/commands/unfollowTutor.command';
 import { emailStudentsCommand } from '../services/tutors/commands/emailStudents.command';
 import { postUpdateCommand } from '../services/tutors/commands/postUpdate.command';
-import { scheduleOfficeHourCommand } from '../services/tutors/commands/scheduleOfficeHour.command';
+import { ScheduleOfficeHourCommand } from '../services/tutors/commands/scheduleOfficeHour.command';
 import { Op } from 'sequelize';
 import { Enrollment, OfficeHour } from '../models';
 
 export const getRecommended = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
-    const tutors = await listTutorsQuery.execute(8);
+    const tutors = await listMentorsQuery.execute({ limit: 8 });
     return ok(reply, tutors, 'Recommended mentors loaded');
   } catch (err: any) {
     return error(reply, 500, 'RECOMMENDATIONS_FAILED', 'Failed to load recommended mentors');
@@ -22,7 +22,7 @@ export const getRecommended = async (request: FastifyRequest, reply: FastifyRepl
 
 export const listTutors = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
-    const tutors = await listTutorsQuery.execute();
+    const tutors = await listMentorsQuery.execute();
     return ok(reply, tutors, 'Tutors loaded');
   } catch (err: any) {
     return error(reply, 500, 'TUTORS_FAILED', 'Failed to load tutors');
@@ -74,7 +74,7 @@ export const postUpdate = async (request: FastifyRequest, reply: FastifyReply) =
 export const scheduleOfficeHour = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     if (request.user!.role !== UserRole.TUTOR) return error(reply, 403, 'FORBIDDEN', 'Only tutors can schedule office hours');
-    const officeHour = await scheduleOfficeHourCommand.execute(request.user!.sub, (request.body as any) || {});
+    const officeHour = await new ScheduleOfficeHourCommand().execute(request.user!.sub, (request.body as any) || {});
     return ok(reply, officeHour, 'Office hour scheduled');
   } catch (err: any) {
     return error(reply, err.statusCode || 500, err.code || 'SCHEDULE_OFFICE_HOUR_FAILED', err.message || 'Failed to schedule office hour');
@@ -84,7 +84,7 @@ export const scheduleOfficeHour = async (request: FastifyRequest, reply: Fastify
 export const getOfficeHours = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
     if (request.user!.role === UserRole.TUTOR) {
-      const hours = await listTutorOfficeHoursQuery.execute(request.user!.sub);
+      const hours = await new ListTutorOfficeHoursQuery().execute(request.user!.sub);
       return ok(reply, hours, 'Office hours loaded');
     }
     if (request.user!.role === UserRole.LEARNER) {

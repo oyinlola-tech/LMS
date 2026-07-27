@@ -1,6 +1,8 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { Op, col, fn } from 'sequelize';
 import { UserRole } from '../enums';
 import { ok, created, error } from '../utils/response.util';
+import { Course, CourseReview } from '../models';
 import { getFeaturedCoursesQuery } from '../services/course/queries/getFeaturedCourses.query';
 import { getRecommendedCoursesQuery } from '../services/course/queries/getRecommendedCourses.query';
 import { getCategoriesQuery } from '../services/course/queries/getCategories.query';
@@ -269,7 +271,7 @@ export const createEvent = async (request: FastifyRequest, reply: FastifyReply) 
       courseId: id,
       createdById: request.user!.sub,
       title: body.title,
-      description: body.description,
+      description: sanitizeRichText(body.description || ''),
       startsAt: new Date(body.startsAt),
       endsAt: new Date(body.endsAt),
       meetingUrl: body.meetingUrl,
@@ -341,5 +343,68 @@ export const createComment = async (request: FastifyRequest, reply: FastifyReply
       return error(reply, 403, err.code, err.message);
     }
     return error(reply, 500, 'COMMENT_CREATE_FAILED', 'Failed to post comment');
+  }
+};
+
+export const getReviewsList = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const { page, limit, rating, search } = request.query as {
+      page?: string; limit?: string; rating?: string; search?: string;
+    };
+    const pageNum = Math.max(1, parseInt(String(page), 10) || 1);
+    const limitNum = Math.min(50, Math.max(1, parseInt(String(limit), 10) || 10));
+    const offset = (pageNum - 1) * limitNum;
+
+    const includeCourse = !!search;
+    const courseWhere = search ? { title: { [Op.like]: `%${search}%` } } : undefined;
+    const reviewWhere: Record<string, any> = {};
+    if (rating) reviewWhere.rating = Number(rating);
+
+    const groupedOptions = {
+      attributes: [
+        'CourseId',
+        [fn('AVG', col('rating')), 'avgRating'],
+        [fn('COUNT', col('id')), 'reviewCount'],
+      ],
+      include: includeCourse
+        ? [
+            {
+              model: Course,
+              attributes: [],
+              where: courseWhere,
+              required: true,
+            },
+          ]
+        : [],
+      where: Object.keys(reviewWhere).length ? reviewWhere : undefined,
+      group: ['CourseId'],
+      order: [[fn('AVG', col('rating')), 'DESC']],
+      subQuery: false,
+      raw: true,
+    };
+
+    const rows = await CourseReview.findAll({
+      ...groupedOptions,
+      limit: limitNum,
+      offset,
+    } as any);
+
+    const countRows = await CourseReview.findAll({
+      ...groupedOptions,
+    } as any);
+
+    const data = (rows as any[]).map((row) => ({
+      courseId: row.CourseId,
+      avgRating: Number(row.avgRating),
+      reviewCount: Number(row.reviewCount),
+    }));
+
+    return ok(reply, {
+      data,
+      pagination: { page: pageNum, limit: limitNum, total: countRows.length },
+    }, 'Reviews list loaded');
+  } catch (err) {
+    request.log.error(err, 'REVIEWS_LIST_FAILED');
+    return error(reply, 500, 'REVIEWS_LIST_FAILED', 'Failed to load reviews list');
   }
 };

@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { Enrollment, Course, User } from '../models';
 import { ok, error } from '../utils/response.util';
 import { getProgressOverviewQuery } from '../services/progress/queries/getOverview.query';
 import { getStreakQuery } from '../services/progress/queries/getStreak.query';
@@ -40,5 +41,24 @@ export const getTimeline = async (request: FastifyRequest, reply: FastifyReply) 
     return ok(reply, series, 'Timeline loaded');
   } catch (err: any) {
     return error(reply, 500, 'TIMELINE_FAILED', 'Failed to load timeline');
+  }
+};
+
+export const getCourses = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const enrollments = await Enrollment.findAll({
+      where: { UserId: request.user!.sub },
+      include: [{ model: Course, include: [{ model: User, as: 'tutor', attributes: ['fullName'] }] }],
+      order: [['updatedAt', 'DESC']],
+    });
+    const list = enrollments.map((e: any) => ({
+      id: e.CourseId,
+      title: e.Course?.title || 'Course',
+      instructorName: e.Course?.tutor?.fullName || '',
+      completionPercent: e.progressPercent || 0,
+    }));
+    return ok(reply, list, 'Progress courses loaded');
+  } catch (err) {
+    return error(reply, 500, 'PROGRESS_COURSES_FAILED', 'Failed to load course progress');
   }
 };

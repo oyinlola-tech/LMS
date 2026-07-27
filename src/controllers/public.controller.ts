@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { User, BlogPost, TutorProfile, Course, Enrollment, CourseCertificate } from '../models';
+import { User, BlogPost, TutorProfile, Course, Enrollment, CourseCertificate, UserStreak } from '../models';
 import { courseReviewRepository } from '../repositories/courseReview.repository';
 import { ok, error } from '../utils/response.util';
 
@@ -65,5 +65,29 @@ export async function getTestimonials(_request: FastifyRequest, reply: FastifyRe
     return ok(reply, reviews, 'Testimonials loaded');
   } catch (err: any) {
     return error(reply, 500, 'TESTIMONIALS_FAILED', 'Failed to load testimonials');
+  }
+}
+
+export async function getPublicProfile(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { userId } = request.params as { userId: string };
+    const user = await User.findByPk(userId, {
+      attributes: ['id', 'fullName', 'avatarUrl', 'bio', 'headline', 'location', 'website', 'createdAt'],
+    });
+    if (!user) return error(reply, 404, 'NOT_FOUND', 'User not found');
+
+    const [enrollments, streak, courses] = await Promise.all([
+      Enrollment.count({ where: { UserId: userId } }),
+      UserStreak.findOne({ where: { UserId: userId } }),
+      Course.findAll({ where: { tutorId: userId }, attributes: ['id', 'title', 'coverUrl', 'price', 'createdAt'], limit: 6 }),
+    ]);
+
+    return ok(reply, {
+      user: user.toJSON(),
+      stats: { enrollments, streak: streak?.currentStreak || 0, coursesCount: courses.length },
+      courses: courses.map(c => c.toJSON()),
+    }, 'Profile loaded');
+  } catch (err) {
+    return error(reply, 500, 'PROFILE_FAILED', 'Failed to load profile');
   }
 }

@@ -12,21 +12,18 @@ export async function getTopStudents(_request: FastifyRequest, reply: FastifyRep
       limit: 20,
     });
     const userIds = students.map(s => s.id);
-    const [enrollments, streaks, certificates] = await Promise.all([
-      Enrollment.count({ where: { UserId: { [Op.in]: userIds } }, col: 'UserId', raw: true }) as any,
+    const [enrollmentCount, streaks, certificateCount] = await Promise.all([
+      Enrollment.count({ where: { UserId: { [Op.in]: userIds } } }),
       UserStreak.findAll({ where: { UserId: { [Op.in]: userIds } }, attributes: ['UserId', 'currentStreak'] }),
-      CourseCertificate.count({ where: { UserId: { [Op.in]: userIds } }, col: 'UserId', raw: true }) as any,
+      CourseCertificate.count({ where: { UserId: { [Op.in]: userIds } } }),
     ]);
-    const enrollmentMap = enrollments || {};
-    const streakMap = new Map((streaks || []).map((s: any) => [s.UserId, s.currentStreak || 0]));
-    const certMap = certificates || {};
     const items = students.map((s: any) => ({
       id: s.id,
       fullName: s.fullName,
       avatarUrl: s.avatarUrl,
       courseName: '',
-      points: (enrollmentMap[s.id] || 0) * 10 + (streakMap.get(s.id) || 0) * 5 + (certMap[s.id] || 0) * 20,
-      badgeCount: (certMap[s.id] || 0),
+      points: enrollmentCount * 10 + (streaks.find((ss: any) => ss.UserId === s.id)?.currentStreak || 0) * 5 + certificateCount * 20,
+      badgeCount: certificateCount,
     }));
     items.sort((a, b) => b.points - a.points);
     return ok(reply, items, 'Leaderboard loaded');

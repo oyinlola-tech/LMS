@@ -105,7 +105,7 @@ export async function listMentorshipPrograms(_request: FastifyRequest, reply: Fa
     const programs = await MentorshipApplication.findAll({
       where: { status: 'open' },
       include: [
-        { model: User, as: 'reporter', attributes: ['fullName'] },
+        { model: User, attributes: ['fullName'] },
         { model: Course, attributes: ['title'] },
       ],
       order: [['createdAt', 'DESC']],
@@ -113,9 +113,9 @@ export async function listMentorshipPrograms(_request: FastifyRequest, reply: Fa
     });
     const items = programs.map((p: any) => ({
       id: p.id,
-      title: p.reason || 'Mentorship Program',
-      mentorName: p.reporter?.fullName || 'Mentor',
-      description: p.lastMessages?.[0]?.body || 'Join this mentorship program to get guidance from an experienced mentor.',
+      title: p.message || 'Mentorship Program',
+      mentorName: p.User?.fullName || 'Mentor',
+      description: p.message || 'Join this mentorship program to get guidance from an experienced mentor.',
       courseName: p.Course?.title || 'General',
     }));
     return ok(reply, items, 'Mentorship programs loaded');
@@ -128,13 +128,13 @@ export async function listMyApplications(request: FastifyRequest, reply: Fastify
   try {
     const apps = await MentorshipApplication.findAll({
       where: { UserId: request.user!.sub },
-      include: [{ model: User, as: 'reporter', attributes: ['fullName'] }, { model: Course, attributes: ['title'] }],
+      include: [{ model: User, attributes: ['fullName'] }, { model: Course, attributes: ['title'] }],
       order: [['createdAt', 'DESC']],
     });
     const items = apps.map((a: any) => ({
       id: a.id,
       programTitle: a.Course?.title || 'Mentorship Program',
-      mentorName: a.reporter?.fullName || 'Mentor',
+      mentorName: a.User?.fullName || 'Mentor',
       status: a.status || 'pending',
     }));
     return ok(reply, items, 'Applications loaded');
@@ -149,7 +149,7 @@ export async function applyToProgram(request: FastifyRequest, reply: FastifyRepl
     const { message } = (request.body as Record<string, any>) || {};
     const app = await MentorshipApplication.findByPk(id);
     if (!app) return error(reply, 404, 'NOT_FOUND', 'Program not found');
-    await app.update({ UserId: request.user!.sub, status: 'pending', lastMessages: [{ body: message || 'Application submitted', createdAt: new Date().toISOString() }] });
+    await app.update({ UserId: request.user!.sub, status: 'pending', message: message || 'Application submitted' });
     return ok(reply, app, 'Applied successfully');
   } catch (err) {
     return error(reply, 500, 'APPLY_FAILED', 'Failed to apply');

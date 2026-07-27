@@ -25,6 +25,13 @@ var ChatApp = (function () {
     return d.innerHTML;
   }
 
+  function safeUrl(url) {
+    if (!url) return '';
+    var s = String(url).trim().toLowerCase();
+    if (s.indexOf('javascript:') === 0 || s.indexOf('vbscript:') === 0) return '';
+    return String(url);
+  }
+
   function formatTime(iso) {
     if (!iso) return '';
     var d = new Date(iso);
@@ -213,12 +220,13 @@ var ChatApp = (function () {
 
     if (m.attachmentUrl) {
       var attachHtml = '';
+      var safeAttachUrl = safeUrl(m.attachmentUrl);
       if (m.attachmentType && m.attachmentType.startsWith('image/')) {
-        attachHtml = '<div class="attachment-preview"><img src="' + escapeHtml(m.attachmentUrl) + '" alt="attachment" onclick="window.open(\'' + escapeHtml(m.attachmentUrl) + '\')"/></div>';
+        attachHtml = '<div class="attachment-preview"><img src="' + escapeHtml(safeAttachUrl) + '" alt="attachment" onclick="window.open(\'' + escapeHtml(safeAttachUrl) + '\')"/></div>';
       } else if (m.attachmentType && m.attachmentType.startsWith('audio/')) {
-        attachHtml = '<div class="attachment-preview"><audio controls src="' + escapeHtml(m.attachmentUrl) + '" preload="metadata" style="width:100%">Your browser does not support audio.</audio></div>';
+        attachHtml = '<div class="attachment-preview"><audio controls src="' + escapeHtml(safeAttachUrl) + '" preload="metadata" style="width:100%">Your browser does not support audio.</audio></div>';
       } else {
-        attachHtml = '<div class="attachment-preview"><div class="file-card" onclick="window.open(\'' + escapeHtml(m.attachmentUrl) + '\')"><span class="material-symbols-outlined icon">' + getFileIcon(m.attachmentType) + '</span><div style="flex:1;min-width:0"><p style="font-size:0.8rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escapeHtml(m.attachmentName || 'File') + '</p><p style="font-size:0.7rem;opacity:0.7">Click to download</p></div><span class="material-symbols-outlined" style="font-size:1.25rem">download</span></div></div>';
+        attachHtml = '<div class="attachment-preview"><div class="file-card" onclick="window.open(\'' + escapeHtml(safeAttachUrl) + '\')"><span class="material-symbols-outlined icon">' + getFileIcon(m.attachmentType) + '</span><div style="flex:1;min-width:0"><p style="font-size:0.8rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escapeHtml(m.attachmentName || 'File') + '</p><p style="font-size:0.7rem;opacity:0.7">Click to download</p></div><span class="material-symbols-outlined" style="font-size:1.25rem">download</span></div></div>';
       }
       html += attachHtml;
     }
@@ -364,7 +372,7 @@ var ChatApp = (function () {
       var html = res.data.map(function(u) {
         var roleLabel = u.role === 'tutor' ? 'Tutor' : (u.role === 'admin' || u.role === 'super_admin' ? 'Admin' : 'Student');
         var idLabel = u.studentId || u.tutorId || u.adminId || '';
-        return '<div class="user-search-item" data-id="' + u.id + '" data-name="' + escapeHtml(u.fullName || '') + '">'
+        return '<div class="user-search-item" data-id="' + escapeHtml(u.id) + '" data-name="' + escapeHtml(u.fullName || '') + '">'
           + '<div class="avatar" style="width:2rem;height:2rem;font-size:0.875rem">' + (u.avatarUrl ? '<img src="' + escapeHtml(u.avatarUrl) + '" alt=""/>' : '<span>' + (u.fullName || '?').charAt(0).toUpperCase() + '</span>') + '</div>'
           + '<div class="user-info"><div class="user-name">' + escapeHtml(u.fullName || 'Unknown') + '</div><div class="user-meta">' + escapeHtml(idLabel) + ' &middot; ' + escapeHtml(u.email || '') + '</div></div>'
           + '<span class="role-badge">' + roleLabel + '</span></div>';

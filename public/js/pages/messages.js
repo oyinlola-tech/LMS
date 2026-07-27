@@ -32,8 +32,8 @@ function loadThreads(search) {
     var html = '';
     res.data.items.forEach(function(t) {
       var isUnread = t.lastMessage && !t.lastMessage.readAt && t.lastMessage.senderId !== userId;
-      html += '<div class="thread-item' + (isUnread ? ' unread' : '') + (t.id === currentThreadId ? ' active' : '') + '" data-thread-id="' + t.id + '">'
-        + '<div class="thread-avatar" style="background-image:url(' + (t.participant.avatarUrl || '/img/placeholder.svg') + ')"></div>'
+      html += '<div class="thread-item' + (isUnread ? ' unread' : '') + (t.id === currentThreadId ? ' active' : '') + '" data-thread-id="' + escapeHtml(t.id) + '">'
+        + '<div class="thread-avatar" style="background-image:url(' + escapeHtml(t.participant.avatarUrl || '/img/placeholder.svg') + ')"></div>'
         + '<div style="flex:1;min-width:0">'
         + '<div style="display:flex;justify-content:space-between;align-items:center">'
         + '<span class="text-sm font-bold' + (isUnread ? '' : '') + '">' + escapeHtml(t.participant.fullName) + '</span>'
@@ -72,7 +72,7 @@ function openThread(threadId) {
 
     var otherUser = thread.userAId === userId ? thread.userB : thread.userA;
     var header = document.getElementById('chat-header');
-    header.innerHTML = '<div class="thread-avatar" style="background-image:url(' + (otherUser.avatarUrl || '/img/placeholder.svg') + ')"></div>'
+    header.innerHTML = '<div class="thread-avatar" style="background-image:url(' + escapeHtml(otherUser.avatarUrl || '/img/placeholder.svg') + ')"></div>'
       + '<div><p class="font-bold text-sm">' + escapeHtml(otherUser.fullName) + '</p>'
       + (thread.subject ? '<p class="text-xs" style="color:var(--on-surface-variant)">' + escapeHtml(thread.subject) + '</p>' : '')
       + '</div>';

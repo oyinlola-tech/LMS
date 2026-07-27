@@ -39,7 +39,7 @@ function loadCourseDetail() {
   PublicAPI.getCoursePreview(courseId).then(function(res) {
     if (res && res.data) {
       renderRating(res.data.rating, res.data.reviewCount);
-      if (res.data.descriptionHtml && id('course-description')) id('course-description').innerHTML = res.data.descriptionHtml;
+      if (res.data.descriptionHtml && id('course-description')) Sanitize.setSanitizedHtml(id('course-description'), res.data.descriptionHtml);
     }
   }).catch(function() {});
 }
@@ -58,7 +58,10 @@ function renderCourse(c) {
   var thumb = id('course-thumbnail');
   if (c.thumbnailUrl) { thumb.style.backgroundImage = 'url(' + c.thumbnailUrl + ')'; }
   else { thumb.style.background = 'var(--surface-variant)'; thumb.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%"><span class="material-symbols-outlined" style="font-size:4rem;color:var(--outline)">school</span></div>'; }
-  if (c.description && !id('course-description').innerHTML) id('course-description').innerHTML = c.description.replace(/\n/g, '<br/>');
+  if (c.description && !id('course-description').innerHTML) {
+    var safeDesc = escapeHtml(c.description).replace(/\n/g, '<br/>');
+    id('course-description').innerHTML = safeDesc;
+  }
   var sc = (c.sections && c.sections.length) || 0;
   id('curriculum-summary').textContent = sc + ' modules \u00B7 ' + (c.totalLessons || 0) + ' lessons \u00B7 ' + (c.totalHours || 0) + ' hours';
 }

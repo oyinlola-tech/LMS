@@ -6,45 +6,98 @@
   <title>LearnBridge - Terms of Service</title>
   <link href="/css/styles.css" rel="stylesheet"/>
   <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .terms-hero { padding: 8rem 0 4rem; background: var(--inverse-surface); color: var(--inverse-on-surface); }
+    .terms-wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; }
+    .terms-title { max-width: 900px; margin-top: .75rem; font-size: clamp(2.4rem, 7vw, 5.25rem); line-height: .94; font-weight: 900; letter-spacing: 0; }
+    .terms-kicker { color: var(--inverse-primary); font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    .terms-summary { max-width: 760px; margin-top: 1.25rem; color: rgba(239,241,243,.78); font-size: 1.05rem; line-height: 1.7; }
+    .terms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+    .terms-chip { padding: 1rem; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; background: rgba(255,255,255,.06); }
+    .terms-content { display: grid; gap: 1rem; padding: 3rem 0 5rem; }
+    .terms-section { padding: 1.25rem; background: #fff; border: 1px solid var(--outline-variant); border-radius: 8px; }
+    .terms-section h2 { margin-bottom: .75rem; font-size: 1.15rem; }
+    .terms-section p, .terms-section li { color: var(--on-surface-variant); font-size: .94rem; line-height: 1.7; }
+    .terms-section ul { margin: .75rem 0 0 1.1rem; display: grid; gap: .45rem; }
+    .terms-note { padding: 1rem; border-radius: 8px; background: var(--surface-container-low); border: 1px solid var(--outline-variant); color: var(--on-surface-variant); }
+    @media (max-width: 820px) { .terms-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
   <div data-include="header"></div>
-  <main style="padding-top: 6rem">
-    <section style="padding: 4rem 0">
-      <div class="container" style="max-width: 48rem">
-        <h1 class="text-4xl font-black mb-6">Terms of Service</h1>
-        <p class="text-sm mb-8" style="color: var(--on-surface-variant)">Last updated: January 2026</p>
-        <div class="space-y-6 text-sm leading-relaxed" style="color: var(--on-surface-variant)">
-          <p>By accessing or using the LearnBridge platform, you agree to be bound by these Terms of Service. If you do not agree, please do not use our services.</p>
-
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Account Registration</h3>
-          <p>You must create an account to access courses. You are responsible for maintaining the confidentiality of your login credentials and for all activities under your account.</p>
-
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Course Enrollment</h3>
-          <p>Enrollment grants you a limited, non-transferable license to access course materials for your personal learning. You may not distribute, share, or resell course content.</p>
-
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Payments and Refunds</h3>
-          <p>All payments are processed securely. We offer a 30-day money-back guarantee on individual courses. Subscription plans may be cancelled at any time.</p>
-
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Messaging and Communication</h3>
-          <p>Direct messages between users are end-to-end encrypted. Public discussions, group chats, and comments are not encrypted and may be moderated. You must follow a user or be followed by them to initiate a direct message conversation. Messages may contain file attachments including images, audio, documents, and archives up to 50MB.</p>
-
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Content Moderation</h3>
-          <p>User-generated content including messages, comments, and discussion posts is automatically scanned for flagged language. Flagged content is internally marked for review but remains visible to recipients. We reserve the right to moderate or remove content that violates these terms.</p>
-
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Prohibited Conduct</h3>
-          <p>You agree not to: abuse the platform, harass other users, attempt to bypass our security measures, use our content for commercial purposes without authorization, share malicious files, or engage in any activity that disrupts the learning environment.</p>
-
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Data Protection</h3>
-          <p>We implement appropriate technical and organizational measures to protect your data, including encryption of private messages, secure file storage, and regular security audits. You can learn more in our Privacy Policy.</p>
+  <main>
+    <section class="terms-hero">
+      <div class="terms-wrap">
+        <p class="terms-kicker">Terms of Service</p>
+        <h1 class="terms-title">The rules for learning, teaching, sharing, and building credentials on LearnBridge.</h1>
+        <p class="terms-summary">These terms cover the full LearnBridge platform: frontend pages, dashboards, APIs, courses, assignments, certificates, portfolios, billing, mentorship, messaging, and admin operations.</p>
+        <p class="terms-summary" style="font-size:.9rem">Last updated: July 26, 2026</p>
+        <div class="terms-grid">
+          <div class="terms-chip"><strong>Students</strong><p>Learn, submit work, earn verified certificates, build portfolios.</p></div>
+          <div class="terms-chip"><strong>Tutors</strong><p>Create courses, grade work, mentor learners, track earnings.</p></div>
+          <div class="terms-chip"><strong>Admins</strong><p>Operate the platform, moderate reports, manage users and settings.</p></div>
         </div>
       </div>
+    </section>
+
+    <section class="terms-wrap terms-content">
+      <article class="terms-section">
+        <h2>1. Accounts and Roles</h2>
+        <p>You need an account to use protected LearnBridge features. Your account may operate as a learner, tutor, admin, or superadmin depending on permissions granted by the platform. You are responsible for protecting your login credentials and for activity performed through your account.</p>
+      </article>
+
+      <article class="terms-section">
+        <h2>2. Courses, Lessons, Assignments, and Grades</h2>
+        <p>Enrollment gives you a personal, limited, non-transferable right to access course materials through LearnBridge. Course content, assignments, quizzes, lesson resources, and downloadable materials may not be resold, redistributed, scraped, or republished unless a tutor or LearnBridge gives written permission.</p>
+        <ul>
+          <li>Learners must submit original work and may not abuse upload, quiz, grading, or certificate workflows.</li>
+          <li>Tutors are responsible for course accuracy, fair grading, timely feedback, and lawful use of uploaded learning materials.</li>
+          <li>Admins may review course and assignment records to support moderation, disputes, audits, and platform operations.</li>
+        </ul>
+      </article>
+
+      <article class="terms-section">
+        <h2>3. Certificates and Public Verification</h2>
+        <p>When a learner completes a course, LearnBridge may issue a certificate with a unique certificate ID and public verification page. Learners may share certificates to LinkedIn, download certificate PNG/PDF assets, and embed the credential in an external portfolio.</p>
+        <div class="terms-note">You may share your own valid certificate. You may not forge, alter, impersonate, sell, or misrepresent a LearnBridge certificate or verification page.</div>
+      </article>
+
+      <article class="terms-section">
+        <h2>4. Portfolios, Profiles, Reviews, and Community Features</h2>
+        <p>LearnBridge includes public and semi-public surfaces such as profiles, portfolios, discussions, groups, comments, reviews, mentorship pages, and timelines. You keep ownership of content you create, but you give LearnBridge the permission needed to host, display, process, moderate, and distribute that content inside the product.</p>
+      </article>
+
+      <article class="terms-section">
+        <h2>5. Messaging, Uploads, and Acceptable Use</h2>
+        <p>You may not use LearnBridge to harass others, upload malicious files, bypass access controls, scrape private data, spam users, violate intellectual property rights, or disrupt the platform. We may limit, remove, hide, flag, or review content that violates these terms or creates risk for learners, tutors, admins, or the platform.</p>
+      </article>
+
+      <article class="terms-section">
+        <h2>6. Payments, Subscriptions, Refunds, and Tutor Earnings</h2>
+        <p>Paid courses, subscriptions, corporate training, and billing features are processed through configured payment providers. Refunds, cancellations, payout timing, and tax obligations depend on the product plan, payment provider, and applicable policy for this deployment. Tutors are responsible for accurate payout details and lawful course monetization.</p>
+      </article>
+
+      <article class="terms-section">
+        <h2>7. Admin Operations and Enforcement</h2>
+        <p>Admins and superadmins may manage users, courses, reports, warnings, email logs, support tickets, financial records, audits, system settings, and compliance workflows. LearnBridge may suspend access, remove content, revoke certificates, or restrict features when needed for security, abuse prevention, legal compliance, or platform integrity.</p>
+      </article>
+
+      <article class="terms-section">
+        <h2>8. Availability and Changes</h2>
+        <p>LearnBridge may change features, APIs, pages, plans, course availability, policies, or integrations over time. Maintenance windows, service interruptions, external provider failures, or security actions may temporarily affect access. We aim to communicate important changes clearly through the product or configured contact channels.</p>
+      </article>
+
+      <article class="terms-section">
+        <h2>9. No Guarantee of Employment</h2>
+        <p>LearnBridge helps learners build skills, portfolios, and verifiable credentials. It does not guarantee employment, promotion, admission, income, certification acceptance, or third-party recognition.</p>
+      </article>
     </section>
   </main>
   <div data-include="footer"></div>
   <div data-include="auth-modal"></div>
   <script src="/js/components/include.js"></script>
-  <script src="/js/apis/api.js"></script>
+  <script src="/js/shared/api.js"></script>
   <script src="/js/apis/auth.js"></script>
   <script src="/js/components/auth-modal.js"></script>
 </body>

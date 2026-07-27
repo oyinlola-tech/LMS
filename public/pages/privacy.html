@@ -6,45 +6,118 @@
   <title>LearnBridge - Privacy Policy</title>
   <link href="/css/styles.css" rel="stylesheet"/>
   <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .policy-hero { padding: 8rem 0 4rem; background: #fff; border-bottom: 1px solid var(--outline-variant); }
+    .policy-wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; }
+    .policy-kicker { color: var(--primary); font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    .policy-title { margin-top: .75rem; max-width: 880px; font-size: clamp(2.5rem, 7vw, 5.5rem); line-height: .94; font-weight: 900; letter-spacing: 0; }
+    .policy-summary { max-width: 760px; margin-top: 1.25rem; color: var(--on-surface-variant); font-size: 1.05rem; line-height: 1.7; }
+    .policy-grid { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 2rem; padding: 3rem 0 5rem; }
+    .policy-nav { position: sticky; top: 6rem; align-self: start; display: grid; gap: .4rem; }
+    .policy-nav a { padding: .7rem .85rem; border-radius: 8px; color: var(--on-surface-variant); font-size: .88rem; font-weight: 700; }
+    .policy-nav a:hover { background: var(--surface-container); color: var(--on-surface); }
+    .policy-content { display: grid; gap: 1rem; }
+    .policy-section { padding: 1.3rem; background: #fff; border: 1px solid var(--outline-variant); border-radius: 8px; }
+    .policy-section h2 { margin-bottom: .75rem; font-size: 1.15rem; }
+    .policy-section p, .policy-section li { color: var(--on-surface-variant); font-size: .94rem; line-height: 1.7; }
+    .policy-section ul { margin: .75rem 0 0 1.1rem; display: grid; gap: .45rem; }
+    .policy-callout { padding: 1rem; background: var(--primary-fixed); color: var(--on-primary-fixed); border-radius: 8px; font-weight: 700; line-height: 1.55; }
+    .data-map { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .75rem; margin-top: 1rem; }
+    .data-card { padding: 1rem; background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: 8px; }
+    .data-card strong { display: block; margin-bottom: .35rem; }
+    @media (max-width: 860px) {
+      .policy-grid { grid-template-columns: 1fr; }
+      .policy-nav { position: static; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    }
+  </style>
 </head>
 <body>
   <div data-include="header"></div>
-  <main style="padding-top: 6rem">
-    <section style="padding: 4rem 0">
-      <div class="container" style="max-width: 48rem">
-        <h1 class="text-4xl font-black mb-6">Privacy Policy</h1>
-        <p class="text-sm mb-8" style="color: var(--on-surface-variant)">Last updated: January 2026</p>
-        <div class="space-y-6 text-sm leading-relaxed" style="color: var(--on-surface-variant)">
-          <p>LearnBridge Inc. ("LearnBridge," "we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our learning platform.</p>
+  <main>
+    <section class="policy-hero">
+      <div class="policy-wrap">
+        <p class="policy-kicker">Privacy Policy</p>
+        <h1 class="policy-title">How LearnBridge handles learning, identity, and credential data.</h1>
+        <p class="policy-summary">LearnBridge is a full learning platform for students, tutors, admins, mentorship, billing, messages, portfolios, and verifiable certificates. This policy explains what we collect, why we collect it, and how your data moves through the product.</p>
+        <p class="policy-summary" style="font-size:.9rem">Last updated: July 26, 2026</p>
+      </div>
+    </section>
 
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Information We Collect</h3>
-          <p>We collect information you provide directly: name, email address, payment information, profile details, and course progress data. We also automatically collect usage data, device information, and cookies as described in our Cookie Settings.</p>
+    <section class="policy-wrap policy-grid">
+      <nav class="policy-nav" aria-label="Privacy sections">
+        <a href="#data">Data We Collect</a>
+        <a href="#learning">Learning Records</a>
+        <a href="#certificates">Certificates</a>
+        <a href="#community">Community</a>
+        <a href="#billing">Billing</a>
+        <a href="#security">Security</a>
+        <a href="#rights">Your Rights</a>
+      </nav>
 
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Encryption and Data Security</h3>
-          <p><strong>Direct Messages:</strong> All private messages between users are encrypted in transit and at rest. Message content is stored using encryption and is only decrypted for the sender and recipient. File attachments in messages are stored with encrypted filenames and restricted access URLs.</p>
-          <p><strong>Public Discussions:</strong> Discussion threads, group messages, and replies in public forums are <strong>not encrypted</strong>. Content in these areas is visible to all participants and is stored as plain text for search and moderation purposes. Do not share sensitive personal information in public discussions.</p>
-          <p><strong>Comments:</strong> Blog comments, course comments, and lesson comments are <strong>not encrypted</strong>. They are stored as plain text to enable moderation, search, and community features.</p>
-          <p><strong>Content Moderation:</strong> User-generated content is automatically scanned for flagged language. Flagged content is marked internally for moderation review but is still delivered to its intended recipients. This helps maintain community safety while preserving freedom of expression.</p>
+      <div class="policy-content">
+        <section class="policy-section" id="data">
+          <h2>1. Data We Collect</h2>
+          <p>We collect the information needed to run a trustworthy LMS: account details, authentication events, learner progress, course activity, assignment submissions, certificates, profile and portfolio information, support requests, billing status, mentorship applications, and communication records.</p>
+          <div class="data-map">
+            <div class="data-card"><strong>Account</strong><p>Name, email, role, avatar, interests, password hash, verification state, login metadata.</p></div>
+            <div class="data-card"><strong>Learning</strong><p>Enrollments, lesson progress, quiz attempts, notes, bookmarks, grades, certificates, streaks.</p></div>
+            <div class="data-card"><strong>Teaching</strong><p>Tutor profile, courses, modules, lessons, assignments, rubrics, office hours, earnings.</p></div>
+            <div class="data-card"><strong>Operations</strong><p>Admin notes, audit logs, reports, warnings, support tickets, email logs, platform settings.</p></div>
+          </div>
+        </section>
 
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">How We Use Your Information</h3>
-          <p>We use your information to provide and improve our services, personalize your learning experience, process transactions, send updates and marketing communications (with your consent), and ensure platform security.</p>
+        <section class="policy-section" id="learning">
+          <h2>2. How Learning Data Is Used</h2>
+          <p>Learning data powers the student dashboard, resume-learning flow, recommendations, gradebook, progress reports, achievements, and certificate eligibility. Tutors can see relevant learner progress inside their own courses so they can review submissions, provide feedback, and support students.</p>
+          <ul>
+            <li>Progress events help calculate completion percentages and mastery summaries.</li>
+            <li>Assignments and quiz records support grading, feedback, attempts, and audit history.</li>
+            <li>Bookmarks, notes, wishlist items, and study-planner information personalize your experience.</li>
+          </ul>
+        </section>
 
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Data Sharing</h3>
-          <p>We do not sell your personal information. We may share data with trusted service providers who help us operate our platform, and when required by law.</p>
+        <section class="policy-section" id="certificates">
+          <h2>3. Public Certificates and Verification</h2>
+          <p>When you complete a course and receive a certificate, LearnBridge creates a public verification page for that credential. This is intentional: employers, LinkedIn visitors, portfolio viewers, and recruiters need a way to confirm that the certificate is real.</p>
+          <div class="policy-callout">A public certificate verification page may show your name, course title, issue date, certificate ID, LearnBridge branding, downloadable certificate preview, and verification status.</div>
+          <p style="margin-top:1rem">Certificate pages may include social sharing metadata for LinkedIn and portfolio embeds. You control where you share those links, but anyone with the verification URL can view the public credential details.</p>
+        </section>
 
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Your Rights</h3>
-          <p>You have the right to access, correct, delete, or export your personal data. You can manage these preferences in your account settings or by contacting us.</p>
+        <section class="policy-section" id="community">
+          <h2>4. Messages, Discussions, Portfolios, and Community Content</h2>
+          <p>LearnBridge includes direct messages, public discussions, groups, comments, portfolio pages, reviews, mentorship applications, and support conversations.</p>
+          <ul>
+            <li>Direct messages are treated as private user communications and protected in transit.</li>
+            <li>Public discussions, comments, reviews, and portfolio pages are visible to their intended audience and may be indexed or moderated.</li>
+            <li>User-generated content may be scanned for abuse, spam, unsafe files, harassment, or policy violations.</li>
+            <li>Files you upload for assignments, messages, portfolios, or course resources are stored so the relevant workflow can function.</li>
+          </ul>
+        </section>
 
-          <h3 class="text-base font-bold" style="color: var(--on-surface)">Data Retention</h3>
-          <p>We retain your account data for as long as your account is active. Messages and content are retained to maintain conversation history. You may request deletion of your account and associated data at any time.</p>
-        </div>
+        <section class="policy-section" id="billing">
+          <h2>5. Billing, Payments, and Subscriptions</h2>
+          <p>We use payment providers to process purchases, subscriptions, course checkout, payout-related workflows, and billing history. LearnBridge stores payment records, subscription state, transaction references, and invoice metadata, but sensitive card processing is handled by payment infrastructure.</p>
+        </section>
+
+        <section class="policy-section" id="security">
+          <h2>6. Security, Admin Access, and Retention</h2>
+          <p>We use authentication, role-based access, rate limiting, audit logs, secure password hashing, file limits, and admin workflows to protect the platform. Admins and superadmins may access operational records when needed for support, moderation, security, billing, compliance, or platform maintenance.</p>
+          <p>We keep records while your account is active or while they are needed for legitimate platform purposes, including certificate verification, financial records, abuse prevention, legal compliance, and learning history.</p>
+        </section>
+
+        <section class="policy-section" id="rights">
+          <h2>7. Your Choices and Rights</h2>
+          <p>You can update account details, notification preferences, cookie settings, profile information, and many public-facing profile/portfolio details from the application. You may request access, correction, export, or deletion of personal data, subject to limits for certificates, legal records, billing history, abuse prevention, and security logs.</p>
+          <p>For privacy or security questions, contact the platform operator using the security contact configured for this deployment.</p>
+        </section>
       </div>
     </section>
   </main>
   <div data-include="footer"></div>
   <div data-include="auth-modal"></div>
   <script src="/js/components/include.js"></script>
-  <script src="/js/apis/api.js"></script>
+  <script src="/js/shared/api.js"></script>
   <script src="/js/apis/auth.js"></script>
   <script src="/js/components/auth-modal.js"></script>
 </body>

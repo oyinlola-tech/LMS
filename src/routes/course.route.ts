@@ -1,43 +1,49 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { UserRole } from '../enums';
-import { getFeatured, getRecommended, getCategories, getDepartments, listCourses, getPreview, getCurriculum, getReviews, createReview, getPricing, getDetail, enroll, getAnnouncements, createAnnouncement, getEvents, createEvent, getComments, getCommentReplies, createComment } from '../controllers/course.controller';
+import { getFeatured, getRecommended, getCategories, getDepartments, listCourses, getPreview, getCurriculum, getReviews, createReview, getPricing, getDetail, enroll, getAnnouncements, createAnnouncement, getEvents, createEvent, getComments, getCommentReplies, createComment, getReviewsList } from '../controllers/course.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
-  fastify.get('/featured', { preHandler: [fastify.optionalAuth] }, getFeatured);
+  fastify.get('/featured', { preHandler: [fastify.optionalAuth], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getFeatured);
 
-  fastify.get('/recommended', { preHandler: [fastify.authenticate] }, getRecommended);
+  fastify.get('/recommended', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getRecommended);
 
-  fastify.get('/categories', { preHandler: [fastify.optionalAuth] }, getCategories);
+  fastify.get('/categories', { preHandler: [fastify.optionalAuth], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getCategories);
 
-  fastify.get('/departments', { preHandler: [fastify.optionalAuth] }, getDepartments);
+  fastify.get('/departments', { preHandler: [fastify.optionalAuth], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getDepartments);
 
-  fastify.get('/', { preHandler: [fastify.optionalAuth] }, listCourses);
+  fastify.get('', { preHandler: [fastify.optionalAuth], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
+    const accept = String(request.headers.accept || '');
+    if (accept.includes('text/html')) return reply.sendFile('pages/courses.html');
+    return listCourses(request, reply);
+  });
 
-  fastify.get('/:id/preview', { preHandler: [fastify.optionalAuth] }, getPreview);
+  fastify.get('/reviews', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getReviewsList);
 
-  fastify.get('/:id/curriculum', { preHandler: [fastify.authenticate] }, getCurriculum);
+  fastify.get('/:id/preview', { preHandler: [fastify.optionalAuth], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getPreview);
 
-  fastify.get('/:id/reviews', { preHandler: [fastify.optionalAuth] }, getReviews);
+  fastify.get('/:id/curriculum', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getCurriculum);
 
-  fastify.post('/:id/reviews', { preHandler: [fastify.authenticate] }, createReview);
+  fastify.get('/:id/reviews', { preHandler: [fastify.optionalAuth], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getReviews);
 
-  fastify.get('/:id/pricing', { preHandler: [fastify.optionalAuth] }, getPricing);
+  fastify.post('/:id/reviews', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, createReview);
 
-  fastify.get('/:id', { preHandler: [fastify.optionalAuth] }, getDetail);
+  fastify.get('/:id/pricing', { preHandler: [fastify.optionalAuth], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getPricing);
 
-  fastify.post('/:id/enroll', { preHandler: [fastify.authenticate] }, enroll);
+  fastify.get('/:id', { preHandler: [fastify.optionalAuth], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getDetail);
 
-  fastify.get('/:id/announcements', { preHandler: [fastify.authenticate] }, getAnnouncements);
+  fastify.post('/:id/enroll', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, enroll);
 
-  fastify.post('/:id/announcements', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.TUTOR)] }, createAnnouncement);
+  fastify.get('/:id/announcements', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getAnnouncements);
 
-  fastify.get('/:id/events', { preHandler: [fastify.authenticate] }, getEvents);
+  fastify.post('/:id/announcements', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.TUTOR)], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, createAnnouncement);
 
-  fastify.post('/:id/events', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.TUTOR)] }, createEvent);
+  fastify.get('/:id/events', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getEvents);
 
-  fastify.get('/:id/comments', { preHandler: [fastify.authenticate] }, getComments);
+  fastify.post('/:id/events', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.TUTOR)], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, createEvent);
 
-  fastify.get('/:id/comments/:commentId/replies', { preHandler: [fastify.authenticate] }, getCommentReplies);
+  fastify.get('/:id/comments', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getComments);
 
-  fastify.post('/:id/comments', { preHandler: [fastify.authenticate] }, createComment);
+  fastify.get('/:id/comments/:commentId/replies', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getCommentReplies);
+
+  fastify.post('/:id/comments', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, createComment);
 }

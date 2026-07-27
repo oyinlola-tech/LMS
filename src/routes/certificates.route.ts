@@ -1,8 +1,14 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { listCertificates, getCourseCertificate, issueCertificate, verifyCertificate, verifyCertificatePage, downloadCertificate, getBadge, getBadgePage, getBadgePng, exportCertificate } from '../controllers/certificates.controller';
+import { listCertificates, getCourseCertificate, issueCertificate, verifyCertificate, verifyCertificatePage, downloadCertificate, getBadge, getBadgePage, getBadgePng, exportCertificate, getCertificateEmbed, getCertificateShare, getCertificateQr } from '../controllers/certificates.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
-  fastify.get('/', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, listCertificates);
+  fastify.get('', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
+    const accept = String(request.headers.accept || '');
+    if (accept.includes('text/html')) return reply.sendFile('students/pages/certificates.html');
+    await fastify.authenticate(request, reply);
+    if (reply.sent) return;
+    return listCertificates(request, reply);
+  });
 
   fastify.get('/:courseId', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getCourseCertificate);
 
@@ -12,7 +18,13 @@ export default async function(fastify: FastifyInstance): Promise<void> {
 
   fastify.get('/verify/:certId/page', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, verifyCertificatePage);
 
+  fastify.get('/qr/:certId', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getCertificateQr);
+
   fastify.get('/download/:certId', { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, downloadCertificate);
+
+  fastify.get('/embed/:certId', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getCertificateEmbed);
+
+  fastify.get('/share/:certId', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getCertificateShare);
 
   fastify.get('/badge', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getBadge);
 

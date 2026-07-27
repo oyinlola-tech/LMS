@@ -7,6 +7,7 @@ import {
   getActivity,
   getReviews,
   createSupportTicket,
+  listMentors,
 } from '../controllers/instructor.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {

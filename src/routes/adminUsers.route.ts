@@ -16,13 +16,25 @@ import {
 } from '../controllers/adminUsers.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
-  fastify.get('/', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, listUsers);
+  fastify.get('', async (request, reply) => {
+    const accept = String(request.headers.accept || '');
+    if (accept.includes('text/html')) return reply.sendFile('admin/pages/users.html');
+    await fastify.authenticate(request, reply);
+    if (reply.sent) return;
+    await fastify.requireAtLeastRole(UserRole.ADMIN)(request, reply);
+    if (reply.sent) return;
+    return listUsers(request, reply);
+  });
 
   fastify.post('/', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, createUser);
 
   fastify.get('/:id', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, getUserDetail);
 
-  fastify.get('/:id/activity', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, getUserActivity);
+  fastify.get('/:id/activity', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, async (request, reply) => {
+    const accept = String(request.headers.accept || '');
+    if (accept.includes('text/html')) return reply.sendFile('pages/workspace.html');
+    return getUserActivity(request, reply);
+  });
 
   fastify.get('/:id/role-history', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, getUserRoleHistory);
 

@@ -11,53 +11,53 @@ import {
 } from '../controllers/portfolio.controller';
 
 export default async function (fastify: FastifyInstance): Promise<void> {
-  fastify.get('/themes', listThemes);
+  fastify.get('/themes', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, listThemes);
 
-  fastify.get('/plans', listPlans);
+  fastify.get('/plans', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, listPlans);
 
-  fastify.get('/cv', exportCV);
+  fastify.get('/cv', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, exportCV);
 
-  fastify.get('/public', getPublicPortfolio);
+  fastify.get('/public', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getPublicPortfolio);
 
-  fastify.post('/contact', submitContact);
+  fastify.post('/contact', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, submitContact);
 
-  fastify.post('/reviews', submitReview);
+  fastify.post('/reviews', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, submitReview);
 
-  fastify.get('/reviews', listReviews);
+  fastify.get('/reviews', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, listReviews);
 
-  fastify.get('/reviews/top', topReviews);
+  fastify.get('/reviews/top', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, topReviews);
 
-  fastify.get('/me/courses', { preHandler: [fastify.authenticate] }, getPortfolioCourses);
+  fastify.get('/me/courses', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getPortfolioCourses);
 
-  fastify.get('/:userId/courses', getPortfolioCourses);
+  fastify.get('/:userId/courses', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getPortfolioCourses);
 
-  fastify.get('/me/contacts', { preHandler: [fastify.authenticate] }, listContacts);
+  fastify.get('/me/contacts', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, listContacts);
 
-  fastify.put('/me/contacts/:id/read', { preHandler: [fastify.authenticate] }, markContactRead);
+  fastify.put('/me/contacts/:id/read', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, markContactRead);
 
-  fastify.get('/me', { preHandler: [fastify.authenticate] }, getMyPortfolio);
+  fastify.get('/me', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getMyPortfolio);
 
-  fastify.put('/me', { preHandler: [fastify.authenticate] }, savePortfolio);
+  fastify.put('/me', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, savePortfolio);
 
-  fastify.get('/me/pages', { preHandler: [fastify.authenticate] }, listPages);
+  fastify.get('/me/pages', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, listPages);
 
-  fastify.post('/me/pages', { preHandler: [fastify.authenticate] }, savePage);
+  fastify.post('/me/pages', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, savePage);
 
-  fastify.put('/me/pages/:id', { preHandler: [fastify.authenticate] }, savePage);
+  fastify.put('/me/pages/:id', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, savePage);
 
-  fastify.delete('/me/pages/:id', { preHandler: [fastify.authenticate] }, deletePage);
+  fastify.delete('/me/pages/:id', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, deletePage);
 
-  fastify.delete('/me/reviews/:id', { preHandler: [fastify.authenticate] }, deleteReview);
+  fastify.delete('/me/reviews/:id', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, deleteReview);
 
   fastify.post('/me/upload', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, uploadPortfolioImage);
 
-  fastify.post('/me/domain', { preHandler: [fastify.authenticate] }, saveDomain);
+  fastify.post('/me/domain', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, saveDomain);
 
-  fastify.post('/me/domain/verify', { preHandler: [fastify.authenticate] }, verifyDomain);
+  fastify.post('/me/domain/verify', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, verifyDomain);
 
-  fastify.get('/admin/plans', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, listPlans);
+  fastify.get('/admin/plans', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, listPlans);
 
-  fastify.post('/admin/plans', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, adminSavePlan);
+  fastify.post('/admin/plans', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, adminSavePlan);
 
-  fastify.put('/admin/plans/:id', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)] }, adminSavePlan);
+  fastify.put('/admin/plans/:id', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, adminSavePlan);
 }

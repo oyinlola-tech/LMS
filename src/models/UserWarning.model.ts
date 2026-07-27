@@ -16,7 +16,7 @@ UserWarning.init({
   issuedById: { type: DataTypes.UUID, allowNull: false },
   reason: { type: DataTypes.TEXT, allowNull: false },
   readAt: { type: DataTypes.DATE, allowNull: true },
-}, { sequelize, tableName: 'user_warnings', indexes: [{ fields: ['userId'] }] });
+}, { sequelize, tableName: 'user_warnings', indexes: [{ fields: ['userId'] }, { fields: ['issuedById'] }] });
 
 User.hasMany(UserWarning, { as: 'warnings', foreignKey: 'userId', onDelete: 'CASCADE' });
 UserWarning.belongsTo(User, { as: 'user', foreignKey: 'userId' });

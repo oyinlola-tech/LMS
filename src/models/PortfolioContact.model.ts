@@ -18,7 +18,7 @@ PortfolioContact.init({
   email: { type: DataTypes.STRING(200), allowNull: false },
   message: { type: DataTypes.TEXT, allowNull: false },
   read: { type: DataTypes.BOOLEAN, defaultValue: false },
-}, { sequelize, tableName: 'portfolio_contacts' });
+}, { sequelize, tableName: 'portfolio_contacts', indexes: [{ fields: ['PortfolioId'] }] });
 
 Portfolio.hasMany(PortfolioContact, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 PortfolioContact.belongsTo(Portfolio);

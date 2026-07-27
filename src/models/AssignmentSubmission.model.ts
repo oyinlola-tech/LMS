@@ -32,7 +32,7 @@ AssignmentSubmission.init({
 
   AssignmentId: { type: DataTypes.UUID, allowNull: false },
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'AssignmentSubmission' });
+}, { sequelize, modelName: 'AssignmentSubmission', indexes: [{ fields: ['AssignmentId'] }, { fields: ['UserId'] }] });
 
 Assignment.hasMany(AssignmentSubmission, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 AssignmentSubmission.belongsTo(Assignment);

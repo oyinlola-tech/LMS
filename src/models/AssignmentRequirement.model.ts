@@ -17,7 +17,7 @@ AssignmentRequirement.init({
   notes: { type: DataTypes.TEXT, allowNull: true },
 
   AssignmentId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'AssignmentRequirement' });
+}, { sequelize, modelName: 'AssignmentRequirement', indexes: [{ fields: ['AssignmentId'] }] });
 
 Assignment.hasOne(AssignmentRequirement, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 AssignmentRequirement.belongsTo(Assignment);

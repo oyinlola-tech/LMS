@@ -32,7 +32,7 @@ Lesson.init({
 
   courseSectionId: { type: DataTypes.UUID, allowNull: false },
   courseId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'Lesson' });
+}, { sequelize, modelName: 'Lesson', indexes: [{ fields: ['courseSectionId'] }, { fields: ['courseId'] }] });
 
 CourseSection.hasMany(Lesson, { foreignKey: { name: 'courseSectionId', allowNull: false }, onDelete: 'CASCADE' });
 Lesson.belongsTo(CourseSection, { foreignKey: 'courseSectionId' });

@@ -52,7 +52,7 @@ Assignment.init({
   CourseId: { type: DataTypes.UUID, allowNull: false },
   moduleId: { type: DataTypes.UUID, allowNull: false },
   createdById: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'Assignment' });
+}, { sequelize, modelName: 'Assignment', indexes: [{ fields: ['CourseId'] }, { fields: ['moduleId'] }, { fields: ['createdById'] }] });
 
 Course.hasMany(Assignment, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Assignment.belongsTo(Course);

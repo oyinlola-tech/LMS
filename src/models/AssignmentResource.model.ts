@@ -20,7 +20,7 @@ AssignmentResource.init({
   description: { type: DataTypes.TEXT, allowNull: true },
   fileSize: { type: DataTypes.INTEGER, allowNull: true },
   AssignmentId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'AssignmentResource' });
+}, { sequelize, modelName: 'AssignmentResource', indexes: [{ fields: ['AssignmentId'] }] });
 
 Assignment.hasMany(AssignmentResource, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 AssignmentResource.belongsTo(Assignment);

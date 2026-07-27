@@ -18,7 +18,7 @@ CourseCertificate.init({
 
   UserId: { type: DataTypes.UUID, allowNull: false },
   CourseId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'CourseCertificate' });
+}, { sequelize, modelName: 'CourseCertificate', indexes: [{ fields: ['UserId'] }, { fields: ['CourseId'] }] });
 
 Course.hasMany(CourseCertificate, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 CourseCertificate.belongsTo(Course);

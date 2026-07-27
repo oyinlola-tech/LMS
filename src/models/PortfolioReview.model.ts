@@ -24,7 +24,7 @@ PortfolioReview.init({
   title: { type: DataTypes.STRING(200), allowNull: true },
   content: { type: DataTypes.TEXT, allowNull: true },
   isApproved: { type: DataTypes.BOOLEAN, defaultValue: false },
-}, { sequelize, tableName: 'portfolio_reviews' });
+}, { sequelize, tableName: 'portfolio_reviews', indexes: [{ fields: ['PortfolioId'] }] });
 
 Portfolio.hasMany(PortfolioReview, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 PortfolioReview.belongsTo(Portfolio);

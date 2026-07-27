@@ -17,7 +17,7 @@ Quiz.init({
   timeLimitMinutes: { type: DataTypes.INTEGER, allowNull: true },
 
   LessonId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'Quiz' });
+}, { sequelize, modelName: 'Quiz', indexes: [{ fields: ['LessonId'] }] });
 
 Lesson.hasOne(Quiz, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Quiz.belongsTo(Lesson);

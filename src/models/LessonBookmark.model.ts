@@ -18,7 +18,7 @@ LessonBookmark.init({
 
   UserId: { type: DataTypes.UUID, allowNull: false },
   LessonId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'LessonBookmark' });
+}, { sequelize, modelName: 'LessonBookmark', indexes: [{ fields: ['UserId'] }, { fields: ['LessonId'] }] });
 
 User.hasMany(LessonBookmark, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 LessonBookmark.belongsTo(User);

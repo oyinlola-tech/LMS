@@ -42,7 +42,7 @@ Portfolio.init({
   planId: { type: DataTypes.UUID, allowNull: true },
   planExpiresAt: { type: DataTypes.DATE, allowNull: true },
   images: { type: DataTypes.JSON, allowNull: true },
-}, { sequelize, tableName: 'portfolios', indexes: [{ unique: true, fields: ['slug'] }] });
+}, { sequelize, tableName: 'portfolios', indexes: [{ unique: true, fields: ['slug'] }, { fields: ['UserId'] }, { fields: ['themeId'] }, { fields: ['planId'] }] });
 
 User.hasOne(Portfolio, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Portfolio.belongsTo(User);

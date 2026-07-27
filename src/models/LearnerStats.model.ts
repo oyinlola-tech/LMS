@@ -21,7 +21,7 @@ LearnerStats.init({
   weeklyGoalProgressHours: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'LearnerStats' });
+}, { sequelize, modelName: 'LearnerStats', indexes: [{ fields: ['UserId'] }] });
 
 User.hasOne(LearnerStats, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 LearnerStats.belongsTo(User);

@@ -19,7 +19,7 @@ LessonContent.init({
   position: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
 
   LessonId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'LessonContent' });
+}, { sequelize, modelName: 'LessonContent', indexes: [{ fields: ['LessonId'] }] });
 
 Lesson.hasMany(LessonContent, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 LessonContent.belongsTo(Lesson);

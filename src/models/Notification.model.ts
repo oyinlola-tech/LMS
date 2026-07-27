@@ -23,7 +23,7 @@ Notification.init({
   isRead: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'Notification' });
+}, { sequelize, modelName: 'Notification', indexes: [{ fields: ['UserId'] }] });
 
 User.hasMany(Notification, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Notification.belongsTo(User);

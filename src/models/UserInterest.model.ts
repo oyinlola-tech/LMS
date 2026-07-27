@@ -13,7 +13,7 @@ UserInterest.init({
   name: { type: DataTypes.STRING(100), allowNull: false },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'UserInterest' });
+}, { sequelize, modelName: 'UserInterest', indexes: [{ fields: ['UserId'] }] });
 
 User.hasMany(UserInterest, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 UserInterest.belongsTo(User);

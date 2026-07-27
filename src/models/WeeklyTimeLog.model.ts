@@ -15,7 +15,7 @@ WeeklyTimeLog.init({
   minutesSpent: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'WeeklyTimeLog' });
+}, { sequelize, modelName: 'WeeklyTimeLog', indexes: [{ fields: ['UserId'] }] });
 
 User.hasMany(WeeklyTimeLog, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 WeeklyTimeLog.belongsTo(User);

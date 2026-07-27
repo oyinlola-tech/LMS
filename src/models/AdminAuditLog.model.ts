@@ -19,7 +19,7 @@ AdminAuditLog.init({
   meta: { type: DataTypes.JSON, allowNull: true },
 
   actorId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'AdminAuditLog' });
+}, { sequelize, modelName: 'AdminAuditLog', indexes: [{ fields: ['actorId'] }] });
 
 User.hasMany(AdminAuditLog, { foreignKey: { name: 'actorId', allowNull: true }, onDelete: 'SET NULL' });
 AdminAuditLog.belongsTo(User, { as: 'actor', foreignKey: 'actorId' });

@@ -14,7 +14,7 @@ CourseSpecialization.init({
 
   CourseId: { type: DataTypes.UUID, allowNull: false },
   SpecializationId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'CourseSpecialization' });
+}, { sequelize, modelName: 'CourseSpecialization', indexes: [{ fields: ['CourseId'] }, { fields: ['SpecializationId'] }] });
 
 Course.belongsToMany(Specialization, { through: CourseSpecialization });
 Specialization.belongsToMany(Course, { through: CourseSpecialization });

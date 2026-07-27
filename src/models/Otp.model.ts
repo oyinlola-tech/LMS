@@ -17,7 +17,7 @@ Otp.init({
   purpose: { type: DataTypes.ENUM('verify_email', 'login'), allowNull: false, defaultValue: 'verify_email' },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'Otp', indexes: [{ fields: ['expiresAt'] }] });
+}, { sequelize, modelName: 'Otp', indexes: [{ fields: ['expiresAt'] }, { fields: ['UserId'] }] });
 
 User.hasMany(Otp, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Otp.belongsTo(User);

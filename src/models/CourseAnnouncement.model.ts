@@ -18,7 +18,7 @@ CourseAnnouncement.init({
 
   CourseId: { type: DataTypes.UUID, allowNull: false },
   createdById: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'CourseAnnouncement' });
+}, { sequelize, modelName: 'CourseAnnouncement', indexes: [{ fields: ['CourseId'] }, { fields: ['createdById'] }] });
 
 Course.hasMany(CourseAnnouncement, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 CourseAnnouncement.belongsTo(Course);

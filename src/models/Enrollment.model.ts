@@ -33,7 +33,7 @@ Enrollment.init({
   UserId: { type: DataTypes.UUID, allowNull: false },
   CourseId: { type: DataTypes.UUID, allowNull: false },
   lastLessonId: { type: DataTypes.UUID, allowNull: true },
-}, { sequelize, modelName: 'Enrollment', indexes: [{ unique: true, fields: ['UserId', 'CourseId'] }] });
+}, { sequelize, modelName: 'Enrollment', indexes: [{ unique: true, fields: ['UserId', 'CourseId'] }, { fields: ['lastLessonId'] }] });
 
 User.hasMany(Enrollment, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Enrollment.belongsTo(User);

@@ -18,7 +18,7 @@ GradingRubricCriterion.init({
   weight: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
   maxScore: { type: DataTypes.INTEGER, allowNull: true },
   AssignmentId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'GradingRubricCriterion' });
+}, { sequelize, modelName: 'GradingRubricCriterion', indexes: [{ fields: ['AssignmentId'] }] });
 
 Assignment.hasMany(GradingRubricCriterion, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 GradingRubricCriterion.belongsTo(Assignment);

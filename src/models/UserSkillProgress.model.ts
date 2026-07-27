@@ -21,7 +21,7 @@ UserSkillProgress.init({
   hoursSpent: { type: DataTypes.FLOAT, allowNull: false, defaultValue: 0 },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'UserSkillProgress' });
+}, { sequelize, modelName: 'UserSkillProgress', indexes: [{ fields: ['UserId'] }] });
 
 User.hasMany(UserSkillProgress, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 UserSkillProgress.belongsTo(User);

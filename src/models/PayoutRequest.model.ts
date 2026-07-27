@@ -35,6 +35,7 @@ PayoutRequest.init({
   sequelize,
   tableName: 'payout_requests',
   timestamps: true,
+  indexes: [{ fields: ['tutorId'] }, { fields: ['approvedById'] }],
 });
 
 PayoutRequest.belongsTo(User, { as: 'tutor', foreignKey: 'tutorId' });

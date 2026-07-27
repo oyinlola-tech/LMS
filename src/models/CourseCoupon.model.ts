@@ -19,7 +19,7 @@ CourseCoupon.init({
   expiresAt: { type: DataTypes.DATE, allowNull: true },
 
   CourseId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'CourseCoupon' });
+}, { sequelize, modelName: 'CourseCoupon', indexes: [{ fields: ['CourseId'] }] });
 
 Course.hasMany(CourseCoupon, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 CourseCoupon.belongsTo(Course);

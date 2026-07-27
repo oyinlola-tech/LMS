@@ -15,7 +15,7 @@ TutorProfile.init({
   portfolioUrl: { type: DataTypes.STRING(500), allowNull: true },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'TutorProfile' });
+}, { sequelize, modelName: 'TutorProfile', indexes: [{ fields: ['UserId'] }] });
 
 User.hasOne(TutorProfile, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 TutorProfile.belongsTo(User);

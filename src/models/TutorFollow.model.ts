@@ -17,14 +17,14 @@ TutorFollow.init({
 
 User.belongsToMany(User, {
   through: TutorFollow,
-  as: 'followers',
+  as: 'tutorFollowers',
   foreignKey: 'tutorId',
   otherKey: 'followerId',
 });
 
 User.belongsToMany(User, {
   through: TutorFollow,
-  as: 'following',
+  as: 'followedTutors',
   foreignKey: 'followerId',
   otherKey: 'tutorId',
 });

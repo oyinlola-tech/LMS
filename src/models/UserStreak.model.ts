@@ -17,7 +17,7 @@ UserStreak.init({
   lastActiveDate: { type: DataTypes.DATEONLY, allowNull: true },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'UserStreak' });
+}, { sequelize, modelName: 'UserStreak', indexes: [{ fields: ['UserId'] }] });
 
 User.hasOne(UserStreak, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 UserStreak.belongsTo(User);

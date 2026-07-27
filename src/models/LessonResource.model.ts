@@ -19,7 +19,7 @@ LessonResource.init({
   fileSizeMb: { type: DataTypes.FLOAT, allowNull: true },
 
   LessonId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'LessonResource' });
+}, { sequelize, modelName: 'LessonResource', indexes: [{ fields: ['LessonId'] }] });
 
 Lesson.hasMany(LessonResource, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 LessonResource.belongsTo(Lesson);

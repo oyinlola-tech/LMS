@@ -22,7 +22,7 @@ OfficeHour.init({
 
   CourseId: { type: DataTypes.UUID, allowNull: false },
   tutorId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'OfficeHour' });
+}, { sequelize, modelName: 'OfficeHour', indexes: [{ fields: ['CourseId'] }, { fields: ['tutorId'] }] });
 
 Course.hasMany(OfficeHour, { foreignKey: { allowNull: true }, onDelete: 'SET NULL' });
 OfficeHour.belongsTo(Course);

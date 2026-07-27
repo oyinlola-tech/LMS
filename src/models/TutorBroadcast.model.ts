@@ -15,7 +15,7 @@ TutorBroadcast.init({
   body: { type: DataTypes.TEXT, allowNull: false },
 
   tutorId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'TutorBroadcast' });
+}, { sequelize, modelName: 'TutorBroadcast', indexes: [{ fields: ['tutorId'] }] });
 
 User.hasMany(TutorBroadcast, { foreignKey: { name: 'tutorId', allowNull: false }, onDelete: 'CASCADE' });
 TutorBroadcast.belongsTo(User, { as: 'tutor', foreignKey: 'tutorId' });

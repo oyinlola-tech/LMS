@@ -29,6 +29,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare trustedDeviceHash: string | null;
   declare trustedIp: string | null;
   declare fcmToken: string | null;
+  declare notificationPreferences: object | null;
 }
 
 User.init({
@@ -59,6 +60,7 @@ User.init({
   trustedDeviceHash: { type: DataTypes.STRING(255), allowNull: true, comment: 'Hash of trusted device for login OTP' },
   trustedIp: { type: DataTypes.STRING(45), allowNull: true, comment: 'Trusted IP address for login OTP' },
   fcmToken: { type: DataTypes.STRING(500), allowNull: true, comment: 'Firebase Cloud Messaging token' },
+  notificationPreferences: { type: DataTypes.JSON, allowNull: true, comment: 'User notification preferences' },
 }, { sequelize, modelName: 'User', indexes: [{ unique: true, fields: ['email'] }, { unique: true, fields: ['studentId'] }, { unique: true, fields: ['tutorId'] }, { unique: true, fields: ['adminId'] }, { fields: ['googleId'] }, { fields: ['githubId'] }, { fields: ['appleId'] }] });
 
 export function associate(models: any) {

@@ -23,7 +23,7 @@ CourseSection.init({
   coverImage: { type: DataTypes.STRING(500), allowNull: true },
 
   CourseId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'CourseSection' });
+}, { sequelize, modelName: 'CourseSection', indexes: [{ fields: ['CourseId'] }] });
 
 Course.hasMany(CourseSection, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 CourseSection.belongsTo(Course);

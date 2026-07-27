@@ -45,7 +45,7 @@ Course.init({
   isPublished: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 
   tutorId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'Course', indexes: [{ fields: ['difficulty'] }, { fields: ['isPublished'] }] });
+}, { sequelize, modelName: 'Course', indexes: [{ fields: ['difficulty'] }, { fields: ['isPublished'] }, { fields: ['tutorId'] }] });
 
 User.hasMany(Course, { foreignKey: { name: 'tutorId', allowNull: false }, onDelete: 'CASCADE' });
 Course.belongsTo(User, { as: 'tutor', foreignKey: 'tutorId' });

@@ -18,7 +18,7 @@ CourseComment.init({
 
   CourseId: { type: DataTypes.UUID, allowNull: false },
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'CourseComment', indexes: [{ fields: ['parentId'] }, { fields: ['CourseId'] }] });
+}, { sequelize, modelName: 'CourseComment', indexes: [{ fields: ['parentId'] }, { fields: ['CourseId'] }, { fields: ['UserId'] }] });
 
 Course.hasMany(CourseComment, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 CourseComment.belongsTo(Course);

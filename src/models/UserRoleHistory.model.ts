@@ -17,7 +17,7 @@ UserRoleHistory.init({
 
   UserId: { type: DataTypes.UUID, allowNull: false },
   changedById: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'UserRoleHistory' });
+}, { sequelize, modelName: 'UserRoleHistory', indexes: [{ fields: ['UserId'] }, { fields: ['changedById'] }] });
 
 User.hasMany(UserRoleHistory, { foreignKey: { name: 'UserId', allowNull: false }, onDelete: 'CASCADE' });
 UserRoleHistory.belongsTo(User);

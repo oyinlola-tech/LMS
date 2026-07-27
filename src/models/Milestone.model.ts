@@ -17,7 +17,7 @@ Milestone.init({
   completedAt: { type: DataTypes.DATE, allowNull: true },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'Milestone' });
+}, { sequelize, modelName: 'Milestone', indexes: [{ fields: ['UserId'] }] });
 
 User.hasMany(Milestone, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 Milestone.belongsTo(User);

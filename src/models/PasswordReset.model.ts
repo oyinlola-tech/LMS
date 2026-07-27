@@ -17,7 +17,7 @@ PasswordReset.init({
   usedAt: { type: DataTypes.DATE, allowNull: true },
 
   UserId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'PasswordReset', indexes: [{ fields: ['expiresAt'] }] });
+}, { sequelize, modelName: 'PasswordReset', indexes: [{ fields: ['expiresAt'] }, { fields: ['UserId'] }] });
 
 User.hasMany(PasswordReset, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 PasswordReset.belongsTo(User);

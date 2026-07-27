@@ -22,7 +22,7 @@ Report.init({
   status: { type: DataTypes.ENUM('open', 'resolved', 'dismissed'), defaultValue: 'open' },
   resolvedById: { type: DataTypes.UUID, allowNull: true },
   resolvedAt: { type: DataTypes.DATE, allowNull: true },
-}, { sequelize, tableName: 'reports', indexes: [{ fields: ['status'] }, { fields: ['reportedId'] }] });
+}, { sequelize, tableName: 'reports', indexes: [{ fields: ['status'] }, { fields: ['reportedId'] }, { fields: ['reporterId'] }, { fields: ['resolvedById'] }] });
 
 User.hasMany(Report, { as: 'reportsMade', foreignKey: 'reporterId', onDelete: 'CASCADE' });
 Report.belongsTo(User, { as: 'reporter', foreignKey: 'reporterId' });

@@ -17,7 +17,7 @@ QuizQuestion.init({
   position: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
 
   QuizId: { type: DataTypes.UUID, allowNull: false },
-}, { sequelize, modelName: 'QuizQuestion' });
+}, { sequelize, modelName: 'QuizQuestion', indexes: [{ fields: ['QuizId'] }] });
 
 Quiz.hasMany(QuizQuestion, { foreignKey: { allowNull: false }, onDelete: 'CASCADE' });
 QuizQuestion.belongsTo(Quiz);

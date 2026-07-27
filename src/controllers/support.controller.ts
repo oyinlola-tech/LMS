@@ -38,7 +38,7 @@ export async function getTicket(request: FastifyRequest, reply: FastifyReply) {
 
 export async function updateTicket(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const ticket = await updateTicketCommand.execute((request.params as any).id, (request.body as any) || {});
+    const ticket = await updateTicketCommand.execute((request.params as any).id, (request.body as any) || {}, request.user!.sub, request.user!.role);
     return ok(reply, ticket, 'Support ticket updated');
   } catch (err: any) {
     return error(reply, err.statusCode || 500, err.code || 'SUPPORT_UPDATE_FAILED', err.message || 'Failed to update support ticket');

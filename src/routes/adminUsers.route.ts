@@ -16,13 +16,9 @@ import {
 } from '../controllers/adminUsers.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
-  fastify.get('', async (request, reply) => {
+  fastify.get('', { preHandler: [fastify.authenticate, fastify.requireAtLeastRole(UserRole.ADMIN)], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
     const accept = String(request.headers.accept || '');
     if (accept.includes('text/html')) return reply.sendFile('admin/pages/users.html');
-    await fastify.authenticate(request, reply);
-    if (reply.sent) return;
-    await fastify.requireAtLeastRole(UserRole.ADMIN)(request, reply);
-    if (reply.sent) return;
     return listUsers(request, reply);
   });
 

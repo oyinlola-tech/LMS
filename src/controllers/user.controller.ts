@@ -100,12 +100,8 @@ export const getUserById = async (request: FastifyRequest, reply: FastifyReply) 
 
     if (user.isPrivate && !isOwner && !isFollowing) {
       const publicData: any = {
-        id: user.id,
         fullName: user.fullName,
         role: user.role,
-        bio: user.bio,
-        avatarUrl: null,
-        coverUrl: null,
         isPrivate: true,
         isPending,
         isVerified: user.isVerified,
@@ -136,6 +132,8 @@ export const getUserById = async (request: FastifyRequest, reply: FastifyReply) 
       delete profileData.studentId;
       delete profileData.tutorId;
       delete profileData.adminId;
+      delete profileData.location;
+      delete profileData.skills;
     }
     return ok(reply, profileData, 'Profile loaded');
   } catch (err) {

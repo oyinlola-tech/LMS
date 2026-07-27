@@ -60,7 +60,7 @@ export async function getApplications(request: FastifyRequest, reply: FastifyRep
     }
     const apps = await MentorshipApplication.findAll({
       where: { CourseId: courseId },
-      include: [{ model: User, attributes: ['id', 'fullName', 'avatarUrl', 'email'] }],
+      include: [{ model: User, attributes: ['id', 'fullName', 'avatarUrl'] }],
       order: [['createdAt', 'DESC']],
     });
     return ok(reply, apps, 'Applications loaded');
@@ -149,8 +149,19 @@ export async function applyToProgram(request: FastifyRequest, reply: FastifyRepl
     const { message } = (request.body as Record<string, any>) || {};
     const app = await MentorshipApplication.findByPk(id);
     if (!app) return error(reply, 404, 'NOT_FOUND', 'Program not found');
-    await app.update({ UserId: request.user!.sub, status: 'pending', message: message || 'Application submitted' });
-    return ok(reply, app, 'Applied successfully');
+    if (app.status !== 'open') return error(reply, 400, 'INVALID_STATE', 'This program is no longer open');
+    if (app.UserId) return error(reply, 409, 'ALREADY_ASSIGNED', 'This program already has an applicant');
+    const existing = await MentorshipApplication.findOne({
+      where: { UserId: request.user!.sub, CourseId: app.CourseId },
+    });
+    if (existing) return error(reply, 409, 'ALREADY_APPLIED', 'You already applied to a program for this course');
+    const newApp = await MentorshipApplication.create({
+      UserId: request.user!.sub,
+      CourseId: app.CourseId,
+      status: 'pending',
+      message: message || 'Application submitted',
+    });
+    return created(reply, newApp, 'Applied successfully');
   } catch (err) {
     return error(reply, 500, 'APPLY_FAILED', 'Failed to apply');
   }

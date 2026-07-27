@@ -34,11 +34,13 @@ export async function getFinancialOverview(_request: FastifyRequest, reply: Fast
 export async function listTutorEarnings(request: FastifyRequest, reply: FastifyReply) {
   try {
     const { page = '1', limit = '20' } = request.query as any;
-    const offset = (Number(page) - 1) * Number(limit);
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.min(100, Math.max(1, Number(limit) || 20));
+    const offset = (pageNum - 1) * limitNum;
     const tutors = await User.findAll({
       where: { role: UserRole.TUTOR },
-      attributes: ['id', 'fullName', 'email', 'avatarUrl', 'createdAt'],
-      limit: Number(limit),
+      attributes: ['id', 'fullName', 'avatarUrl', 'createdAt'],
+      limit: limitNum,
       offset,
       subQuery: false,
     });
@@ -51,7 +53,8 @@ export async function listTutorEarnings(request: FastifyRequest, reply: FastifyR
       return { ...tutor.toJSON(), totalEarnings: earnings, totalStudents: students, courseCount: courseIds.length };
     }));
 
-    return ok(reply, { tutors: tutorEarnings, total: tutors.length });
+    const totalTutors = await User.count({ where: { role: UserRole.TUTOR } });
+    return ok(reply, { tutors: tutorEarnings, total: totalTutors, page: pageNum, limit: limitNum });
   } catch (err: any) {
     return error(reply, 500, 'TUTOR_FINANCIALS_FAILED', 'Failed to load tutor earnings');
   }
@@ -81,7 +84,7 @@ export async function getRevenueChart(request: FastifyRequest, reply: FastifyRep
 export async function getTutorFinancialDetail(request: FastifyRequest, reply: FastifyReply) {
   try {
     const tutorId = (request.params as any).id;
-    const tutor = await User.findByPk(tutorId, { attributes: ['id', 'fullName', 'email', 'avatarUrl'] });
+    const tutor = await User.findByPk(tutorId, { attributes: ['id', 'fullName', 'avatarUrl'] });
     if (!tutor || tutor.role !== UserRole.TUTOR) return error(reply, 404, 'NOT_FOUND', 'Tutor not found');
     const courseIds = (await Course.findAll({ where: { tutorId }, attributes: ['id'] })).map(c => c.id);
     if (courseIds.length === 0) return ok(reply, { tutor, totalEarnings: 0, totalStudents: 0, courseCount: 0, pendingPayouts: 0 });
@@ -97,20 +100,22 @@ export async function getTutorFinancialDetail(request: FastifyRequest, reply: Fa
 export async function listPayouts(request: FastifyRequest, reply: FastifyReply) {
   try {
     const { status, page = '1', limit = '20' } = request.query as any;
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.min(100, Math.max(1, Number(limit) || 20));
     const where: any = {};
     if (status) where.status = status;
-    const offset = (Number(page) - 1) * Number(limit);
+    const offset = (pageNum - 1) * limitNum;
     const payouts = await PayoutRequest.findAndCountAll({
       where,
       include: [
-        { model: User, as: 'tutor', attributes: ['id', 'fullName', 'email'] },
+        { model: User, as: 'tutor', attributes: ['id', 'fullName'] },
         { model: User, as: 'approvedBy', attributes: ['id', 'fullName'] },
       ],
       order: [['createdAt', 'DESC']],
-      limit: Number(limit),
+      limit: limitNum,
       offset,
     });
-    return ok(reply, { payouts: payouts.rows, total: payouts.count });
+    return ok(reply, { payouts: payouts.rows, total: payouts.count, page: pageNum, limit: limitNum });
   } catch (err: any) {
     return error(reply, 500, 'PAYOUTS_FAILED', 'Failed to load payouts');
   }

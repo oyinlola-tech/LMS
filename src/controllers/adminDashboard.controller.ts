@@ -60,9 +60,6 @@ export const getAdminDashboard = async (request: FastifyRequest, reply: FastifyR
     const activeCourses = await Course.count({ where: { isPublished: true } });
     const pendingAllocations = await AssignmentSubmission.count({ where: { status: 'submitted' } });
 
-    const avgLatencyMs = Number(process.env.ADMIN_AVG_LATENCY_MS || 15);
-    const uptimePercent = Number(process.env.ADMIN_UPTIME_PERCENT || 99.9);
-
     const weeks: string[] = [];
     const weekCount = rangeDays === 30 ? 6 : 3;
     for (let i = weekCount - 1; i >= 0; i -= 1) {
@@ -116,8 +113,6 @@ export const getAdminDashboard = async (request: FastifyRequest, reply: FastifyR
         userGrowthPercent,
         activeCourses,
         pendingAllocations,
-        avgLatencyMs,
-        uptimePercent,
       },
       userGrowthVector: {
         weeks,
@@ -156,8 +151,6 @@ export const exportAdminDashboard = async (request: FastifyRequest, reply: Fasti
       ['new_users', usersInRange],
       ['active_courses', activeCourses],
       ['pending_allocations', pendingAllocations],
-      ['avg_latency_ms', Number(process.env.ADMIN_AVG_LATENCY_MS || 15)],
-      ['uptime_percent', Number(process.env.ADMIN_UPTIME_PERCENT || 99.9)],
     ];
 
     const csv = ['metric,value', ...rows.map((r) => r.join(','))].join('\n');
@@ -191,8 +184,6 @@ export const getReport = async (request: FastifyRequest, reply: FastifyReply) =>
         newUsers: usersInRange,
         activeCourses,
         pendingAllocations,
-        avgLatencyMs: Number(process.env.ADMIN_AVG_LATENCY_MS || 15),
-        uptimePercent: Number(process.env.ADMIN_UPTIME_PERCENT || 99.9),
       },
       auditTrail,
     };
@@ -212,8 +203,6 @@ export const getReport = async (request: FastifyRequest, reply: FastifyReply) =>
       doc.text(`New users: ${report.metrics.newUsers}`);
       doc.text(`Active courses: ${report.metrics.activeCourses}`);
       doc.text(`Pending allocations: ${report.metrics.pendingAllocations}`);
-      doc.text(`Avg latency: ${report.metrics.avgLatencyMs} ms`);
-      doc.text(`Uptime: ${report.metrics.uptimePercent}%`);
       doc.moveDown();
       doc.fontSize(14).text('Growth Snapshot');
       const maxValue = Math.max(report.metrics.totalUsers, report.metrics.newUsers, report.metrics.activeCourses, 1);

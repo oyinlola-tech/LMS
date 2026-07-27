@@ -29,7 +29,7 @@ export default async function (fastify: FastifyInstance): Promise<void> {
 
   fastify.get('/me/courses', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getPortfolioCourses);
 
-  fastify.get('/:userId/courses', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getPortfolioCourses);
+  fastify.get('/:userId/courses', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getPortfolioCourses);
 
   fastify.get('/me/contacts', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, listContacts);
 

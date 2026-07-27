@@ -1,12 +1,19 @@
 import { SupportTicket } from '../../../models';
 
 export class UpdateTicketCommand {
-  async execute(ticketId: string, body: { status?: string; priority?: string }): Promise<SupportTicket> {
+  async execute(ticketId: string, body: { status?: string; priority?: string }, userId: string, userRole: string): Promise<SupportTicket> {
     const ticket = await SupportTicket.findByPk(ticketId);
     if (!ticket) {
       const err: any = new Error('Ticket not found');
       err.code = 'NOT_FOUND';
       err.statusCode = 404;
+      throw err;
+    }
+
+    if (ticket.UserId !== userId && userRole !== 'admin' && userRole !== 'super_admin') {
+      const err: any = new Error('Forbidden');
+      err.code = 'FORBIDDEN';
+      err.statusCode = 403;
       throw err;
     }
 

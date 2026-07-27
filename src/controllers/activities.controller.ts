@@ -35,7 +35,11 @@ export const getAdminActivities = async (request: FastifyRequest, reply: Fastify
 
 export const getUserActivities = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
-    const userId = (request.params as any).userId || request.user!.sub;
+    const paramsUserId = (request.params as any).userId;
+    const userId = paramsUserId || request.user!.sub;
+    if (paramsUserId && paramsUserId !== request.user!.sub) {
+      return error(reply, 403, 'FORBIDDEN', 'You can only view your own activities');
+    }
     const { page, limit } = request.query as any;
     const pageNum = Math.max(1, Number(page || 1));
     const limitNum = Math.min(50, Math.max(1, Number(limit || 20)));

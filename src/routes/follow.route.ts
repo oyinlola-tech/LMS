@@ -2,9 +2,9 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { getFollowers, getFollowing, getPendingRequests, approveFollow, rejectFollow, followUser, unfollowUser, getFollowStatus } from '../controllers/follow.controller';
 
 export default async function (fastify: FastifyInstance): Promise<void> {
-  fastify.get('/:userId/followers', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getFollowers);
+  fastify.get('/:userId/followers', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getFollowers);
 
-  fastify.get('/:userId/following', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getFollowing);
+  fastify.get('/:userId/following', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getFollowing);
 
   fastify.get('/requests/pending', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getPendingRequests);
 

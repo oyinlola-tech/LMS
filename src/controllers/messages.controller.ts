@@ -163,7 +163,7 @@ export async function getBlockedUsers(request: FastifyRequest, reply: FastifyRep
   try {
     const blocks = await UserBlock.findAll({
       where: { blockerId: request.user!.sub },
-      include: [{ model: User, as: 'blocked', attributes: ['id', 'fullName', 'avatarUrl', 'email'] }],
+      include: [{ model: User, as: 'blocked', attributes: ['id', 'fullName', 'avatarUrl'] }],
     });
     return ok(reply, blocks, 'Blocked users loaded');
   } catch (err: any) {

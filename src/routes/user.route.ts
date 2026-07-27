@@ -4,7 +4,7 @@ import { searchUsers, getUserById, getMe, updateProfile, updateAvatar, updateCov
 export default async function(fastify: FastifyInstance): Promise<void> {
   fastify.get('/search', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, searchUsers);
 
-  fastify.get('/:id', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getUserById);
+  fastify.get('/:id', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getUserById);
 
   fastify.get('/me', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getMe);
 

@@ -15,12 +15,15 @@ export async function handleSendbyteWebhook(request: FastifyRequest, reply: Fast
     const rawBody = req.rawBody || JSON.stringify(request.body);
 
     if (!secret) {
-      logger.warn('[Webhook] SENDBYTE_WEBHOOK_SECRET not configured, accepting without verification');
-    } else if (signature) {
-      const valid = verifyWebhookSignature(secret, signature, rawBody);
-      if (!valid) {
-        return reply.status(401).send({ error: { code: 'INVALID_SIGNATURE', message: 'Webhook signature invalid' } });
-      }
+      logger.error('[Webhook] SENDBYTE_WEBHOOK_SECRET not configured, rejecting webhook');
+      return reply.status(401).send({ error: { code: 'MISSING_SECRET', message: 'Webhook secret not configured' } });
+    }
+    if (!signature) {
+      return reply.status(401).send({ error: { code: 'INVALID_SIGNATURE', message: 'Webhook signature missing' } });
+    }
+    const valid = verifyWebhookSignature(secret, signature, rawBody);
+    if (!valid) {
+      return reply.status(401).send({ error: { code: 'INVALID_SIGNATURE', message: 'Webhook signature invalid' } });
     }
 
     await ingestSendbyteWebhook(rawBody, signature, secret);

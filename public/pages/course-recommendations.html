@@ -53,7 +53,7 @@
   <div data-include="auth-modal"></div>
 <script src="/js/components/include.js"></script>
   <script src="/js/components/auth-ui.js"></script>
-  <script src="/js/apis/api.js"></script>
+  <script src="/js/shared/api.js"></script>
   <script src="/js/apis/auth.js"></script>
   <script src="/js/components/auth-modal.js"></script>
   <script>
@@ -86,7 +86,7 @@
     }
 
     function loadRecommended() {
-      api.get('/api/courses/recommended').then(function(r) {
+      api.get('/courses/recommended').then(function(r) {
         var courses = r.data || [];
         document.getElementById('section-title').textContent = 'Recommended For You';
         renderCourses(courses);
@@ -101,7 +101,7 @@
       document.getElementById('section-title').textContent = 'Search Results';
       var grid = document.getElementById('course-grid');
       grid.innerHTML = '<div class="empty-state">Searching...</div>';
-      api.get('/api/courses?q=' + encodeURIComponent(q.trim())).then(function(r) {
+      api.get('/courses?q=' + encodeURIComponent(q.trim())).then(function(r) {
         renderCourses(r.data || []);
       }).catch(function() {
         grid.innerHTML = '<div class="empty-state"><p>Search failed. Please try again.</p></div>';

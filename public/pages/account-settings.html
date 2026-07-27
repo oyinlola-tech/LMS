@@ -196,29 +196,22 @@
             </div>
           </div>
 
-          <div class="settings-section">
-            <h2><span class="material-symbols-outlined" style="color:var(--primary)">shield</span> Privacy</h2>
-            <div class="toggle-row">
-              <div class="label">Show profile to others</div>
-              <label class="toggle-switch">
-                <input type="checkbox" id="privacy-profile" onchange="privacyDirty=true">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <div class="toggle-row" style="border-bottom: none">
-              <div class="label">Show email to others</div>
-              <label class="toggle-switch">
-                <input type="checkbox" id="privacy-email" onchange="privacyDirty=true">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <div class="section-actions">
-              <button class="btn-primary" onclick="savePrivacy()">
-                <span class="material-symbols-outlined" style="font-size:1.25rem">save</span>
-                Save Privacy
-              </button>
-            </div>
-          </div>
+           <div class="settings-section">
+             <h2><span class="material-symbols-outlined" style="color:var(--primary)">shield</span> Privacy</h2>
+             <div class="toggle-row">
+               <div class="label">Show profile to others</div>
+               <label class="toggle-switch">
+                 <input type="checkbox" id="privacy-profile" onchange="privacyDirty=true">
+                 <span class="toggle-slider"></span>
+               </label>
+             </div>
+             <div class="section-actions">
+               <button class="btn-primary" onclick="savePrivacy()">
+                 <span class="material-symbols-outlined" style="font-size:1.25rem">save</span>
+                 Save Privacy
+               </button>
+             </div>
+           </div>
         </div>
 
         <div id="settings-error" style="display:none;text-align:center;padding:3rem 0">
@@ -235,7 +228,7 @@
   <div data-include="footer"></div>
   <div data-include="auth-modal"></div>
   <script src="/js/components/include.js"></script>
-  <script src="/js/apis/api.js"></script>
+  <script src="/js/shared/api.js"></script>
   <script src="/js/apis/auth.js"></script>
   <script src="/js/apis/public.js"></script>
   <script src="/js/components/auth-modal.js"></script>
@@ -276,10 +269,8 @@
             document.getElementById('profile-bio').value = u.bio || '';
             if (u.privacy) {
               document.getElementById('privacy-profile').checked = u.privacy.showProfile !== false;
-              document.getElementById('privacy-email').checked = u.privacy.showEmail !== false;
             } else {
-              document.getElementById('privacy-profile').checked = true;
-              document.getElementById('privacy-email').checked = true;
+              document.getElementById('privacy-profile').checked = u.isPrivate !== true;
             }
             document.getElementById('settings-content').style.display = 'block';
           } else {
@@ -338,13 +329,11 @@
 
     function savePrivacy() {
       var btn = setBtnLoading('privacy-save-btn', 'Saving...');
+      var showProfile = document.getElementById('privacy-profile').checked;
       var payload = {
-        privacy: {
-          showProfile: document.getElementById('privacy-profile').checked,
-          showEmail: document.getElementById('privacy-email').checked,
-        }
+        isPrivate: !showProfile,
       };
-      api.put('/users/me', payload)
+      api.put('/users/privacy', payload)
         .then(function() { showToast('Privacy settings saved', 'success'); })
         .catch(function() { showToast('Failed to save privacy settings', 'error'); })
         .finally(function() { resetBtn('privacy-save-btn', 'save', 'Save Privacy'); });

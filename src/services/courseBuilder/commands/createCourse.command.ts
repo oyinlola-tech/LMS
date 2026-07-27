@@ -1,4 +1,5 @@
 import { Course } from '../../../models';
+import { sanitizeRichText } from '../../../utils/sanitize.util';
 
 export class CreateCourseCommand {
   async execute(tutorId: string, body: { title: string; categories?: string[]; descriptionHtml?: string; learningObjectives?: string[] }): Promise<Course> {
@@ -12,7 +13,7 @@ export class CreateCourseCommand {
       tutorId,
       title: body.title,
       categories: Array.isArray(body.categories) ? body.categories : null,
-      descriptionHtml: body.descriptionHtml || null,
+      descriptionHtml: body.descriptionHtml ? sanitizeRichText(body.descriptionHtml) : null,
       learningObjectives: Array.isArray(body.learningObjectives) ? body.learningObjectives : null,
       isPublished: false,
     });

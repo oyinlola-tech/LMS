@@ -1,4 +1,5 @@
 import { Course } from '../../../models';
+import { sanitizeRichText } from '../../../utils/sanitize.util';
 
 export class UpdateCourseCommand {
   async execute(courseId: string, userId: string, body: Record<string, any>): Promise<Course> {
@@ -19,7 +20,7 @@ export class UpdateCourseCommand {
     const { title, categories, descriptionHtml, learningObjectives, price, previousPrice, difficulty, durationWeeks, startDate } = body;
     if (title) course.title = title;
     if (categories) course.categories = categories;
-    if (descriptionHtml !== undefined) course.descriptionHtml = descriptionHtml;
+    if (descriptionHtml !== undefined) course.descriptionHtml = descriptionHtml ? sanitizeRichText(descriptionHtml) : null;
     if (learningObjectives) course.learningObjectives = learningObjectives;
     if (price !== undefined) course.price = price;
     if (previousPrice !== undefined) course.previousPrice = previousPrice;

@@ -1,7 +1,7 @@
 import { CourseCertificate, Course, User } from '../../../models';
 
 export class VerifyCertificateQuery {
-  async execute(certId: string): Promise<{ id: string; courseTitle: string; studentName: string; issuedAt: Date; certificateUrl: string } | null> {
+  async execute(certId: string): Promise<{ id: string; courseTitle: string; studentName: string; issuedAt: Date; certificateUrl: string; status: string } | null> {
     const cert = await CourseCertificate.findByPk(certId, {
       include: [
         { model: Course, attributes: ['id', 'title'] },
@@ -15,6 +15,7 @@ export class VerifyCertificateQuery {
       studentName: (cert as any).User.fullName,
       issuedAt: new Date(cert.issuedAt as unknown as string),
       certificateUrl: cert.certificateUrl,
+      status: 'valid',
     };
   }
 }

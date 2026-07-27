@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>LearnBridge - Certificates</title>
+  <title>LearnBridge - My Certificates</title>
   <link href="/css/styles.css" rel="stylesheet"/>
   <link href="/css/modal.css" rel="stylesheet"/>
   <style>
@@ -19,24 +19,60 @@
     .page-header { margin-bottom: 1.5rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 700; }
     .page-header p { font-size: 0.875rem; color: var(--on-surface-variant); margin-top: 0.125rem; }
-    .certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+    .certs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.25rem; }
     .cert-card { background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: 1rem; overflow: hidden; transition: all 0.2s; }
     .cert-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-    .cert-card-banner { height: 100px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2rem; }
+    .cert-card-banner { height: 100px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2rem; position: relative; }
+    .cert-card-banner .cert-badge { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
     .cert-card-body { padding: 1.25rem; }
     .cert-card-body h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .cert-card-body .instructor { font-size: 0.8125rem; color: var(--on-surface-variant); margin-bottom: 0.75rem; }
+    .cert-card-body .instructor { font-size: 0.8125rem; color: var(--on-surface-variant); margin-bottom: 0.5rem; }
+    .cert-card-body .cert-id { font-size: 0.75rem; color: var(--on-surface-variant); font-family: Menlo, monospace; margin-bottom: 0.75rem; }
     .cert-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--on-surface-variant); }
-    .cert-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
-    .cert-actions a { flex: 1; text-align: center; padding: 0.5rem; border-radius: 0.75rem; font-size: 0.8125rem; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+    .cert-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .cert-actions a, .cert-actions button { flex: 1; text-align: center; padding: 0.5rem 0.75rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 600; text-decoration: none; transition: all 0.2s; min-width: 0; border: none; cursor: pointer; }
     .btn-view { background: var(--primary); color: #fff; }
     .btn-view:hover { background: var(--surface-tint); }
     .btn-download { background: var(--surface-container-high); color: var(--on-surface); }
     .btn-download:hover { background: var(--surface-container-highest); }
+    .btn-share { background: #0A66C2; color: #fff; }
+    .btn-share:hover { background: #004182; }
+    .btn-embed { background: var(--surface-container-high); color: var(--on-surface); }
+    .btn-embed:hover { background: var(--surface-container-highest); }
     .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
     .badge.verified { background: #d1fae5; color: #065f46; }
     .empty-state { text-align: center; padding: 4rem 1rem; color: var(--on-surface-variant); }
     .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+    .share-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+    .share-modal.open { display: flex; }
+    .share-modal-content { background: var(--surface-container); border-radius: 1rem; padding: 2rem; max-width: 520px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); position: relative; }
+    .share-modal-content h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .share-modal-content .share-subtitle { font-size: 0.8125rem; color: var(--on-surface-variant); margin-bottom: 1rem; }
+    .share-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1rem 0; }
+    .share-actions a { flex: 1; min-width: 120px; text-align: center; padding: 0.75rem; border-radius: 0.75rem; font-size: 0.8125rem; font-weight: 600; text-decoration: none; color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .share-actions .linkedin { background: #0A66C2; }
+    .share-actions .linkedin:hover { background: #004182; }
+    .share-actions .twitter { background: #1DA1F2; }
+    .share-actions .twitter:hover { background: #0d8bd9; }
+    .share-actions .download-png { background: var(--primary); }
+    .share-actions .download-png:hover { background: var(--surface-tint); }
+    .share-actions .download-pdf { background: #64748B; }
+    .share-actions .download-pdf:hover { background: #475569; }
+    .section-label { font-size: 0.75rem; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+    .embed-section textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--outline-variant); border-radius: 0.5rem; font-family: Menlo, Consolas, monospace; font-size: 0.75rem; background: var(--surface); color: var(--on-surface); resize: vertical; min-height: 60px; }
+    .embed-section textarea:focus { outline: none; border-color: var(--primary); }
+    .copy-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+    .copy-row input { flex: 1; padding: 0.6rem 0.75rem; border: 1px solid var(--outline-variant); border-radius: 0.5rem; font-size: 0.75rem; background: var(--surface); color: var(--on-surface); }
+    .copy-row input:focus { outline: none; border-color: var(--primary); }
+    .copy-row button { padding: 0.6rem 0.9rem; border-radius: 0.5rem; background: var(--primary); color: #fff; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .copy-row button.copied { background: #065f46; }
+    .qr-section { text-align: center; margin: 1rem 0; }
+    .qr-section img { border-radius: 12px; border: 3px solid var(--outline-variant); max-width: 160px; }
+    .verify-link { margin-top: 0.5rem; padding: 0.75rem; background: var(--surface-container-high); border-radius: 0.5rem; font-size: 0.75rem; word-break: break-all; }
+    .close-modal { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--on-surface-variant); padding: 0 0.5rem; line-height: 1; }
+    .close-modal:hover { color: var(--on-surface); }
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: #065f46; color: #fff; padding: 0.85rem 1.25rem; border-radius: 0.75rem; font-size: 0.875rem; font-family: sans-serif; z-index: 99999; box-shadow: 0 4px 20px rgba(0,0,0,0.25); opacity: 0; transform: translateY(1rem); transition: opacity 0.3s, transform 0.3s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
     @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { padding: 1rem; } .certs-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -47,7 +83,7 @@
       <div data-include="/students/components/dashboard-header"></div>
       <div class="page-header">
         <h1>Certificates</h1>
-        <p>Your earned course certificates</p>
+        <p>Your earned course certificates — share, verify, or download</p>
       </div>
       <div id="certs-grid" class="certs-grid">
         <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--on-surface-variant)">Loading certificates...</div>
@@ -56,26 +92,211 @@
   </div>
   <div data-include="/students/components/dashboard-bottom-nav"></div>
   <div data-include="auth-modal"></div>
+
+  <div id="share-modal" class="share-modal">
+    <div class="share-modal-content">
+      <button class="close-modal" onclick="closeShareModal()">&times;</button>
+      <h2 id="share-cert-title">Share Certificate</h2>
+      <p class="share-subtitle" id="share-cert-subtitle">Share your verified certificate with employers and on social media.</p>
+
+      <div class="share-actions">
+        <a class="linkedin" id="share-linkedin-cert" href="#" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 2.37v5.777H17.17c-1.49 0-1.94-.94-1.94-1.97 0-1.238.894-2.13 2.08-2.13 1.188 0 1.97.852 1.97 2.393 0 1.81-1.21 3.184-2.89 3.184zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          Add to LinkedIn
+        </a>
+        <a class="twitter" id="share-linkedin-share" href="#" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+          Share on LinkedIn
+        </a>
+      </div>
+      <div class="share-actions">
+        <a class="download-png" id="share-download-png" href="#" target="_blank" rel="noopener">Download PNG</a>
+        <a class="download-pdf" id="share-download-pdf" href="#" target="_blank" rel="noopener">Download PDF</a>
+      </div>
+
+      <div class="section-label">Embed on your portfolio</div>
+      <div class="embed-section">
+        <textarea id="share-embed-code" readonly></textarea>
+        <div class="copy-row">
+          <input type="text" id="share-embed-input" readonly/>
+          <button onclick="copyEmbedCode()">Copy</button>
+        </div>
+      </div>
+
+      <div class="section-label">QR Code</div>
+      <div class="qr-section">
+        <img id="share-qr-img" src="" alt="Certificate QR Code"/>
+      </div>
+
+      <div class="section-label">Verification Link</div>
+      <div class="verify-link">
+        <div class="copy-row">
+          <input type="text" id="share-verify-input" readonly/>
+          <button onclick="copyVerifyLink()">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
   <script src="/js/components/include.js"></script>
-  <script src="/js/apis/api.js"></script>
+  <script src="/js/shared/api.js"></script>
   <script src="/js/apis/auth.js"></script>
-  <script src="/js/components/auth-modal.js"></script>
-  <script src="/js/components/active-page.js"></script>
   <script>
-    (function() {
-      if (!localStorage.getItem('token')) { window.location.href = '/login'; return; }
-      function loadCertificates() {
-        var grid = document.getElementById('certs-grid');
-        api.get('/certificates').then(function(r) {
-          var items = r.data || [];
-          if (!items.length) { grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><span class="icon material-symbols-outlined">verified</span><p>No certificates yet</p><p style="font-size:0.8125rem">Complete courses to earn certificates</p></div>'; return; }
-          grid.innerHTML = items.map(function(c) {
-            return '<div class="cert-card"><div class="cert-card-banner"><span class="material-symbols-outlined" style="font-size:2.5rem">verified</span></div><div class="cert-card-body"><h3>'+(c.courseTitle||'Course Certificate')+'</h3><div class="instructor">'+(c.instructorName||'LearnBridge')+'</div><div class="cert-meta"><span>Issued '+(c.issuedAt||c.createdAt?new Date(c.issuedAt||c.createdAt).toLocaleDateString():'—')+'</span><span class="badge verified">Verified</span></div><div class="cert-actions"><a class="btn-view" href="'+(c.verificationUrl||'/certificates/verify/'+c.id)+'" target="_blank">View</a><a class="btn-download" href="'+(c.certificateUrl||'/certificates/download/'+c.id)+'" target="_blank">Download</a></div></div></div>';
-          }).join('');
-        }).catch(function(e) { console.error(e); grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;color:var(--error)">Failed to load certificates</div>'; });
+    var certDataMap = {};
+    var currentCert = null;
+
+    function showToast(message) {
+      var toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(function () { toast.classList.remove('show'); }, 2500);
+    }
+
+    function copyToClipboard(text, btn) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          showToast('Copied to clipboard');
+          if (btn) { btn.textContent = 'Copied'; btn.classList.add('copied'); setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000); }
+        }).catch(function () { fallbackCopy(text, btn); });
+      } else {
+        fallbackCopy(text, btn);
       }
-      document.addEventListener('components-loaded', loadCertificates);
-    })();
+    }
+
+    function fallbackCopy(text, btn) {
+      var tmp = document.createElement('textarea');
+      tmp.value = text;
+      tmp.style.position = 'fixed';
+      tmp.style.opacity = '0';
+      document.body.appendChild(tmp);
+      tmp.select();
+      try { document.execCommand('copy'); showToast('Copied to clipboard'); if (btn) { btn.textContent = 'Copied'; btn.classList.add('copied'); setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000); } } catch (e) { showToast('Failed to copy'); }
+      document.body.removeChild(tmp);
+    }
+
+    function copyEmbedCode() {
+      if (!currentCert) return;
+      copyToClipboard(currentCert.embedCode || '', document.querySelector('.embed-section button'));
+    }
+
+    function copyVerifyLink() {
+      if (!currentCert) return;
+      copyToClipboard(currentCert.verificationUrl || '', document.querySelector('.verify-link button'));
+    }
+
+    function openShareModal(cert) {
+      currentCert = cert;
+      document.getElementById('share-cert-title').textContent = cert.courseTitle || 'Share Certificate';
+      document.getElementById('share-cert-subtitle').textContent = 'Issued to ' + escapeHtml(cert.studentName || 'Learner') + ' — share your verified credential.';
+
+      document.getElementById('share-linkedin-cert').href = cert.linkedinCertificationUrl || '#';
+      document.getElementById('share-linkedin-share').href = cert.linkedinShareUrl || '#';
+      document.getElementById('share-download-png').href = cert.pngUrl || '#';
+      document.getElementById('share-download-pdf').href = cert.pdfUrl || '#';
+
+      document.getElementById('share-embed-code').value = cert.embedCode || '';
+      document.getElementById('share-embed-input').value = cert.verificationUrl || '';
+      document.getElementById('share-verify-input').value = cert.verificationUrl || '';
+
+      var qrImg = document.getElementById('share-qr-img');
+      if (cert.id) {
+        qrImg.src = '/certificates/qr/' + cert.id + '?t=' + Date.now();
+      } else {
+        qrImg.src = '';
+      }
+
+      document.getElementById('share-modal').classList.add('open');
+    }
+
+    function openShareModalById(certId) {
+      var cert = certDataMap[certId];
+      if (cert) openShareModal(cert);
+    }
+
+    function closeShareModal() {
+      document.getElementById('share-modal').classList.remove('open');
+    }
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderCertificates(certs) {
+      certDataMap = {};
+      var grid = document.getElementById('certs-grid');
+      if (!certs || !certs.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><span class="icon">school</span><h3>No certificates yet</h3><p>Complete a course to earn your first certificate.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = '';
+      certs.forEach(function (cert) {
+        certDataMap[cert.id] = cert;
+        var card = document.createElement('div');
+        card.className = 'cert-card';
+        card.innerHTML =
+          '<div class="cert-card-banner">' +
+            '<span class="cert-badge">Verified</span>' +
+            '<span style="font-size:2.5rem">verified</span>' +
+          '</div>' +
+          '<div class="cert-card-body">' +
+            '<h3>' + escapeHtml(cert.courseTitle || 'Course Certificate') + '</h3>' +
+            '<div class="instructor">' + escapeHtml(cert.instructorName || '') + '</div>' +
+            '<div class="cert-id">ID: ' + escapeHtml(cert.id) + '</div>' +
+            '<div class="cert-meta">' +
+              '<span>Issued ' + new Date(cert.issuedAt).toLocaleDateString() + '</span>' +
+              '<span class="badge verified">Valid</span>' +
+            '</div>' +
+            '<div class="cert-actions">' +
+              '<a class="btn-view" href="/certificates/verify/' + escapeHtml(cert.id) + '/page" target="_blank" rel="noopener">View</a>' +
+              '<a class="btn-download" href="/certificates/download/' + escapeHtml(cert.id) + '" target="_blank" rel="noopener">Download</a>' +
+              '<button class="btn-share" onclick="openShareModalById(\'' + escapeHtml(cert.id) + '\')">Share</button>' +
+              '<button class="btn-embed" onclick="openShareModalById(\'' + escapeHtml(cert.id) + '\')">Embed</button>' +
+            '</div>' +
+          '</div>';
+        grid.appendChild(card);
+      });
+    }
+
+    function loadCertificates() {
+      api.get('/certificates')
+        .then(function (res) {
+          if (res && res.data) {
+            renderCertificates(res.data);
+          } else {
+            renderCertificates([]);
+          }
+        })
+        .catch(function () {
+          renderCertificates([]);
+        });
+    }
+
+    document.getElementById('share-modal').addEventListener('click', function (e) {
+      if (e.target === document.getElementById('share-modal')) closeShareModal();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeShareModal();
+    });
+
+    document.addEventListener('components-loaded', function () {
+      loadCertificates();
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadCertificates);
+    } else {
+      loadCertificates();
+    }
   </script>
 </body>
 </html>

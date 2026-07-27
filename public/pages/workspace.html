@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge Workspace</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/workspace.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="workspace-shell">
+    <header class="workspace-topbar">
+      <a class="workspace-brand" href="/">
+        <img src="/img/logo.svg" alt="LearnBridge"/>
+        <span>LearnBridge</span>
+      </a>
+      <nav class="workspace-actions">
+        <a class="btn-secondary" href="/dashboard">Learner</a>
+        <a class="btn-secondary" href="/tutor">Tutor</a>
+        <a class="btn-secondary" href="/admin">Admin</a>
+      </nav>
+    </header>
+
+    <main class="workspace-main">
+      <section class="workspace-hero">
+        <div>
+          <p class="workspace-kicker" id="workspace-area">Workspace</p>
+          <h1 class="workspace-title" id="workspace-title">LearnBridge Workspace</h1>
+          <p class="workspace-summary" id="workspace-summary">Loading page context...</p>
+          <div class="workspace-actions" id="workspace-actions" style="margin-top:1.25rem"></div>
+        </div>
+        <aside class="workspace-panel workspace-health">
+          <span id="workspace-status">Status</span>
+          <strong id="workspace-score">Ready</strong>
+          <p class="workspace-item-meta">Built as a routed product page with stable controls and future API handoff points.</p>
+        </aside>
+      </section>
+
+      <section class="workspace-card-grid" id="workspace-metrics" aria-label="Page metrics"></section>
+
+      <div class="workspace-grid">
+        <section class="workspace-panel workspace-section">
+          <h2 id="workspace-list-title">Workflow</h2>
+          <div class="workspace-list" id="workspace-list"></div>
+        </section>
+
+        <section class="workspace-panel workspace-section">
+          <h2>Working Draft</h2>
+          <form class="workspace-form" id="workspace-form"></form>
+          <p class="workspace-notice" id="workspace-notice" hidden></p>
+        </section>
+      </div>
+
+      <section class="workspace-panel workspace-section" style="margin-top:1rem; overflow:auto">
+        <h2 id="workspace-table-title">Records</h2>
+        <table class="workspace-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Detail</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="workspace-table-body"></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/pages/workspace.js"></script>
+</body>
+</html>

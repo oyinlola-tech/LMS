@@ -147,7 +147,7 @@
       }
       window.loadEnrollments = loadEnrollments;
       window.changePage = function(delta) { currentPage = Math.max(1, Math.min(currentPage + delta, totalPages)); loadEnrollments(); };
-      window.viewEnrollment = function(id) { window.location.href = '/courses/' + id; };
+      window.viewEnrollment = function(id) { window.location.href = '/course/' + id; };
       document.addEventListener('components-loaded', loadEnrollments);
     })();
   </script>

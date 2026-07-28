@@ -27,6 +27,7 @@
   <div data-include="/auth-modal"></div>
   <script src="/js/components/include.js"></script>
   <script src="/js/shared/api.js"></script>
+  <script src="/js/shared/sanitize.js"></script>
   <script src="/js/shared/auth.js"></script>
   <script src="/js/shared/dom.js"></script>
   <script>
@@ -43,16 +44,20 @@
             followersContainer.innerHTML = '<p style="color:var(--on-surface-variant)">No followers yet.</p>';
             return;
           }
-          followersContainer.innerHTML = followers.map(f => `
-            <div class="card" style="padding:1rem;display:flex;align-items:center;gap:1rem">
-              <div class="avatar" style="width:48px;height:48px;border-radius:50%;background:var(--primary-container);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--on-primary-container);background-image:url(${f.follower?.avatarUrl || ''});background-size:cover">${!f.follower?.avatarUrl ? (f.follower?.fullName?.[0] || '?') : ''}</div>
+          followersContainer.innerHTML = followers.map(f => {
+            var avatarUrl = f.follower?.avatarUrl ? 'background-image:url(' + Sanitize.sanitizeUrl(f.follower.avatarUrl) + ')' : '';
+            var name = Sanitize.escapeHtml(f.follower?.fullName || 'Unknown');
+            var role = Sanitize.escapeHtml(f.follower?.role || '');
+            var initial = f.follower?.fullName?.[0] || '?';
+            return `<div class="card" style="padding:1rem;display:flex;align-items:center;gap:1rem">
+              <div class="avatar" style="width:48px;height:48px;border-radius:50%;background:var(--primary-container);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--on-primary-container);${avatarUrl};background-size:cover">${!f.follower?.avatarUrl ? initial : ''}</div>
               <div style="flex:1">
-                <p style="font-weight:600;font-size:0.875rem">${f.follower?.fullName || 'Unknown'}</p>
-                <p style="font-size:0.75rem;color:var(--on-surface-variant)">${f.follower?.role || ''}</p>
+                <p style="font-weight:600;font-size:0.875rem">${name}</p>
+                <p style="font-size:0.75rem;color:var(--on-surface-variant)">${role}</p>
               </div>
               ${f.isFollowBack ? '<span style="font-size:0.75rem;color:var(--primary);font-weight:600">Follows you</span>' : ''}
-            </div>
-          `).join('');
+            </div>`;
+          }).join('');
         } catch(e) { followersContainer.innerHTML = '<p>Failed to load followers</p>'; }
       }
 
@@ -64,16 +69,20 @@
             followingContainer.innerHTML = '<p style="color:var(--on-surface-variant)">Not following anyone yet.</p>';
             return;
           }
-          followingContainer.innerHTML = following.map(f => `
-            <div class="card" style="padding:1rem;display:flex;align-items:center;gap:1rem">
-              <div class="avatar" style="width:48px;height:48px;border-radius:50%;background:var(--primary-container);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--on-primary-container);background-image:url(${f.following?.avatarUrl || ''});background-size:cover">${!f.following?.avatarUrl ? (f.following?.fullName?.[0] || '?') : ''}</div>
+          followingContainer.innerHTML = following.map(f => {
+            var avatarUrl = f.following?.avatarUrl ? 'background-image:url(' + Sanitize.sanitizeUrl(f.following.avatarUrl) + ')' : '';
+            var name = Sanitize.escapeHtml(f.following?.fullName || 'Unknown');
+            var role = Sanitize.escapeHtml(f.following?.role || '');
+            var initial = f.following?.fullName?.[0] || '?';
+            return `<div class="card" style="padding:1rem;display:flex;align-items:center;gap:1rem">
+              <div class="avatar" style="width:48px;height:48px;border-radius:50%;background:var(--primary-container);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--on-primary-container);${avatarUrl};background-size:cover">${!f.following?.avatarUrl ? initial : ''}</div>
               <div style="flex:1">
-                <p style="font-weight:600;font-size:0.875rem">${f.following?.fullName || 'Unknown'}</p>
-                <p style="font-size:0.75rem;color:var(--on-surface-variant)">${f.following?.role || ''}</p>
+                <p style="font-weight:600;font-size:0.875rem">${name}</p>
+                <p style="font-size:0.75rem;color:var(--on-surface-variant)">${role}</p>
               </div>
-              <button class="btn-secondary text-sm" onclick="unfollowUser('${f.followingId}')">Unfollow</button>
-            </div>
-          `).join('');
+              <button class="btn-secondary text-sm" data-action="unfollow" data-id="${f.followingId}">Unfollow</button>
+            </div>`;
+          }).join('');
         } catch(e) { followingContainer.innerHTML = '<p>Failed to load following</p>'; }
       }
 
@@ -83,6 +92,13 @@
 
       loadFollowers();
       loadFollowing();
+
+      followingContainer.addEventListener('click', function(e) {
+        var btn = e.target.closest('[data-action]');
+        if (btn && btn.getAttribute('data-action') === 'unfollow') {
+          unfollowUser(btn.getAttribute('data-id'));
+        }
+      });
     });
   </script>
 </body>

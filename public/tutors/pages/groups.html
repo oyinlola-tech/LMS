@@ -118,9 +118,9 @@
             '<p>' + Shared.escapeHtml(g.description || 'No description') + '</p>' +
             '<div class="meta">' + (g.memberCount || 0) + ' member' + ((g.memberCount || 0) !== 1 ? 's' : '') + ' · Created by ' + Shared.escapeHtml(g.creatorName || 'Unknown') + '</div></div>' +
             '<div class="actions">' +
-            (isCreator ? '<button class="btn-sm outline" onclick="showEditForm(\'' + g.id + '\',\'' + Shared.escapeHtml(g.name).replace(/'/g,"\\'") + '\',\'' + Shared.escapeHtml(g.description || '').replace(/'/g,"\\'") + '\')">Edit</button><button class="btn-sm danger" onclick="deleteGroup(\'' + g.id + '\')">Delete</button>' : '') +
-            (!isCreator && isMember ? '<button class="btn-sm secondary" onclick="leaveGroup(\'' + g.id + '\')">Leave</button>' : '') +
-            (!isMember && !isCreator ? '<button class="btn-sm success" onclick="joinGroup(\'' + g.id + '\')">Join</button>' : '') +
+            (isCreator ? '<button class="btn-sm outline" data-action="edit" data-id="' + g.id + '" data-name="' + Shared.escapeHtml(g.name) + '" data-description="' + Shared.escapeHtml(g.description || '') + '">Edit</button><button class="btn-sm danger" data-action="delete" data-id="' + g.id + '">Delete</button>' : '') +
+            (!isCreator && isMember ? '<button class="btn-sm secondary" data-action="leave" data-id="' + g.id + '">Leave</button>' : '') +
+            (!isMember && !isCreator ? '<button class="btn-sm success" data-action="join" data-id="' + g.id + '">Join</button>' : '') +
             '</div></div>';
         });
         el.innerHTML = html;
@@ -197,6 +197,17 @@
         loadGroups();
       });
     }
+
+    document.getElementById('groups-list').addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      var action = btn.getAttribute('data-action');
+      var id = btn.getAttribute('data-id');
+      if (action === 'edit') showEditForm(id, btn.getAttribute('data-name'), btn.getAttribute('data-description'));
+      else if (action === 'delete') deleteGroup(id);
+      else if (action === 'join') joinGroup(id);
+      else if (action === 'leave') leaveGroup(id);
+    });
   </script>
 </body>
 </html>

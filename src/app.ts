@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import Fastify from 'fastify';
 import { AppError } from './errors';
-import { sequelize } from './models';
+
 import fastifyCors from '@fastify/cors';
 import fastifyHelmet from '@fastify/helmet';
 import fastifyRateLimit from '@fastify/rate-limit';
@@ -37,6 +37,7 @@ import adminInstructorsRoutes from './routes/adminInstructors.route';
 import uploadRoutes from './routes/uploads.route';
 import messageRoutes from './routes/messages.route';
 import supportRoutes from './routes/support.route';
+import apiRoutes from './routes/api.route';
 import mentorshipRoutes from './routes/mentorship.route';
 import billingRoutes from './routes/billing.route';
 import paymentRoutes from './routes/payment.route';
@@ -247,11 +248,11 @@ export async function buildApp() {
     ['/reviews', 'pages/course-reviews.html'],
     ['/mobile-app', 'pages/mobile-app.html'],
     ['/tutor/courses/create', 'pages/workspace.html'],
-    ['/admin/emails/templates', 'pages/workspace.html'],
+    ['/admin/emails/templates', 'pages/email-templates.html'],
     ['/admin/system/logs', 'pages/workspace.html'],
-    ['/mentorship/applications', 'pages/workspace.html'],
-    ['/billing/history', 'pages/workspace.html'],
-    ['/billing/payment-methods', 'pages/workspace.html'],
+    ['/mentorship/applications', 'pages/mentor-applications.html'],
+    ['/billing/history', 'pages/billing-history.html'],
+    ['/billing/payment-methods', 'pages/payment-methods.html'],
     ['/admin/reports/export', 'pages/workspace.html'],
     ['/students/study-planner', 'students/pages/study-planner.html'],
     ['/admin/compliance', 'admin/pages/compliance.html'],
@@ -391,20 +392,10 @@ export async function buildApp() {
   await app.register(activitiesRoutes, { prefix: '/activities' });
   await app.register(leaderboardRoutes, { prefix: '/leaderboard' });
 
+  await app.register(apiRoutes, { prefix: '/api' });
+
   app.get('/favicon.ico', async (_req, reply) => {
     reply.redirect('/favicon.svg');
-  });
-
-  app.get('/api/health', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (_request, reply) => {
-    const dbOk = await sequelize.authenticate().then(() => true).catch(() => false);
-    return reply.status(dbOk ? 200 : 503).send({
-      message: dbOk ? 'Service healthy' : 'Service degraded',
-      data: {
-        name: `${process.env.APP_NAME} API`,
-        status: dbOk ? 'ok' : 'degraded',
-        checks: { database: dbOk ? 'passed' : 'failed' },
-      },
-    });
   });
 
   app.get('/.well-known/security.txt', async (_req, reply) => {

@@ -40,6 +40,7 @@ el.innerHTML = '<article>' +
             '<span class="px-2 py-0.5 rounded-full text-xs font-semibold" style="background: var(--primary-fixed); color: var(--on-primary-fixed)">' + (post.category || 'general') + '</span>' +
             '<span>By ' + escapeHtml(name) + '</span>' +
           '</div>' +
+          '<div id="post-body" class="prose max-w-none"></div>' +
           '<div class="mt-12 pt-8" style="border-top: 1px solid var(--outline-variant)">' +
             '<a href="/blog" class="text-sm font-bold hover:text-primary transition-colors" style="color: var(--on-surface-variant)">&larr; Back to Blog</a>' +
           '</div>' +

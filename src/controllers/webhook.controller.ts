@@ -37,6 +37,10 @@ export async function handleSendbyteWebhook(request: FastifyRequest, reply: Fast
 export async function handlePaystackWebhook(request: FastifyRequest, reply: FastifyReply) {
   try {
     const secret = process.env.PAYSTACK_WEBHOOK_SECRET || PAYSTACK_SECRET_KEY || '';
+    if (!secret) {
+      logger.error('[Webhook] Paystack webhook secret not configured, rejecting webhook');
+      return reply.status(401).send({ error: { code: 'MISSING_SECRET', message: 'Webhook secret not configured' } });
+    }
     const hash = request.headers['x-paystack-signature'] as string | undefined;
     const rawBody = JSON.stringify(request.body);
     const expected = require('crypto').createHmac('sha512', secret).update(rawBody).digest('hex');

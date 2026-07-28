@@ -6,6 +6,14 @@ import { ok, error } from '../utils/response.util';
 
 const { APP_NAME, APP_NAME_SHORT, SUPPORT_EMAIL, BRAND_APP_URL } = process.env;
 
+function sanitizePublicUrl(url: string | null | undefined): string {
+  if (!url) return '';
+  const val = String(url).trim();
+  if (/^(javascript|vbscript|data):/i.test(val)) return '';
+  if (val.length > 500) return '';
+  return val;
+}
+
 export async function getConfig(_request: FastifyRequest, reply: FastifyReply) {
   return ok(reply, {
     appName: APP_NAME || 'LearnBridge',

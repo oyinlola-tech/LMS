@@ -10,5 +10,5 @@ export default async function(fastify: FastifyInstance): Promise<void> {
 
   fastify.post('/verify', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, verifyPayment);
 
-  fastify.get('/history', { preHandler: [fastify.authenticate] }, getPaymentHistory);
+  fastify.get('/history', { preHandler: [fastify.authenticate], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getPaymentHistory);
 }

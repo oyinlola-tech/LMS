@@ -67,6 +67,8 @@
     }).join('');
   }
 
+  function cssUrl(val) { return escapeUrl(val) || "'/img/placeholder.svg'"; }
+
   function renderCourseAnalytics(stats) {
     var grid = id('course-analytics');
     if (!grid) return;
@@ -74,11 +76,12 @@
       grid.innerHTML = '<div class="empty-state">No data</div>';
       return;
     }
+    var esc = escapeHtml;
     grid.innerHTML = '<div class="course-analytics-grid">'
-      + '<div class="ca-item"><div class="ca-value">' + (stats.publishedCourses || 0) + '</div><div class="ca-label">Published</div></div>'
-      + '<div class="ca-item"><div class="ca-value">' + (stats.draftCoursesCount || 0) + '</div><div class="ca-label">Drafts</div></div>'
-      + '<div class="ca-item"><div class="ca-value">' + (stats.certificatesIssued || 0) + '</div><div class="ca-label">Certificates</div></div>'
-      + '<div class="ca-item"><div class="ca-value">' + (stats.completionRate || 0) + '%</div><div class="ca-label">Completion</div><div class="ca-sub">' + stats.assignmentsTotal + ' assignments</div></div>'
+      + '<div class="ca-item"><div class="ca-value">' + esc(String(stats.publishedCourses || 0)) + '</div><div class="ca-label">Published</div></div>'
+      + '<div class="ca-item"><div class="ca-value">' + esc(String(stats.draftCoursesCount || 0)) + '</div><div class="ca-label">Drafts</div></div>'
+      + '<div class="ca-item"><div class="ca-value">' + esc(String(stats.certificatesIssued || 0)) + '</div><div class="ca-label">Certificates</div></div>'
+      + '<div class="ca-item"><div class="ca-value">' + esc(String(stats.completionRate || 0)) + '%</div><div class="ca-label">Completion</div><div class="ca-sub">' + esc(String(stats.assignmentsTotal || 0)) + ' assignments</div></div>'
       + '</div>';
   }
 
@@ -122,7 +125,7 @@
       var weekStr = c.weekInfo ? 'Week ' + c.weekInfo.week + '/' + c.weekInfo.totalWeeks : '';
       var item = document.createElement('div');
       item.className = 'course-item';
-      item.innerHTML = '<div class="course-item-thumb" style="background-image:url(' + (img || '/img/placeholder.svg') + ')"></div>'
+      item.innerHTML = '<div class="course-item-thumb" style="background-image:url(' + escapeUrl(img) + ')"></div>'
         + '<div class="course-item-info"><div class="ci-title">' + escapeHtml(c.title) + '</div><div class="ci-meta">' + c.learners + ' learner' + (c.learners !== 1 ? 's' : '') + (weekStr ? ' \u00B7 ' + weekStr : '') + '</div></div>'
         + '<div class="course-item-progress"><div class="ci-progress-bar"><div class="fill" style="width:' + c.completedPercent + '%"></div></div><div class="ci-progress-text">' + c.completedPercent + '%</div></div>';
       item.style.cursor = 'pointer';
@@ -171,7 +174,7 @@
       var lastActive = s.lastActive ? timeAgo(s.lastActive) : 'Never';
       var item = document.createElement('div');
       item.className = 'student-item';
-      item.innerHTML = '<div class="student-avatar" style="background-image:url(' + (avatar || '/img/placeholder.svg') + ')"></div>'
+      item.innerHTML = '<div class="student-avatar" style="background-image:url(' + escapeUrl(avatar) + ')"></div>'
         + '<div class="student-info"><div class="st-name">' + escapeHtml(s.fullName) + '</div><div class="st-meta">' + s.completedCount + '/' + s.courseCount + ' courses \u00B7 Active ' + lastActive + '</div></div>';
       item.style.cursor = 'pointer';
       item.onclick = function () { window.location.href = '/profile/' + s.id; };
@@ -251,7 +254,7 @@
       var avatar = d.user?.avatarUrl || '';
       var item = document.createElement('div');
       item.className = 'discussion-item';
-      item.innerHTML = '<div class="discussion-avatar" style="background-image:url(' + (avatar || '/img/placeholder.svg') + ')"></div>'
+      item.innerHTML = '<div class="discussion-avatar" style="background-image:url(' + cssUrl(avatar) + ')"></div>'
         + '<div class="discussion-info"><div class="di-title">' + escapeHtml(d.title) + '</div>'
         + '<div class="di-body">' + escapeHtml(d.body) + '</div>'
         + '<div class="di-meta">' + escapeHtml(d.user?.fullName || '') + ' \u00B7 ' + d.replyCount + ' repl' + (d.replyCount === 1 ? 'y' : 'ies') + ' \u00B7 ' + escapeHtml(d.course?.title || '') + '</div>'
@@ -288,7 +291,16 @@
   function escapeHtml(text) {
     var d = document.createElement('div');
     d.textContent = text || '';
-    return d.innerHTML;
+    var html = d.innerHTML;
+    var esc = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return esc;
+  }
+
+  function escapeUrl(url) {
+    if (!url) return '';
+    var val = String(url).replace(/['"()\\]/g, '');
+    if (/^javascript:/i.test(val.trim())) return '';
+    return val;
   }
 
   /* ===== Init ===== */

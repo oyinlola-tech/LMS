@@ -3,15 +3,15 @@ import { UserRole } from '../enums';
 import { getAdminDashboard, exportAdminDashboard, getReport, getAuditTrail } from '../controllers/adminDashboard.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
-  fastify.get('/', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, async (request, reply) => {
+  fastify.get('/', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (request, reply) => {
     const accept = String(request.headers.accept || '');
     if (accept.includes('text/html')) return reply.sendFile('admin/index.html');
     return getAdminDashboard(request, reply);
   });
 
-  fastify.get('/export', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, exportAdminDashboard);
+  fastify.get('/export', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, exportAdminDashboard);
 
-  fastify.get('/report', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, getReport);
+  fastify.get('/report', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getReport);
 
-  fastify.get('/audit', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, getAuditTrail);
+  fastify.get('/audit', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getAuditTrail);
 }

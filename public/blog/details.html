@@ -33,18 +33,19 @@
         var date = post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
         var name = post.author ? post.author.fullName || 'LearnBridge' : 'LearnBridge';
         document.title = post.title + ' - LearnBridge Blog';
-        el.innerHTML = '<article>' +
+el.innerHTML = '<article>' +
           '<h1 class="text-3xl font-black mb-4">' + escapeHtml(post.title) + '</h1>' +
           '<div class="flex items-center gap-3 mb-8 text-sm" style="color: var(--on-surface-variant)">' +
             '<span>' + date + '</span>' +
             '<span class="px-2 py-0.5 rounded-full text-xs font-semibold" style="background: var(--primary-fixed); color: var(--on-primary-fixed)">' + (post.category || 'general') + '</span>' +
             '<span>By ' + escapeHtml(name) + '</span>' +
           '</div>' +
-          '<div class="prose max-w-none" style="line-height: 1.8; font-size: 1.0625rem">' + (post.content || '') + '</div>' +
           '<div class="mt-12 pt-8" style="border-top: 1px solid var(--outline-variant)">' +
             '<a href="/blog" class="text-sm font-bold hover:text-primary transition-colors" style="color: var(--on-surface-variant)">&larr; Back to Blog</a>' +
           '</div>' +
         '</article>';
+        var bodyEl = document.getElementById('post-body');
+        if (bodyEl) { Sanitize.setSanitizedHtml(bodyEl, post.content || ''); }
       } catch (err) {
         el.innerHTML = '<div class="p-8 text-center" style="color: var(--error)">Failed to load post.</div>';
       }

@@ -10,15 +10,15 @@ import {
 } from '../controllers/adminInstructors.controller';
 
 export default async function(fastify: FastifyInstance): Promise<void> {
-  fastify.get('/:id', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, getInstructor);
+  fastify.get('/:id', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getInstructor);
 
-  fastify.patch('/:id', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, updateInstructor);
+  fastify.patch('/:id', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, updateInstructor);
 
-  fastify.post('/:id/notes', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, addInstructorNote);
+  fastify.post('/:id/notes', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, addInstructorNote);
 
-  fastify.get('/:id/notes', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, getInstructorNotes);
+  fastify.get('/:id/notes', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)], config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, getInstructorNotes);
 
-  fastify.post('/:id/courses', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, assignCourseToInstructor);
+  fastify.post('/:id/courses', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, assignCourseToInstructor);
 
-  fastify.post('/', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)] }, createInstructor);
+  fastify.post('/', { preHandler: [fastify.authenticate, fastify.requireRole(UserRole.ADMIN)], config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, createInstructor);
 }

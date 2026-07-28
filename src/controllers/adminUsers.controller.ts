@@ -98,6 +98,7 @@ export const deleteUser = async (request: FastifyRequest, reply: FastifyReply) =
   }
   try {
     const { id } = request.params as any;
+    if (id === request.user!.sub) return error(reply, 400, 'SELF_ACTION', 'Cannot delete yourself');
     const user = await User.findByPk(id);
     if (!user) return error(reply, 404, 'NOT_FOUND', 'User not found');
     if (user.role === UserRole.SUPER_ADMIN) return error(reply, 403, 'FORBIDDEN', 'Cannot delete super admin');
@@ -110,8 +111,10 @@ export const deleteUser = async (request: FastifyRequest, reply: FastifyReply) =
 
 export const updateUserStatus = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
+    const { id } = request.params as any;
+    if (id === request.user!.sub) return error(reply, 400, 'SELF_ACTION', 'Cannot update your own status');
     const { status, reason } = (request.body as Record<string, any>) || {};
-    await updateUserStatusCommand.execute(request.user!.sub, (request.params as any).id, status, reason);
+    await updateUserStatusCommand.execute(request.user!.sub, id, status, reason);
     return ok(reply, null, 'User status updated');
   } catch (err: any) {
     return error(reply, err.statusCode || 500, err.code || 'ADMIN_STATUS_FAILED', err.message || 'Failed to update status');
@@ -120,11 +123,13 @@ export const updateUserStatus = async (request: FastifyRequest, reply: FastifyRe
 
 export const updateUserRole = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
+    const { id } = request.params as any;
+    if (id === request.user!.sub) return error(reply, 400, 'SELF_ACTION', 'Cannot update your own role');
     const { role } = (request.body as Record<string, any>) || {};
     if (role === UserRole.SUPER_ADMIN && !hasPermission(request.user?.role, 'create_admin')) {
       return error(reply, 403, 'FORBIDDEN', 'Only super admin can assign super admin role');
     }
-    await updateUserRoleCommand.execute(request.user!.sub, (request.params as any).id, role);
+    await updateUserRoleCommand.execute(request.user!.sub, id, role);
     return ok(reply, null, 'User role updated');
   } catch (err: any) {
     return error(reply, err.statusCode || 500, err.code || 'ADMIN_ROLE_FAILED', err.message || 'Failed to update role');
@@ -133,8 +138,10 @@ export const updateUserRole = async (request: FastifyRequest, reply: FastifyRepl
 
 export const updateUserTeam = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
+    const { id } = request.params as any;
+    if (id === request.user!.sub) return error(reply, 400, 'SELF_ACTION', 'Cannot update your own team');
     const { team } = (request.body as Record<string, any>) || {};
-    await updateUserTeamCommand.execute(request.user!.sub, (request.params as any).id, team);
+    await updateUserTeamCommand.execute(request.user!.sub, id, team);
     return ok(reply, null, 'User team updated');
   } catch (err: any) {
     return error(reply, err.statusCode || 500, err.code || 'ADMIN_TEAM_FAILED', err.message || 'Failed to update team');

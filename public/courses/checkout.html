@@ -6,7 +6,7 @@
   <title>LearnBridge - Checkout</title>
   <link href="/css/styles.css" rel="stylesheet"/>
   <link href="/css/modal.css" rel="stylesheet"/>
-  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script src="https://js.paystack.co/v1/inline.js" onerror="document.body.setAttribute('data-paystack-failed','')"></script></script>
   <style>
     body { background: var(--surface); display: flex; align-items: center; justify-content: center; min-height: 100vh; }
     .checkout-card { background: var(--surface-container); border-radius: 1.5rem; padding: 2.5rem; max-width: 440px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
@@ -93,6 +93,10 @@
     }
 
     function payWithPaystack() {
+      if (!window.PaystackPop) {
+        showError('Payment system unavailable. Please try again later or contact support.');
+        return;
+      }
       if (!courseData || !courseData.price || courseData.price <= 0) {
         api.post('/courses/' + courseId + '/enroll', {}).then(function(res) {
           if (res.error) { showError(res.error.message); return; }

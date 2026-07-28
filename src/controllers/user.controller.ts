@@ -71,7 +71,7 @@ export const getUserById = async (request: FastifyRequest, reply: FastifyReply) 
     const isOwner = currentUserId === id;
 
     const user = await User.findByPk(id, {
-      attributes: ['id', 'fullName', 'role', 'bio', 'avatarUrl', 'coverUrl', 'location', 'skills', 'isPrivate', 'isVerified', 'checkmarkType'],
+      attributes: ['id', 'fullName', 'role', 'bio', 'avatarUrl', 'coverUrl', 'isPrivate', 'isVerified', 'checkmarkType'],
       include: [
         { model: TutorProfile, attributes: ['headline'] },
         { model: LearnerStats, attributes: ['coursesActive', 'coursesCompleted', 'hoursSpent', 'weeklyGoalHours', 'weeklyGoalProgressHours'] },
@@ -134,6 +134,8 @@ export const getUserById = async (request: FastifyRequest, reply: FastifyReply) 
       delete profileData.adminId;
       delete profileData.location;
       delete profileData.skills;
+      delete profileData.isVerified;
+      delete profileData.checkmarkType;
     }
     return ok(reply, profileData, 'Profile loaded');
   } catch (err) {

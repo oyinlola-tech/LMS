@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Study Planner</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .admin-sidebar { width: 260px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .admin-sidebar .brand { font-size: 1.25rem; font-weight: 800; }
+    .admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .admin-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500; }
+    .admin-nav a:hover, .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .planner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 768px) { .planner-grid { grid-template-columns: 1fr; } }
+    .planner-card { padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--outline-variant); background: var(--surface-container-low); }
+    .planner-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; }
+    .study-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--outline-variant); }
+    .study-item:last-child { border-bottom: none; }
+    .study-item .title { font-weight: 500; }
+    .study-item .meta { font-size: 0.8125rem; color: var(--on-surface-variant); }
+    .empty-state { padding: 3rem; text-align: center; border: 1px dashed var(--outline-variant); border-radius: 1rem; color: var(--on-surface-variant); }
+  </style>
+</head>
+<body>
+  <div data-include="/students/components/learner-sidebar"></div>
+  <main class="admin-main">
+    <div class="page-header">
+      <h1>Study Planner</h1>
+      <p style="color: var(--on-surface-variant)">Plan your learning schedule and track your weekly goals.</p>
+    </div>
+    <div class="planner-grid">
+      <div class="planner-card">
+        <h3>Upcoming Assignments</h3>
+        <div id="upcoming-assignments"><div class="empty-state">No upcoming assignments.</div></div>
+      </div>
+      <div class="planner-card">
+        <h3>Weekly Goal</h3>
+        <div id="weekly-goal">
+          <div class="study-item"><span class="title">Hours This Week</span><span class="meta" id="weekly-hours">0 / 0</span></div>
+          <div class="study-item"><span class="title">Courses Active</span><span class="meta" id="active-courses">0</span></div>
+        </div>
+      </div>
+      <div class="planner-card">
+        <h3>Recent Activity</h3>
+        <div id="recent-activity"><div class="empty-state">No recent activity.</div></div>
+      </div>
+      <div class="planner-card">
+        <h3>Study Streak</h3>
+        <div id="streak-info">
+          <div class="study-item"><span class="title">Current Streak</span><span class="meta" id="current-streak">0 days</span></div>
+          <div class="study-item"><span class="title">Longest Streak</span><span class="meta" id="longest-streak">0 days</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/shared/api.js"></script>
+  <script>
+    document.addEventListener('components-loaded', async () => {
+      try {
+        const [profileRes, progressRes] = await Promise.all([
+          api.get('/users/me').catch(() => ({ data: null })),
+          api.get('/progress').catch(() => ({ data: null })),
+        ]);
+        const profile = profileRes?.data;
+        const progress = progressRes?.data;
+        if (profile) {
+          const stats = profile.learnerStats || {};
+          document.getElementById('weekly-hours').textContent = (stats.weeklyGoalProgressHours || 0) + ' / ' + (stats.weeklyGoalHours || 0);
+          document.getElementById('active-courses').textContent = stats.coursesActive || 0;
+          const streak = profile.streak || {};
+          document.getElementById('current-streak').textContent = (streak.currentStreak || 0) + ' days';
+          document.getElementById('longest-streak').textContent = (streak.longestStreak || 0) + ' days';
+        }
+      } catch {}
+    });
+  </script>
+</body>
+</html>

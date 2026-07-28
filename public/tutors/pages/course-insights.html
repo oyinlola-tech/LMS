@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>LearnBridge - Course Insights</title>
+  <link href="/css/styles.css" rel="stylesheet"/>
+  <link href="/css/modal.css" rel="stylesheet"/>
+  <style>
+    body { background: var(--surface); }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .admin-main { flex: 1; padding: 2rem; overflow-y: auto; }
+    .admin-sidebar { width: 260px; background: var(--surface-container); border-right: 1px solid var(--outline-variant); padding: 1.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .admin-sidebar .brand { font-size: 1.25rem; font-weight: 800; }
+    .admin-nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .admin-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500; }
+    .admin-nav a:hover, .admin-nav a.active { background: var(--primary-container); color: var(--on-primary-container); }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--outline-variant); background: var(--surface-container-low); }
+    .stat-card .value { font-size: 2rem; font-weight: 800; }
+    .stat-card .label { font-size: 0.8125rem; color: var(--on-surface-variant); margin-top: 0.25rem; }
+    .chart-placeholder { padding: 3rem; text-align: center; border: 1px dashed var(--outline-variant); border-radius: 1rem; color: var(--on-surface-variant); }
+  </style>
+</head>
+<body>
+  <div data-include="/tutor/components/tutor-sidebar"></div>
+  <main class="admin-main">
+    <div class="page-header">
+      <h1>Course Insights</h1>
+      <p style="color: var(--on-surface-variant)">Performance analytics across your courses.</p>
+    </div>
+    <div class="stats-grid" id="insights-stats">
+      <div class="stat-card"><div class="value" id="total-courses">0</div><div class="label">Total Courses</div></div>
+      <div class="stat-card"><div class="value" id="total-students">0</div><div class="label">Total Students</div></div>
+      <div class="stat-card"><div class="value" id="avg-rating">0</div><div class="label">Avg Rating</div></div>
+      <div class="stat-card"><div class="value" id="completion-rate">0%</div><div class="label">Completion Rate</div></div>
+    </div>
+    <div class="chart-placeholder">Insights charts and detailed analytics will appear here once course data is available.</div>
+  </main>
+  <script src="/js/components/include.js"></script>
+  <script src="/js/shared/api.js"></script>
+  <script>
+    document.addEventListener('components-loaded', async () => {
+      try {
+        const res = await api.get('/instructor/courses/stats');
+        const data = res.data || {};
+        document.getElementById('total-courses').textContent = data.totalCourses || 0;
+        document.getElementById('total-students').textContent = data.totalStudents || 0;
+        document.getElementById('avg-rating').textContent = data.avgRating || '—';
+        document.getElementById('completion-rate').textContent = (data.completionRate || 0) + '%';
+      } catch {
+        document.querySelectorAll('.stat-card .value').forEach(el => el.textContent = '—');
+      }
+    });
+  </script>
+</body>
+</html>
